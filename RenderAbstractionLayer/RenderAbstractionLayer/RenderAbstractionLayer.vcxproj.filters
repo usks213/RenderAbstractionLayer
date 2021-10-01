@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine">
+      <UniqueIdentifier>{a02fcf51-1105-44f5-b62f-de4770350658}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer">
+      <UniqueIdentifier>{1e7cb2cb-83d3-4474-b2e3-65525a020d84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\Core">
+      <UniqueIdentifier>{5f37fd45-88be-4c71-8775-b8c45b2b5dd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\D3D11">
+      <UniqueIdentifier>{62e52bd0-5ea7-41f8-aab1-66f2e793aa60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\D3D12">
+      <UniqueIdentifier>{60608521-fc71-4df7-a966-497de9ba0fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Platform">
+      <UniqueIdentifier>{e3ea7946-3bac-406d-8b05-46d6bc3d6ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Platform\Core">
+      <UniqueIdentifier>{f4034ee0-a6d9-4620-94f0-66ff34d67499}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Platform\Win">
+      <UniqueIdentifier>{9f30cb9b-c108-418f-8a11-f8e625352a90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Util">
+      <UniqueIdentifier>{d3cea3aa-0301-457c-b4ce-cc0cc88e8bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader">
+      <UniqueIdentifier>{c4b32e75-ccef-4b0d-b4ac-bd12e94813bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\App">
+      <UniqueIdentifier>{2961b915-4c80-4402-a4e4-a8694298cf61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Engine\Engine.h">
+      <Filter>ソース ファイル\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Mathf.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Singleton.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Platform\Core\Core_Window.h">
+      <Filter>ソース ファイル\Engine\Platform\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Platform\Win\Win_Window.h">
+      <Filter>ソース ファイル\Engine\Platform\Win</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Renderer.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Engine\Engine.cpp">
+      <Filter>ソース ファイル\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\App\main.cpp">
+      <Filter>ソース ファイル\App</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Platform\Core\Core_Window.cpp">
+      <Filter>ソース ファイル\Engine\Platform\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Platform\Win\Win_Window.cpp">
+      <Filter>ソース ファイル\Engine\Platform\Win</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_Renderer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
