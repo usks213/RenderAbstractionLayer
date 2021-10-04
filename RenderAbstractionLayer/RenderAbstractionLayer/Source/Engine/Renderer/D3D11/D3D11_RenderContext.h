@@ -52,8 +52,8 @@ namespace d3d11
 		D3D11Renderer*						m_pRenderer;			///< レンダラー
 		D3D11RenderDevice*					m_pDevice;				///< デバイス
 
-		ID3D11DeviceContext1*				m_d3dContext;			///< デバイスコンテキスト
-		ID3D11DeviceContext1*				m_d3dDefferedContext;	///< 遅延コンテキスト
+		ID3D11DeviceContext1*				m_pD3DContext;			///< デバイスコンテキスト
+		ID3D11DeviceContext1*				m_pD3DDeffered;			///< 遅延コンテキスト
 
 		core::BlendState					m_curBlendState;		///< 指定中のブレンドステイト
 		core::RasterizeState				m_curRasterizeState;	///< 指定中のラスタライザーステイト

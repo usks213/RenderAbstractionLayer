@@ -51,12 +51,27 @@ namespace d3d11
 
 	private:
 		//------------------------------------------------------------------------------
+		// private methods
+		//------------------------------------------------------------------------------
+
+		/// @brief デバイスとコンテキストの生成
+		/// @return HRESULT
+		HRESULT createDiveceAndContext(HWND hWnd);
+
+	private:
+		//------------------------------------------------------------------------------
 		// private variables
 		//------------------------------------------------------------------------------
 
-		D3D11RenderDevice	m_device;	///< デバイスクラス
+		D3D11RenderDevice					m_device;				///< デバイスクラス
+		D3D11RenderContext					m_context;				///< コンテストクラス
 
-		D3D11RenderContext	m_context;	///< コンテストクラス
+		ComPtr<ID3D11Device1>				m_d3dDevice;			///< デバイス
+		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;		///< アノテーション
+		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコンテキスト
+		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コンテキスト
+
+		ComPtr<IDXGIFactory2>				m_dxgiFactory;			///< ファクトリー
 
 	};
 }

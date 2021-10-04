@@ -14,6 +14,9 @@
 
 namespace d3d11
 {
+	// 前定義
+	class D3D11Renderer;
+
 	/// @class D3D11RenderDevice
 	/// @brief D3D11レンダーデバイス
 	class D3D11RenderDevice final : public core::CoreRenderDevice
@@ -32,24 +35,23 @@ namespace d3d11
 		~D3D11RenderDevice() noexcept = default;
 
 		/// @brief 初期化処理
+		/// @param pDevice D3D11デバイスポインタ
 		/// @param hWnd ウィンドウハンドル
 		/// @param width ウィンドウの幅
 		/// @param height ウィンドウの高さ
 		/// @return 初期化: 成功 true | 失敗 false
-		HRESULT initialize(HWND hWnd, UINT width, UINT height);
-
+		HRESULT initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2, 
+			HWND hWnd, UINT width, UINT height);
 
 	private:
 		//------------------------------------------------------------------------------
 		// private methods
 		//------------------------------------------------------------------------------
 
-		/// @brief デバイスの生成
-		/// @return HRESULT
-		HRESULT createDivece();
 		/// @brief スワップチェーンとバッファの生成
 		/// @return HRESULT
-		HRESULT createSwapChainAndBuffer();
+		HRESULT createSwapChainAndBuffer(IDXGIFactory2* pFactory2);
+
 		/// @brief 共通ステートの生成
 		/// @return HRESULT
 		HRESULT createCommonState();
@@ -58,29 +60,26 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 		// private variables 
 		//------------------------------------------------------------------------------
-		ComPtr<ID3D11Device1>				m_d3dDevice;			///< デバイス
-		ComPtr<IDXGISwapChain1>				m_swapChain;			///< スワップチェーン
-		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;		///< アノテーション
 
-		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコンテキスト
-		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コンテキスト
+		ID3D11Device1*						m_pD3DDevice;			///< デバイスポインタ
+
+		ComPtr<IDXGISwapChain1>				m_swapChain;			///< スワップチェーン
 
 		ComPtr<ID3D11Texture2D>				m_backBufferRT;			///< バックバッファ
 		ComPtr<ID3D11RenderTargetView>		m_backBufferRTV;		///< バックバッファビュー
-		DXGI_FORMAT							m_backBufferFormat;		///<
+		DXGI_FORMAT							m_backBufferFormat;		///< バッファバッファフォーマット
 
 		ComPtr<ID3D11Texture2D>				m_depthStencilTexture;	///< Zバッファ
 		ComPtr<ID3D11DepthStencilView>		m_depthStencilView;		///< Zバッファビュー
-		DXGI_FORMAT							m_depthStencilFormat;	///<
+		DXGI_FORMAT							m_depthStencilFormat;	///< Zバッファフォーマット
 
-		ComPtr<IDXGIFactory2>				m_dxgiFactory;			///< ファクトリー
-		DXGI_SAMPLE_DESC					m_dxgiMSAA;				///< MSAA設定
-		D3D11_VIEWPORT						m_viewport;				///< ビューポート
 		HWND								m_hWnd;					///< ウィンドウハンドル
+		D3D11_VIEWPORT						m_viewport;				///< ビューポート
+		DXGI_SAMPLE_DESC					m_dxgiMSAA;				///< MSAA設定
 
-		UINT								m_backBufferCount;
-		UINT								m_nOutputWidth;
-		UINT								m_nOutputHeight;
+		UINT								m_backBufferCount;		///< バックバッファ数
+		UINT								m_nOutputWidth;			///< 出力サイズ(幅)
+		UINT								m_nOutputHeight;		///< 出力サイズ(高さ)
 		bool								m_bUseMSAA;				///< MSAA使用フラグ
 
 		ComPtr<ID3D11RasterizerState>		m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
