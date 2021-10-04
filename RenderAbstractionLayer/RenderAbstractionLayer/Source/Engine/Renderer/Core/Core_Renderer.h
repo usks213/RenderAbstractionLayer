@@ -9,46 +9,61 @@
 #ifndef _CORE_RENDERER_
 #define _CORE_RENDERER_
 
-// 前宣言
-class Engine;
+#include <memory>
 
-/// @brief レンダラーのベースクラス
-/// @class CoreRenderer
-class CoreRenderer
+namespace core
 {
-public:
-	//------------------------------------------------------------------------------
-	// public methods
-	//------------------------------------------------------------------------------
+	// 前宣言
+	class CoreEngine;
 
-	/// @brief コンストラクタ
-	CoreRenderer() = default;
-	/// @brief デストラクタ
-	virtual ~CoreRenderer() = default;
+	/// @brief レンダラーのベースクラス
+	/// @class CoreRenderer
+	class CoreRenderer
+	{
+	public:
+		//------------------------------------------------------------------------------
+		// public methods
+		//------------------------------------------------------------------------------
 
-	/// @brief 終了処理
-	virtual void finalize() = 0;
+		/// @brief コンストラクタ
+		CoreRenderer() = default;
+		/// @brief デストラクタ
+		virtual ~CoreRenderer() noexcept = default;
 
-	/// @brief 画面クリア
-	virtual void clear() = 0;
-	/// @brief 画面更新
-	virtual void present() = 0;
+		/// @brief 終了処理
+		virtual void finalize() = 0;
 
-	/// @brief コピーコンストラクタ削除
-	CoreRenderer(const CoreRenderer&) = delete;
-	/// @brief ムーブコンストラクタ削除
-	CoreRenderer(CoreRenderer&&) = delete;
-	
-protected:
-	//------------------------------------------------------------------------------
-	// protected variables
-	//------------------------------------------------------------------------------
+		/// @brief 画面クリア
+		virtual void clear() = 0;
+		/// @brief 画面更新
+		virtual void present() = 0;
 
-	Engine* m_pEngine;	///< エンジンのポインタ
 
-	///< デバイスクラス
-	///< コンテストクラス
+		/// @brief エンジンの取得
+		/// @return エンジンのポインタ
+		CoreEngine* getCoreEngine() const noexcept { return m_pCoreEngine; }
 
-};
+		/// @brief エンジンの設定
+		/// @param pCoreEngine エンジンのポインタ
+		void setCoreEngine(CoreEngine* pCoreEngine) noexcept { m_pCoreEngine = pCoreEngine; }
+
+		/// @brief コピーコンストラクタ削除
+		CoreRenderer(const CoreRenderer&) = delete;
+		/// @brief ムーブコンストラクタ削除
+		CoreRenderer(CoreRenderer&&) = delete;
+
+	protected:
+		//------------------------------------------------------------------------------
+		// protected variables
+		//------------------------------------------------------------------------------
+
+		CoreEngine* m_pCoreEngine;	///< エンジンのポインタ
+
+		///< デバイスクラス
+
+		///< コンテストクラス
+
+	};
+}
 
 #endif // !_CORE_RENDERER_

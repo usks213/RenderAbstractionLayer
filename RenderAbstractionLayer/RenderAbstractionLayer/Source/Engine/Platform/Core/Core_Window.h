@@ -14,7 +14,7 @@
 namespace core
 {
 	// 前定義
-	class Engine;
+	class CoreEngine;
 
 	/// @class CoreWindow
 	/// @brief コアウィンドウクラス
@@ -29,7 +29,7 @@ namespace core
 		/// @param windowName[in] ウィンドウ名
 		/// @param windowWidth[in] ウィンドウの幅
 		/// @param windowHeight[in] ウィンドウの高さ
-		explicit CoreWindow(std::string windowName, int windowWidth, int windowHeight);
+		explicit CoreWindow(std::string windowName, std::uint32_t windowWidth, std::uint32_t windowHeight);
 
 		/// @brief デストラクタ
 		virtual ~CoreWindow() noexcept = default;
@@ -51,11 +51,11 @@ namespace core
 
 		/// @brief エンジンの取得
 		/// @return エンジンのポインタ
-		Engine* getEngine() const noexcept { return m_pEngine; }
+		CoreEngine* getCoreEngine() const noexcept { return m_pCoreEngine; }
 
 		/// @brief エンジンの設定
-		/// @param pEngine エンジンのポインタ
-		void setEngine(Engine* pEngine) noexcept { m_pEngine = pEngine; }
+		/// @param pCoreEngine エンジンのポインタ
+		void setCoreEngine(CoreEngine* pCoreEngine) noexcept { m_pCoreEngine = pCoreEngine; }
 
 		/// @brief コピーコンストラクタ削除
 		CoreWindow(const CoreWindow&) = delete;
@@ -67,7 +67,7 @@ namespace core
 		// protected variables
 		//------------------------------------------------------------------------------
 
-		Engine*			m_pEngine;			///< エンジンのポインタ
+		CoreEngine*			m_pCoreEngine;			///< エンジンのポインタ
 		std::string		m_windowName;		///< ウィンドウ名
 		int				m_windowWidth;		///< ウィンドウの幅
 		int				m_windowHeight;		///< ウィンドウの高さ

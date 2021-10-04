@@ -1,30 +1,32 @@
 /*****************************************************************//**
- * \file   Engine.h
+ * \file   Core_Engine.h
  * \brief  エンジンクラス
  * 
  * \author USAMI KOSHI
  * \date   2021/10/01
  *********************************************************************/
 
-#ifndef _ENGINE_
-#define _ENGINE_
+#ifndef _CORE_ENGINE_
+#define _CORE_ENGINE_
 
 
 #include <memory>
 #include <chrono>
 
-#include "Utility/Singleton.h"
+#include "Utility/Util_Singleton.h"
 #include "Platform/Core/Core_Window.h"
+#include "Renderer/Core/Core_Renderer.h"
+
 
 namespace core
 {
 
-	/// @class Engine
+	/// @class CoreEngine
 	/// @brief エンジン
-	class Engine final : public Singleton<Engine>
+	class CoreEngine final : public UtilSingleton<CoreEngine>
 	{
 	private:
-		friend Singleton<Engine>;
+		friend UtilSingleton<CoreEngine>;
 
 	public:
 		//------------------------------------------------------------------------------
@@ -48,20 +50,20 @@ namespace core
 		template<class T, typename = std::enable_if_t<std::is_base_of_v<CoreWindow, T>>>
 		T* createWindow(std::string windowName, int windowWidth, int windowHeight) {
 			m_pWindow = std::make_unique<T>(windowName, windowWidth, windowHeight);
-			m_pWindow->setEngine(this);
+			m_pWindow->setCoreEngine(this);
 			return static_cast<T*>(m_pWindow.get());
 		}
 
-		///// @brief レンダラーマネージャーの生成
-		///// @tparam T レンダラータイプ
-		///// @tparam RendererManager継承型のみ
-		///// @return レンダラーのポインタ
-		//template<class T, typename = std::enable_if_t<std::is_base_of_v<RendererManager, T>>>
-		//T* createRenderer() {
-		//	m_rendererManager = std::make_unique<T>();
-		//	m_rendererManager->m_pEngine = this;
-		//	return static_cast<T*>(m_rendererManager.get());
-		//}
+		/// @brief レンダラーの生成
+		/// @tparam T レンダラータイプ
+		/// @tparam CoreRenderer継承型のみ
+		/// @return レンダラーのポインタ
+		template<class T, typename = std::enable_if_t<std::is_base_of_v<CoreRenderer, T>>>
+		T* createRenderer() {
+			m_pRenderer = std::make_unique<T>();
+			m_pRenderer->setCoreEngine(this);
+			return static_cast<T*>(m_pRenderer.get());
+		}
 
 		/// @brief ウィンドウの取得
 		/// @return ウィンドウのポインタ
@@ -90,10 +92,10 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		Engine();
+		CoreEngine();
 
 		/// @brief デストラクタ
-		~Engine() = default;
+		~CoreEngine() = default;
 
 	private:
 		//------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		std::unique_ptr<CoreWindow>				m_pWindow;				///< ウィンドウ
-		//std::unique_ptr<RendererManager>		_pRenderer;				///< レンダラー
+		std::unique_ptr<CoreRenderer>			m_pRenderer;			///< レンダラー
 		//--- タイマー 
 		std::uint32_t							m_nCurrentFPS;			///< 現在のFPS
 		std::uint64_t							m_nFrameCount;			///< フレームレートカウンタ
@@ -118,4 +120,4 @@ namespace core
 
 }
 
-#endif // !_ENGINE_
+#endif // !_CORE_ENGINE_

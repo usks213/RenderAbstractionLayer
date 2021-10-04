@@ -17,7 +17,7 @@ using namespace win;
 /// @param windowName[in] ウィンドウ名
 /// @param windowWidth[in] ウィンドウの幅
 /// @param windowHeight[in] ウィンドウの高さ
-WinWindow::WinWindow(std::string windowName, int windowWidth, int windowHeight) : 
+WinWindow::WinWindow(std::string windowName, UINT windowWidth, UINT windowHeight) : 
 	CoreWindow(windowName, windowWidth, windowHeight),
 	m_hInstance(NULL), m_hWnd(NULL), m_nCmdShow(NULL)
 {

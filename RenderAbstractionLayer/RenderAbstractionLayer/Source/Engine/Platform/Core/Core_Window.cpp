@@ -14,8 +14,8 @@ using namespace core;
 /// @param windowName[in] ウィンドウ名
 /// @param windowWidth[in] ウィンドウの幅
 /// @param windowHeight[in] ウィンドウの高さ
-CoreWindow::CoreWindow(std::string windowName, int windowWidth, int windowHeight) : 
-	m_pEngine(nullptr),
+CoreWindow::CoreWindow(std::string windowName, std::uint32_t windowWidth, std::uint32_t windowHeight) :
+	m_pCoreEngine(nullptr),
 	m_windowName(windowName), 
 	m_windowWidth(windowWidth), 
 	m_windowHeight(windowHeight)

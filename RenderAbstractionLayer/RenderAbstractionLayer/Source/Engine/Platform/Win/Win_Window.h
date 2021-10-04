@@ -27,7 +27,7 @@ namespace win
 		/// @param windowName[in] ウィンドウ名
 		/// @param windowWidth[in] ウィンドウの幅
 		/// @param windowHeight[in] ウィンドウの高さ
-		explicit WinWindow(std::string windowName, int windowWidth, int windowHeight);
+		explicit WinWindow(std::string windowName, UINT windowWidth, UINT windowHeight);
 
 		/// @brief デストラクタ
 		~WinWindow() noexcept = default;

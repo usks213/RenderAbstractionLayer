@@ -10,9 +10,9 @@
  //===== インクルード =====
 #include <windows.h>
 
-#include <Engine/Engine.h>
+#include <Engine/Core_Engine.h>
 #include <Engine/Platform/Win/Win_Window.h>
-
+#include <Engine/Renderer/D3D11/D3D11_Renderer.h>
 
 //-------- ライブラリのリンク
 #pragma comment(lib, "imm32")
@@ -41,16 +41,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);		// 未使用宣言
 
 	// エンジン取得
-	auto& engine = core::Engine::get();
+	auto& engine = core::CoreEngine::get();
 	// ウィンドウの生成
-	win::WinWindow* pWin = engine.createWindow<win::WinWindow>("Engine", 1280 * 0.75f, 720 * 0.75f);
+	win::WinWindow* pWin = engine.createWindow<win::WinWindow>("CoreEngine", 1280 * 0.75f, 720 * 0.75f);
 	// レンダラーの生成
-	//D3D11RendererManager* pRenderer = engine.createRenderer<D3D11RendererManager>();
+	d3d11::D3D11Renderer* pRenderer = engine.createRenderer<d3d11::D3D11Renderer>();
 
 	// ウィンドウの初期化
-	pWin->initialize(hInstance, "ECSAppClass", nCmdShow, WndProc);
+	pWin->initialize(hInstance, "RenderAppClass", nCmdShow, WndProc);
 	// レンダラーの初期化
-	//pRenderer->initialize(pWin->getWindowHandle(), pWin->getWindowWidth(), pWin->getWindowHeight());
+	pRenderer->initialize(pWin->getWindowHandle(), pWin->getWindowWidth(), pWin->getWindowHeight());
 	// エンジンの初期化
 	engine.initialize();
 
@@ -128,8 +128,8 @@ int OnCreate(HWND hWnd, LPCREATESTRUCT lpcs)
 {
 	// クライアント領域サイズをSCREEN_WIDTH×SCREEN_HEIGHTに再設定.
 	RECT rcClnt;
-	int SCREEN_WIDTH = core::Engine::get().getWindowWidth();
-	int SCREEN_HEIGHT = core::Engine::get().getWindowHeight();
+	int SCREEN_WIDTH = core::CoreEngine::get().getWindowWidth();
+	int SCREEN_HEIGHT = core::CoreEngine::get().getWindowHeight();
 
 	GetClientRect(hWnd, &rcClnt);
 	rcClnt.right -= rcClnt.left;

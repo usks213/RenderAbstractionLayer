@@ -1,0 +1,94 @@
+/*****************************************************************//**
+ * \file   D3D11_RenderDevice.h
+ * \brief  DirectX11レンダーデバイスクラス
+ * 
+ * \author USAMI KOSHI
+ * \date   2021/10/04
+ *********************************************************************/
+
+#ifndef _D3D11_RENDER_DEVICE_
+#define _D3D11_RENDER_DEVICE_
+
+#include <Renderer/Core/Core_RenderDevice.h>
+#include "D3D11_CommonState.h"
+
+namespace d3d11
+{
+	/// @class D3D11RenderDevice
+	/// @brief D3D11レンダーデバイス
+	class D3D11RenderDevice final : public core::CoreRenderDevice
+	{
+		friend class D3D11Renderer;
+		friend class D3D11RenderContext;
+	public:
+		//------------------------------------------------------------------------------
+		// public methods
+		//------------------------------------------------------------------------------
+
+		/// @brief コンストラクタ
+		explicit D3D11RenderDevice();
+
+		/// @brief デストラクタ
+		~D3D11RenderDevice() noexcept = default;
+
+		/// @brief 初期化処理
+		/// @param hWnd ウィンドウハンドル
+		/// @param width ウィンドウの幅
+		/// @param height ウィンドウの高さ
+		/// @return 初期化: 成功 true | 失敗 false
+		HRESULT initialize(HWND hWnd, UINT width, UINT height);
+
+
+	private:
+		//------------------------------------------------------------------------------
+		// private methods
+		//------------------------------------------------------------------------------
+
+		/// @brief デバイスの生成
+		/// @return HRESULT
+		HRESULT createDivece();
+		/// @brief スワップチェーンとバッファの生成
+		/// @return HRESULT
+		HRESULT createSwapChainAndBuffer();
+		/// @brief 共通ステートの生成
+		/// @return HRESULT
+		HRESULT createCommonState();
+
+	private:
+		//------------------------------------------------------------------------------
+		// private variables 
+		//------------------------------------------------------------------------------
+		ComPtr<ID3D11Device1>				m_d3dDevice;			///< デバイス
+		ComPtr<IDXGISwapChain1>				m_swapChain;			///< スワップチェーン
+		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;		///< アノテーション
+
+		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコンテキスト
+		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コンテキスト
+
+		ComPtr<ID3D11Texture2D>				m_backBufferRT;			///< バックバッファ
+		ComPtr<ID3D11RenderTargetView>		m_backBufferRTV;		///< バックバッファビュー
+		DXGI_FORMAT							m_backBufferFormat;		///<
+
+		ComPtr<ID3D11Texture2D>				m_depthStencilTexture;	///< Zバッファ
+		ComPtr<ID3D11DepthStencilView>		m_depthStencilView;		///< Zバッファビュー
+		DXGI_FORMAT							m_depthStencilFormat;	///<
+
+		ComPtr<IDXGIFactory2>				m_dxgiFactory;			///< ファクトリー
+		DXGI_SAMPLE_DESC					m_dxgiMSAA;				///< MSAA設定
+		D3D11_VIEWPORT						m_viewport;				///< ビューポート
+		HWND								m_hWnd;					///< ウィンドウハンドル
+
+		UINT								m_backBufferCount;
+		UINT								m_nOutputWidth;
+		UINT								m_nOutputHeight;
+		bool								m_bUseMSAA;				///< MSAA使用フラグ
+
+		ComPtr<ID3D11RasterizerState>		m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
+		ComPtr<ID3D11SamplerState>			m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート
+		ComPtr<ID3D11BlendState>			m_blendStates[(size_t)core::BlendState::MAX];				///< ブレンドステート
+		ComPtr<ID3D11DepthStencilState>		m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
+
+	};
+}
+
+#endif // !_D3D11_RENDER_DEVICE_

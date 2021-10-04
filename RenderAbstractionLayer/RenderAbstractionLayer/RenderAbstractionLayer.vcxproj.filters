@@ -44,15 +44,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Engine\Engine.h">
-      <Filter>ソース ファイル\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Mathf.h">
-      <Filter>ソース ファイル\Engine\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Singleton.h">
-      <Filter>ソース ファイル\Engine\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Platform\Core\Core_Window.h">
       <Filter>ソース ファイル\Engine\Platform\Core</Filter>
     </ClInclude>
@@ -65,11 +56,41 @@
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Renderer.h">
       <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderDevice.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderContext.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core_Engine.h">
+      <Filter>ソース ファイル\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Util_Singleton.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Util_Mathf.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Defines.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_CommonState.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Engine\Engine.cpp">
-      <Filter>ソース ファイル\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Source\App\main.cpp">
       <Filter>ソース ファイル\App</Filter>
     </ClCompile>
@@ -81,6 +102,21 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Renderer.cpp">
       <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Core_Engine.cpp">
+      <Filter>ソース ファイル\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,18 +1,18 @@
 /*****************************************************************//**
- * \file   Engine.h
+ * \file   Core_Engine.h
  * \brief  エンジンクラス
  *
  * \author USAMI KOSHI
  * \date   2021/10/01
  *********************************************************************/
 
-#include "Engine.h"
+#include "Core_Engine.h"
 using namespace core;
 
 
 /// @brief コンストラクタ
-Engine::Engine()
-	: m_pWindow(), //m_rendererManager(), m_worldManager(),
+CoreEngine::CoreEngine()
+	: m_pWindow(nullptr), m_pRenderer(nullptr),
 	m_nCurrentFPS(0), m_nFrameCount(0), m_deltaTime(0), m_fixedDeltaTime(0)
 {
 	m_nMaxFPS = 90;
@@ -23,7 +23,7 @@ Engine::Engine()
 /// @param pWindow 
 /// @param pRenderer 
 /// @return 成功か
-bool Engine::initialize()
+bool CoreEngine::initialize()
 {
 	// フレームカウント初期化
 	m_ExecLastTime = m_FPSLastTime = 
@@ -35,7 +35,7 @@ bool Engine::initialize()
 }
 
 /// @brief 更新
-void Engine::tick()
+void CoreEngine::tick()
 {
 	// タイマー更新
 	m_CurrentTime = std::chrono::system_clock::now();
@@ -68,7 +68,7 @@ void Engine::tick()
 		m_ExecLastTime = m_CurrentTime;
 
 		// レンダラーのクリア
-		//m_rendererManager->clear();
+		m_pRenderer->clear();
 
 		// Update
 
@@ -76,7 +76,7 @@ void Engine::tick()
 		
 
 		// 画面更新
-		//m_rendererManager->present();
+		m_pRenderer->present();
 
 		// フレームカウンタ更新
 		m_nFrameCount++;
@@ -84,7 +84,7 @@ void Engine::tick()
 }
 
 /// @brief 終了処理
-void Engine::finalize()
+void CoreEngine::finalize()
 {
 	// レンダラーマネージャーのの終了処理
 	//m_rendererManager->finalize();
