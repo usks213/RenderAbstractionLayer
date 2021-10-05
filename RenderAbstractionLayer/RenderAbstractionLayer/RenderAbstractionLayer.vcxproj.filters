@@ -89,6 +89,39 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Buffer.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_DepthStencil.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Material.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Mesh.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderBuffer.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderTarget.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Shader.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_ShaderResource.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_SubResource.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Texture.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Light.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -117,6 +150,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_Material.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

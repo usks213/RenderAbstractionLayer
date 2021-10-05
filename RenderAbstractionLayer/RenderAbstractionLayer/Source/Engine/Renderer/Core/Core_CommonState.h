@@ -83,7 +83,7 @@ namespace core
 	};
 
 
-	//----- Buffer -----
+	//----- CoreBuffer -----
 
 	/// @enum Usage
 	/// @brief リソース使用識別
