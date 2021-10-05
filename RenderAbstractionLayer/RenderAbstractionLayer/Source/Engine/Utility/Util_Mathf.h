@@ -132,15 +132,15 @@ struct Vector2 : public XMFLOAT2
 		return normal * Dot(front, normal);
 	}
 
-	static const Vector2 zero;
-	static const Vector2 one;
-	static const Vector2 right;
-	static const Vector2 up;
+	//static const Vector2 zero;
+	//static const Vector2 one;
+	//static const Vector2 right;
+	//static const Vector2 up;
 };
-const Vector2 Vector2::zero = { 0,0 };
-const Vector2 Vector2::one = { 1,1 };
-const Vector2 Vector2::right = { 1,0 };
-const Vector2 Vector2::up = { 0,1 };
+//const Vector2 Vector2::zero = { 0,0 };
+//const Vector2 Vector2::one = { 1,1 };
+//const Vector2 Vector2::right = { 1,0 };
+//const Vector2 Vector2::up = { 0,1 };
 
 struct Vector3 : public XMFLOAT3
 {
@@ -256,17 +256,17 @@ struct Vector3 : public XMFLOAT3
 		return normal * Dot(front, normal);
 	}
 
-	static const Vector3 zero;
-	static const Vector3 one;
-	static const Vector3 right;
-	static const Vector3 up;
-	static const Vector3 forward;
+	//static const Vector3 zero;
+	//static const Vector3 one;
+	//static const Vector3 right;
+	//static const Vector3 up;
+	//static const Vector3 forward;
 };
-const Vector3 Vector3::zero = { 0,0,0 };
-const Vector3 Vector3::one = { 1,1,1 };
-const Vector3 Vector3::right = { 1,0,0 };
-const Vector3 Vector3::up = { 0,1,0 };
-const Vector3 Vector3::forward = { 0,0,1 };
+//const Vector3 Vector3::zero = { 0,0,0 };
+//const Vector3 Vector3::one = { 1,1,1 };
+//const Vector3 Vector3::right = { 1,0,0 };
+//const Vector3 Vector3::up = { 0,1,0 };
+//const Vector3 Vector3::forward = { 0,0,1 };
 
 
 struct Vector4 : public XMFLOAT4

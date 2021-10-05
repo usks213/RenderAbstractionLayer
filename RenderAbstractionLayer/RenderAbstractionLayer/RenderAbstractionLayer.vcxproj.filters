@@ -122,6 +122,27 @@
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Light.h">
       <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Material.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -156,6 +177,27 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp">
       <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Material.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

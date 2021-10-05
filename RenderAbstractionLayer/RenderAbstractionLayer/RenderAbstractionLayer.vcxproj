@@ -26,10 +26,17 @@
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Material.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -51,11 +58,18 @@
     <ClInclude Include="Source\Engine\Renderer\Core\Core_ShaderResource.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_SubResource.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Texture.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Defines.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Material.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h" />
     <ClInclude Include="Source\Engine\Utility\Util_Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\Util_Singleton.h" />
   </ItemGroup>

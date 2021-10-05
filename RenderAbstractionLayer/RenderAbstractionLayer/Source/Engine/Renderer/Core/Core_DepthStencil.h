@@ -18,9 +18,9 @@ namespace core
 	/// @brief 存在しない深度ステンシルID
 	constexpr DepthStencilID NONE_DEPTH_STENCIL_ID = std::numeric_limits<DepthStencilID>::max();
 
-	/// @class DepthStencil
+	/// @class CoreDepthStencil
 	/// @brief 深度ステンシル
-	class DepthStencil
+	class CoreDepthStencil
 	{
 	public:
 		//------------------------------------------------------------------------------
@@ -30,13 +30,13 @@ namespace core
 		/// @brief コンストラクタ
 		/// @param id 深度ステンシルID
 		/// @param name 名前
-		explicit DepthStencil(const DepthStencilID& id, const std::string& name) :
+		explicit CoreDepthStencil(const DepthStencilID& id, const std::string& name) :
 			m_id(id), m_name(name)
 		{
 		}
 
 		/// @brief デストラクタ
-		~DepthStencil() = default;
+		~CoreDepthStencil() = default;
 
 	public:
 		//------------------------------------------------------------------------------
