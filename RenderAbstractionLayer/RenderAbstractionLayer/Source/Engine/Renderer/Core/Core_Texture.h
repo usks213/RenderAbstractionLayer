@@ -63,7 +63,8 @@ namespace core
 		/// @brief コンストラクタ(Descから生成)
 		/// @param id テクスチャID
 		/// @param desc テクスチャDesc
-		explicit CoreTexture(const TextureID& id, const TextureDesc& desc) :
+		explicit CoreTexture(const TextureID& id, TextureDesc& desc, 
+			const TextureData* pData = nullptr) :
 			m_id(id), m_desc(desc)
 		{}
 
