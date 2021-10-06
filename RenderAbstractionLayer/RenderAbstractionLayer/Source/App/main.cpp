@@ -14,6 +14,8 @@
 #include <Engine/Platform/Win/Win_Window.h>
 #include <Engine/Renderer/D3D11/D3D11_Renderer.h>
 
+#include "TestScene.h"
+
 //-------- ライブラリのリンク
 #pragma comment(lib, "imm32")
 
@@ -53,6 +55,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	pRenderer->initialize(pWin->getWindowHandle(), pWin->getWindowWidth(), pWin->getWindowHeight());
 	// エンジンの初期化
 	engine.initialize();
+
+	// シーンマネージャーの読み込み
+	engine.getSceneManager()->CreateScene<TestScene>();
+
 
 	// メッセージループ
 	MSG msg = {};

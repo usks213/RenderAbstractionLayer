@@ -34,7 +34,7 @@ namespace core
 		std::string			name;										///< テクスチャ名orファイルパス
 		std::uint32_t		width			= 0;						///< 横幅(px)
 		std::uint32_t		height			= 0;						///< 縦幅(px)
-		std::uint32_t		byteSize		= 0;						///< フォーマット区切りのバイトサイズ
+		std::uint32_t		depth			= 4;						///< フォーマットの数(RGBA:4)
 		std::uint32_t		mipLevels		= 0;						///< ミップマップレベル(0:自動生成)
 		std::uint32_t		arraySize		= 1;						///< 配列サイズ
 		TextureFormat		format			= TextureFormat::UNKNOWN;	///< フォーマット

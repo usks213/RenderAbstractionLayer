@@ -48,7 +48,7 @@ namespace d3d11
 		core::BufferID			createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
 		core::DepthStencilID	createDepthStencil(std::string name) override;
 		core::MaterialID		createMaterial(std::string name, core::ShaderID& shaderID) override;
-		core::MeshID			createMeshID(std::string name) override;
+		core::MeshID			createMesh(std::string name) override;
 		core::RenderBufferID	createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID) override;
 		core::RenderTargetID	createRenderTarget(std::string name) override;
 		core::ShaderID			createShader(core::ShaderDesc& desc) override;

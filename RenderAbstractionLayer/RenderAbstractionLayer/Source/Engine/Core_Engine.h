@@ -16,6 +16,7 @@
 #include "Utility/Util_Singleton.h"
 #include "Platform/Core/Core_Window.h"
 #include "Renderer/Core/Core_Renderer.h"
+#include "Scene/Core_SceneManager.h"
 
 
 namespace core
@@ -67,8 +68,15 @@ namespace core
 
 		/// @brief ウィンドウの取得
 		/// @return ウィンドウのポインタ
-		[[nodiscard]] CoreWindow* getCoreWindow() { return m_pWindow.get(); }
-		//[[nodiscard]] RendererManager* getRendererManager() { return m_rendererManager.get(); }
+		[[nodiscard]] CoreWindow* getWindow() noexcept { return m_pWindow.get(); }
+
+		/// @brief レンダラー取得
+		/// @return レンダラーのポインタ
+		[[nodiscard]] CoreRenderer* getRenderer() { return m_pRenderer.get(); }
+
+		/// @brief シーンマネージャーの取得
+		/// @return シーンマネージャーのポインタ
+		[[nodiscard]] CoreSceneManager* getSceneManager() { return m_pSceneManager.get(); }
 
 		/// @brief ウィンドウ名取得
 		/// @return ウィンドウ名
@@ -104,6 +112,8 @@ namespace core
 
 		std::unique_ptr<CoreWindow>				m_pWindow;				///< ウィンドウ
 		std::unique_ptr<CoreRenderer>			m_pRenderer;			///< レンダラー
+		std::unique_ptr<CoreSceneManager>		m_pSceneManager;		///< シーンマネージャー
+
 		//--- タイマー 
 		std::uint32_t							m_nCurrentFPS;			///< 現在のFPS
 		std::uint64_t							m_nFrameCount;			///< フレームレートカウンタ

@@ -97,8 +97,8 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
     else {
         D3D11_SUBRESOURCE_DATA d3d11SubresourceData = {};
         d3d11SubresourceData.pSysMem = pData->pInitData;
-        d3d11SubresourceData.SysMemPitch = desc.width * desc.byteSize;
-        d3d11SubresourceData.SysMemSlicePitch = desc.width * desc.height * desc.byteSize;
+        d3d11SubresourceData.SysMemPitch = desc.width * desc.depth;
+        d3d11SubresourceData.SysMemSlicePitch = desc.width * desc.height * desc.depth;
 
         CHECK_FAILED(pDevice->CreateTexture2D(&d3d11Desc, &d3d11SubresourceData, m_tex.GetAddressOf()));
         if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE) {

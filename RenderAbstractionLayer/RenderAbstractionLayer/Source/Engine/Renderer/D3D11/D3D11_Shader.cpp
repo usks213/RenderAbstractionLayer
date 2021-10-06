@@ -19,7 +19,7 @@ using namespace d3d11;
 
 namespace {
 	/// @brief シェーダファイルパス
-	const char* SHADER_FILE_PATH = "data/shader/";
+	const char* SHADER_FILE_PATH = "Source/Shader/";
 
 	/// @brief エントリーポイント、ファイル識別子
 	const char* SHADER_TYPES[] = {

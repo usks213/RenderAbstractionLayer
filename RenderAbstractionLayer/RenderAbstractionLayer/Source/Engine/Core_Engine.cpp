@@ -25,6 +25,9 @@ CoreEngine::CoreEngine()
 /// @return 成功か
 bool CoreEngine::initialize()
 {
+	// シーンマネージャーの生成
+	m_pSceneManager = std::make_unique<CoreSceneManager>(this);
+
 	// フレームカウント初期化
 	m_ExecLastTime = m_FPSLastTime = 
 		m_CurrentTime = m_FixedExecLastTime =
@@ -70,9 +73,12 @@ void CoreEngine::tick()
 		// レンダラーのクリア
 		m_pRenderer->clear();
 
+
 		// Update
+		m_pSceneManager->Update();
 
 		// Render
+		m_pSceneManager->Render();
 		
 
 		// 画面更新

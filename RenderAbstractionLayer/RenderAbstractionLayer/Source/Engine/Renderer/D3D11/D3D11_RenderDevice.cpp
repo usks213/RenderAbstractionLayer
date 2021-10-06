@@ -118,7 +118,7 @@ core::MaterialID D3D11RenderDevice::createMaterial(std::string name, core::Shade
 
 	return id;
 }
-core::MeshID D3D11RenderDevice::createMeshID(std::string name)
+core::MeshID D3D11RenderDevice::createMesh(std::string name)
 {
 	// ID�̎擾
 	MeshID id = static_cast<MeshID>(hash::stringHash(name));

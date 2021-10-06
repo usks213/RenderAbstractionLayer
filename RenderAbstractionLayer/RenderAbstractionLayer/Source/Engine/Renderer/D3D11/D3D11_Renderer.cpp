@@ -44,9 +44,9 @@ HRESULT D3D11Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		m_dxgiFactory.Get(), hWnd, width, height));
 
 	// コンテキストの初期化
-	CHECK_FAILED(hr = m_context.initialize(this, &m_device));
 	m_context.m_pD3DContext = m_d3dContext.Get();
 	m_context.m_pD3DDeffered = m_d3dDefferedContext.Get();
+	CHECK_FAILED(hr = m_context.initialize(this, &m_device));
 
 	return hr;
 }

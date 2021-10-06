@@ -15,6 +15,8 @@ namespace core
 {
 	// 前宣言
 	class CoreEngine;
+	class CoreRenderDevice;
+	class CoreRenderContext;
 
 	/// @brief レンダラーのベースクラス
 	/// @class CoreRenderer
@@ -46,6 +48,14 @@ namespace core
 		/// @brief エンジンの設定
 		/// @param pCoreEngine エンジンのポインタ
 		void setCoreEngine(CoreEngine* pCoreEngine) noexcept { m_pCoreEngine = pCoreEngine; }
+
+		/// @brief デバイスの取得
+		/// @return デバイスのポインタ
+		virtual CoreRenderDevice* getDevice() = 0;
+
+		/// @brief コンテキストの取得
+		/// @return コンテキストのポインタ
+		virtual CoreRenderContext* getContext() = 0;
 
 		/// @brief コピーコンストラクタ削除
 		CoreRenderer(const CoreRenderer&) = delete;

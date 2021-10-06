@@ -44,6 +44,20 @@ namespace d3d11
 		/// @brief 画面更新
 		void present() override;
 
+		/// @brief デバイスの取得
+		/// @return デバイスのポインタ
+		core::CoreRenderDevice* getDevice() override
+		{
+			return &m_device;
+		}
+
+		/// @brief コンテキストの取得
+		/// @return コンテキストのポインタ 
+		core::CoreRenderContext* getContext() override
+		{
+			return &m_context;
+		}
+
 		/// @brief コピーコンストラクタ削除
 		D3D11Renderer(const D3D11Renderer&) = delete;
 		/// @brief ムーブコンストラクタ削除
