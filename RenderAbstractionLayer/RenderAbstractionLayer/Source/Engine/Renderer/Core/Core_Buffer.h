@@ -40,12 +40,12 @@ namespace core
 	struct BufferDesc
 	{
 		std::string		name;
-		std::uint32_t	count = 0;
-		std::uint32_t	size = 0;
-		Usage			usage = Usage::DEFAULT;
-		BindFlags		bindFlags = BindFlags::UNKNOWN;
-		CPUAccessFlags	cpuAccessFlags = CPUAccessFlags::NONE;
-		MiscFlags		miscFlags = MiscFlags::UNKNONE;
+		std::uint32_t	count			= 0;
+		std::uint32_t	size			= 0;
+		Usage			usage			= Usage::DEFAULT;
+		std::uint32_t	bindFlags		= 0 | BindFlags::UNKNOWN;
+		std::uint32_t	cpuAccessFlags	= 0 | CPUAccessFlags::NONE;
+		std::uint32_t	miscFlags		= 0 | MiscFlags::UNKNONE;
 	};
 
 	/// @class CoreBuffer

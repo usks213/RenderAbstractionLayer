@@ -40,9 +40,9 @@ namespace core
 		TextureFormat		format			= TextureFormat::UNKNOWN;	///< フォーマット
 		SampleDesc			sampleDesc		= SampleDesc();				///< マルチサンプル指定
 		Usage				usage			= Usage::DEFAULT;			///< リソース使用識別
-		BindFlags			bindFlags		= BindFlags::UNKNOWN;		///< バインドフラグ
-		CPUAccessFlags		cpuAccessFlags	= CPUAccessFlags::NONE;		///< CPUアクセスフラグ
-		MiscFlags			miscFlags		= MiscFlags::UNKNONE;		///< バッファ指定フラグ
+		std::uint32_t		bindFlags		= 0 | BindFlags::UNKNOWN;	///< バインドフラグ
+		std::uint32_t		cpuAccessFlags	= 0 | CPUAccessFlags::NONE;	///< CPUアクセスフラグ
+		std::uint32_t		miscFlags		= 0 | MiscFlags::UNKNONE;	///< バッファ指定フラグ
 	};
 
 	/// @class CoreTexture

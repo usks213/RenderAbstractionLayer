@@ -143,6 +143,9 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Util_Hash.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -198,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_RenderDevice.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

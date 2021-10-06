@@ -62,9 +62,9 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
         getDXGIFormat(desc.format),
         d3d11SampleDesc,
         getD3D11Usage(desc.usage),
-        getD3D11BindFlags(desc.bindFlags),
-        getD3D11CPUAccessFlags(desc.cpuAccessFlags),
-        getD3D11MiscFlags(desc.miscFlags),
+        desc.bindFlags,
+        desc.cpuAccessFlags,
+        desc.miscFlags,
     };
 
     // ミップマップ自動生成指定

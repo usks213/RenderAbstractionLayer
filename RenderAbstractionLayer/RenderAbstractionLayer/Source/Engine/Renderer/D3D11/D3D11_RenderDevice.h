@@ -43,6 +43,18 @@ namespace d3d11
 		HRESULT initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2, 
 			HWND hWnd, UINT width, UINT height);
 
+		//----- ÉäÉ\Å[ÉXê∂ê¨ -----
+
+		core::BufferID			createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
+		core::DepthStencilID	createDepthStencil(std::string name) override;
+		core::MaterialID		createMaterial(std::string name, core::ShaderID& shaderID) override;
+		core::MeshID			createMeshID(std::string name) override;
+		core::RenderBufferID	createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID) override;
+		core::RenderTargetID	createRenderTarget(std::string name) override;
+		core::ShaderID			createShader(core::ShaderDesc& desc) override;
+		core::TextureID			createTexture(std::string filePath) override;
+		core::TextureID			createTexture(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+
 	private:
 		//------------------------------------------------------------------------------
 		// private methods

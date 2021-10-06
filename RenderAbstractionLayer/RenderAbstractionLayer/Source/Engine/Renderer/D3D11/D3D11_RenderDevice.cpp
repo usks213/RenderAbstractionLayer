@@ -7,7 +7,16 @@
  *********************************************************************/
 
 #include "D3D11_RenderDevice.h"
-#include <vector>
+#include <Engine/Utility/Util_Hash.h>
+
+#include <Renderer/D3D11/D3D11_Buffer.h>
+#include <Renderer/D3D11/D3D11_DepthStencil.h>
+#include <Renderer/D3D11/D3D11_Material.h>
+#include <Renderer/D3D11/D3D11_RenderBuffer.h>
+#include <Renderer/D3D11/D3D11_RenderTarget.h>
+#include <Renderer/D3D11/D3D11_Shader.h>
+#include <Renderer/D3D11/D3D11_Texture.h>
+
 using namespace core;
 using namespace d3d11;
 
@@ -56,6 +65,156 @@ HRESULT D3D11RenderDevice::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFa
 
 	return S_OK;
 }
+
+//----- リソース生成 -----
+
+core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, core::BufferData* pData)
+{
+	// IDの取得
+	BufferID id = static_cast<BufferID>(hash::stringHash(desc.name));
+
+	// 既に生成済み
+	const auto& itr = m_bufferPool.find(id);
+	if (m_bufferPool.end() != itr) return id;
+
+	// 新規生成
+	m_bufferPool[id] = std::make_unique<D3D11Buffer>(m_pD3DDevice, id, desc, pData);
+
+	return id;
+}
+core::DepthStencilID D3D11RenderDevice::createDepthStencil(std::string name)
+{
+	// IDの取得
+	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(name));
+
+	// 既に生成済み
+	const auto& itr = m_depthStencilPool.find(id);
+	if (m_depthStencilPool.end() != itr) return id;
+
+	// テクスチャ生成
+	TextureDesc texDesc;
+	texDesc.bindFlags = BindFlags::DEPTH_STENCIL | BindFlags::SHADER_RESOURCE;
+
+	// デプスステンシル生成
+
+	return id;
+}
+core::MaterialID D3D11RenderDevice::createMaterial(std::string name, core::ShaderID& shaderID)
+{
+	// IDの取得
+	MaterialID id = static_cast<MaterialID>(hash::stringHash(name));
+
+	// 既に生成済み
+	const auto& itr = m_materialPool.find(id);
+	if (m_materialPool.end() != itr) return id;
+
+	// シェーダー取得
+	auto* shader = getShader(shaderID);
+	if (shader == nullptr) return NONE_MATERIAL_ID;
+
+	// 新規生成
+	m_materialPool[id] = std::make_unique<D3D11Material>(
+		m_pD3DDevice, id, name, *shader);
+
+	return id;
+}
+core::MeshID D3D11RenderDevice::createMeshID(std::string name)
+{
+	// IDの取得
+	MeshID id = static_cast<MeshID>(hash::stringHash(name));
+
+	// 既に生成済み
+	const auto& itr = m_meshPool.find(id);
+	if (m_meshPool.end() != itr) return id;
+
+	// 新規生成
+	m_meshPool[id] = std::make_unique<CoreMesh>(id, name);
+
+	return id;
+}
+core::RenderBufferID D3D11RenderDevice::createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID)
+{
+	// シェーダー取得
+	auto* shader = getShader(shaderID);
+	if (shader == nullptr) return NONE_RENDERBUFFER_ID;
+	// メッシュ取得
+	auto* mesh = getMesh(meshID);
+	if (mesh == nullptr) return NONE_RENDERBUFFER_ID;
+	
+	// IDの生成
+	RenderBufferID id = static_cast<RenderBufferID>(
+		hash::stringHash(shader->m_desc.m_name + ":" + mesh->m_name));
+
+	// 既にある
+	const auto& itr = m_renderBufferPool.find(id);
+	if (m_renderBufferPool.end() != itr) return id;
+
+	// 新規生成
+	m_renderBufferPool[id] = std::make_unique<D3D11RenderBuffer>(
+		m_pD3DDevice, id, *shader, *mesh);
+
+	return id;
+}
+core::RenderTargetID D3D11RenderDevice::createRenderTarget(std::string name)
+{
+	// IDの取得
+	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(name));
+
+	// 既に生成済み
+	const auto& itr = m_renderTargetPool.find(id);
+	if (m_renderTargetPool.end() != itr) return id;
+
+	// テクスチャ生成
+	TextureDesc texDesc;
+	texDesc.bindFlags = BindFlags::RENDER_TARGET | BindFlags::SHADER_RESOURCE;
+
+	// レンダーターゲット生成
+
+	return id;
+}
+core::ShaderID D3D11RenderDevice::createShader(core::ShaderDesc& desc)
+{
+	// IDの取得
+	ShaderID id = static_cast<ShaderID>(hash::stringHash(desc.m_name));
+
+	// 既に生成済み
+	const auto& itr = m_shaderPool.find(id);
+	if (m_shaderPool.end() != itr) return id;
+
+	// 新規生成
+	m_shaderPool[id] = std::make_unique<D3D11Shader>(m_pD3DDevice, desc, id);
+
+	return id;
+}
+core::TextureID D3D11RenderDevice::createTexture(std::string filePath)
+{
+	// IDの取得
+	TextureID id = static_cast<TextureID>(hash::stringHash(filePath));
+
+	// 既に生成済み
+	const auto& itr = m_texturePool.find(id);
+	if (m_texturePool.end() != itr) return id;
+
+	// 新規生成
+	m_texturePool[id] = std::make_unique<D3D11Texture>(m_pD3DDevice, id, filePath);
+
+	return id;
+}
+core::TextureID D3D11RenderDevice::createTexture(core::TextureDesc& desc, core::TextureData* pData)
+{
+	// IDの取得
+	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));
+
+	// 既に生成済み
+	const auto& itr = m_texturePool.find(id);
+	if (m_texturePool.end() != itr) return id;
+
+	// 新規生成
+	m_texturePool[id] = std::make_unique<D3D11Texture>(m_pD3DDevice, id, desc, pData);
+
+	return id;
+}
+
 
  //------------------------------------------------------------------------------
  // private methods

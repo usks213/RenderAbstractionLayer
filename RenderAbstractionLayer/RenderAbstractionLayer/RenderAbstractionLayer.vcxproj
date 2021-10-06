@@ -24,6 +24,7 @@
     <ClCompile Include="Source\Engine\Platform\Core\Core_Window.cpp" />
     <ClCompile Include="Source\Engine\Platform\Win\Win_Window.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Material.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_RenderDevice.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h" />
+    <ClInclude Include="Source\Engine\Utility\Util_Hash.h" />
     <ClInclude Include="Source\Engine\Utility\Util_Mathf.h" />
     <ClInclude Include="Source\Engine\Utility\Util_Singleton.h" />
   </ItemGroup>
