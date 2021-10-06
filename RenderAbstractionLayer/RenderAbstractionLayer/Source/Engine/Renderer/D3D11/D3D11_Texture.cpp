@@ -52,7 +52,7 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
 	m_tex(nullptr),
 	m_srv(nullptr)
 {
-    DXGI_SAMPLE_DESC d3d11SampleDesc = { 1,0 };
+    DXGI_SAMPLE_DESC d3d11SampleDesc = { desc.sampleDesc.count, desc.sampleDesc.quality };
 
     D3D11_TEXTURE2D_DESC d3d11Desc = {
         desc.width,

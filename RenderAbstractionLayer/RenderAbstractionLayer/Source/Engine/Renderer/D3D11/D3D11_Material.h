@@ -32,7 +32,7 @@ namespace d3d11
 			const std::string& name, const core::CoreShader& shader);
 
 		/// @brief デストラクタ
-		~D3D11Material() = default;
+		~D3D11Material() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

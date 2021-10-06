@@ -66,7 +66,7 @@ namespace core
 		}
 
 		/// @brief デストラクタ
-		~CoreBuffer() = default;
+		virtual ~CoreBuffer() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

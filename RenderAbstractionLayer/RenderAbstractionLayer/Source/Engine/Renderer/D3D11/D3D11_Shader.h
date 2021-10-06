@@ -30,7 +30,7 @@ namespace d3d11
 			core::ShaderDesc desc, const core::ShaderID& id);
 
 		/// @brief デストラクタ
-		~D3D11Shader() = default;
+		~D3D11Shader() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

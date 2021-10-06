@@ -15,7 +15,7 @@ namespace d3d11
 {
 	/// @class D3D11DepthStencil
 	/// @brief DreictX11深度ステンシル
-	class D3D11DepthStencil : public core::CoreDepthStencil
+	class D3D11DepthStencil final : public core::CoreDepthStencil
 	{
 	public:
 		//------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ namespace d3d11
 		explicit D3D11DepthStencil(ID3D11Device1* device, const core::DepthStencilID& id, D3D11Texture& d3dTex);
 
 		/// @brief デストラクタ
-		~D3D11DepthStencil() = default;
+		~D3D11DepthStencil() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

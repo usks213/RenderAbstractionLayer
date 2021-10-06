@@ -35,7 +35,7 @@ namespace core
 		}
 
 		/// @brief デストラクタ
-		~CoreRenderTarget() = default;
+		virtual ~CoreRenderTarget() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

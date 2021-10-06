@@ -22,13 +22,13 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		SubResource() :
+		explicit SubResource() :
 			pData(nullptr), ByteWidth(0),
 			RowPitch(0), DepthPitch(0)
 		{}
 
 		/// @brief デストラクタ
-		virtual ~SubResource() = default;
+		virtual ~SubResource() noexcept = default;
 
 		/// @brief データ
 		void* getData() { return pData; }

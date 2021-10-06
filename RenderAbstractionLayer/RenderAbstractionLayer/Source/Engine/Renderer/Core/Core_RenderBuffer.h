@@ -177,6 +177,9 @@ namespace core
 				}
 		}
 
+		/// @brief デストラクタ
+		virtual ~CoreRenderBuffer() noexcept = default;
+
 	public:
 		//------------------------------------------------------------------------------
 		// public variables

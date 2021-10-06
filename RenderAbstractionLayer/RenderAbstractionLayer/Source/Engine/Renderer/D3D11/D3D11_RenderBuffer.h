@@ -15,7 +15,7 @@ namespace d3d11
 {
 	/// @class D3D11RenderBuffer
 	/// @brief DirectX11レンダーバッファ
-	class D3D11RenderBuffer : public core::CoreRenderBuffer
+	class D3D11RenderBuffer final : public core::CoreRenderBuffer
 	{
 	public:
 		//------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace d3d11
 			const core::CoreShader& shader, const core::CoreMesh& mesh);
 
 		/// @brief デストラクタ
-		~D3D11RenderBuffer() = default;
+		~D3D11RenderBuffer() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

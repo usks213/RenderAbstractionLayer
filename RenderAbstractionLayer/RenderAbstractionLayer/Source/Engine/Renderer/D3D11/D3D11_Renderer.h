@@ -25,7 +25,7 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		D3D11Renderer();
+		explicit D3D11Renderer();
 		/// @brief デストラクタ
 		~D3D11Renderer() noexcept = default;
 

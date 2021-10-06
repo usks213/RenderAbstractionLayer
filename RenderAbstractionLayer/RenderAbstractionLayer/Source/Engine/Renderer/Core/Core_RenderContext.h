@@ -18,6 +18,11 @@ namespace core
 		friend class CoreRenderer;
 	public:
 
+		/// @brief コンストラクタ
+		explicit CoreRenderContext() = default;
+
+		/// @brief デストラクタ
+		virtual ~CoreRenderContext() noexcept = default;
 
 	protected:
 

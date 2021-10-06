@@ -30,7 +30,7 @@ namespace d3d11
 		explicit D3D11RenderTarget(ID3D11Device1* device, const core::RenderTargetID& id, D3D11Texture& d3dTex);
 
 		/// @brief デストラクタ
-		~D3D11RenderTarget() = default;
+		~D3D11RenderTarget() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

@@ -146,7 +146,7 @@ namespace core
 		}
 
 		/// @brief デストラクタ
-		virtual ~CoreShader() = default;
+		virtual ~CoreShader() noexcept = default;
 
 	public:
 		/// @brief 入力レイアウト情報構造体

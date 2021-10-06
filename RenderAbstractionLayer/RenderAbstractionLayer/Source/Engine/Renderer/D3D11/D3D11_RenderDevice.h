@@ -75,12 +75,10 @@ namespace d3d11
 
 		HWND								m_hWnd;					///< ウィンドウハンドル
 		D3D11_VIEWPORT						m_viewport;				///< ビューポート
-		DXGI_SAMPLE_DESC					m_dxgiMSAA;				///< MSAA設定
 
 		UINT								m_backBufferCount;		///< バックバッファ数
 		UINT								m_nOutputWidth;			///< 出力サイズ(幅)
 		UINT								m_nOutputHeight;		///< 出力サイズ(高さ)
-		bool								m_bUseMSAA;				///< MSAA使用フラグ
 
 		ComPtr<ID3D11RasterizerState>		m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
 		ComPtr<ID3D11SamplerState>			m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート

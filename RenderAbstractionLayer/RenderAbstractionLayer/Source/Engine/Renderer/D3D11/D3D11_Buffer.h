@@ -27,11 +27,11 @@ namespace d3d11
 		/// @param id バッファID
 		/// @param desc バッファDesc
 		/// @param data 初期化データ
-		D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, 
+		explicit D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, 
 			const core::BufferDesc& desc, const core::BufferData* data = nullptr);
 
 		/// @brief デストラクタ
-		~D3D11Buffer() = default;
+		~D3D11Buffer() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

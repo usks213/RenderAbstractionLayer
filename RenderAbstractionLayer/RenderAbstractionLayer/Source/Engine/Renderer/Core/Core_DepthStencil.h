@@ -35,7 +35,7 @@ namespace core
 		}
 
 		/// @brief デストラクタ
-		~CoreDepthStencil() = default;
+		virtual ~CoreDepthStencil() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

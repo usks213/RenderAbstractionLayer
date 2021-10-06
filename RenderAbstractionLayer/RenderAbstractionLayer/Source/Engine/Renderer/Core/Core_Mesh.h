@@ -21,9 +21,9 @@ namespace core
 	/// @brief 存在しないメッシュID
 	constexpr MeshID NONE_MESH_ID = std::numeric_limits<MeshID>::max();
 
-	/// @struct CoreMesh
+	/// @class CoreMesh
 	/// @brief メッシュ
-	struct CoreMesh
+	class CoreMesh
 	{
 	public:
 		//------------------------------------------------------------------------------
@@ -41,6 +41,9 @@ namespace core
 			m_boneCount(0),
 			m_topology(PrimitiveTopology::TRIANGLE_STRIP)
 		{}
+
+		/// @brief デストラクタ
+		~CoreMesh() noexcept = default;
 
 	public:
 		//------------------------------------------------------------------------------

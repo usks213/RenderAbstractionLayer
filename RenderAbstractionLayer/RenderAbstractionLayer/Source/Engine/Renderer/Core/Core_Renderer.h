@@ -26,7 +26,7 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		CoreRenderer() = default;
+		explicit CoreRenderer() = default;
 		/// @brief デストラクタ
 		virtual ~CoreRenderer() noexcept = default;
 

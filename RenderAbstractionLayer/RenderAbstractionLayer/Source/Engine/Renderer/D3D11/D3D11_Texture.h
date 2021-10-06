@@ -34,7 +34,7 @@ namespace d3d11
 			const core::TextureData* pData = nullptr);
 
 		/// @brief デストラクタ
-		~D3D11Texture() = default;
+		~D3D11Texture() noexcept = default;
 		
 	public:
 		//------------------------------------------------------------------------------

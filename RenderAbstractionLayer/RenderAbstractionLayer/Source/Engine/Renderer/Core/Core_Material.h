@@ -36,7 +36,7 @@ namespace core
 		explicit CoreMaterial(const MaterialID& id, const std::string& name, const CoreShader& shader);
 
 		/// @brief デストラクタ
-		virtual ~CoreMaterial() = default;
+		virtual ~CoreMaterial() noexcept = default;
 
 
 	public:

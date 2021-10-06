@@ -69,6 +69,9 @@ namespace core
 			m_id(id), m_desc(desc)
 		{}
 
+		/// @brief デストラクタ
+		virtual ~CoreTexture() noexcept = default;
+
 	public:
 		//------------------------------------------------------------------------------
 		// public variables

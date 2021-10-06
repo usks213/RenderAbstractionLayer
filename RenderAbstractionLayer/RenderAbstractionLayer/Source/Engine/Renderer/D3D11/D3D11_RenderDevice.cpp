@@ -27,11 +27,9 @@ D3D11RenderDevice::D3D11RenderDevice() :
 
 	m_hWnd(nullptr),
 	m_viewport(),
-	m_dxgiMSAA(DXGI_SAMPLE_DESC{ 1, 0 }),
 	m_backBufferCount(2u),
 	m_nOutputWidth(1u),
-	m_nOutputHeight(1u),
-	m_bUseMSAA(false)
+	m_nOutputHeight(1u)
 {
 
 }
@@ -74,6 +72,21 @@ HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 	UINT backBufferWidth = std::max<UINT>(m_nOutputWidth, 1u);
 	UINT backBufferHeight = std::max<UINT>(m_nOutputHeight, 1u);
 
+	//使用可能なMSAAを取得
+	if (m_sampleDesc.isUse)
+	{
+		for (int i = 0; i <= D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT; i++) {
+			UINT Quality;
+			if SUCCEEDED(m_pD3DDevice->CheckMultisampleQualityLevels(m_backBufferFormat, i, &Quality)) {
+				if (0 < Quality) {
+					m_sampleDesc.count = i;
+					m_sampleDesc.quality = Quality - 1;
+				}
+			}
+		}
+	}
+	DXGI_SAMPLE_DESC dxgiSampleDesc = { m_sampleDesc.count, m_sampleDesc.quality };
+
 	//--- スワップチェイン ---
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 	swapChainDesc.Width = backBufferWidth;
@@ -81,7 +94,7 @@ HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 	swapChainDesc.Format = m_backBufferFormat;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.BufferCount = m_backBufferCount;
-	swapChainDesc.SampleDesc = m_dxgiMSAA;
+	swapChainDesc.SampleDesc = dxgiSampleDesc;
 	swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
@@ -122,26 +135,12 @@ HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 		return E_FAIL;
 	}
 
-	//使用可能なMSAAを取得
-	if (m_bUseMSAA)
-	{
-		for (int i = 0; i <= D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT; i++) {
-			UINT Quality;
-			if SUCCEEDED(m_pD3DDevice->CheckMultisampleQualityLevels(m_backBufferFormat, i, &Quality)) {
-				if (0 < Quality) {
-					m_dxgiMSAA.Count = i;
-					m_dxgiMSAA.Quality = Quality - 1;
-				}
-			}
-		}
-	}
-
 	// バックバッファレンダーターゲットの作成
 	m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
 		(LPVOID*)m_backBufferRT.ReleaseAndGetAddressOf());
 
 	CD3D11_RENDER_TARGET_VIEW_DESC rtvDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
-	if (m_bUseMSAA) rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+	if (m_sampleDesc.isUse) rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	// レンダーターゲットビュー作成
 	hr = m_pD3DDevice->CreateRenderTargetView(
 		m_backBufferRT.Get(),
@@ -155,14 +154,14 @@ HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 	//--- 深度ステンシル ---
 	CD3D11_TEXTURE2D_DESC dsDesc(m_depthStencilFormat, backBufferWidth, backBufferHeight,
 		1, 1, D3D11_BIND_DEPTH_STENCIL);
-	if (m_bUseMSAA) dsDesc.SampleDesc = m_dxgiMSAA;
+	if (m_sampleDesc.isUse) dsDesc.SampleDesc = dxgiSampleDesc;
 	// 深度ステンシルテクスチャ作成
 	hr = m_pD3DDevice->CreateTexture2D(&dsDesc, nullptr,
 		m_depthStencilTexture.ReleaseAndGetAddressOf());
 	CHECK_FAILED(hr);
 	// 深度ステンシルテクスチャビュー
 	CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
-	if (m_bUseMSAA) dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+	if (m_sampleDesc.isUse) dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	hr = m_pD3DDevice->CreateDepthStencilView(m_depthStencilTexture.Get(),
 		&dsvDesc, m_depthStencilView.ReleaseAndGetAddressOf());
 	CHECK_FAILED(hr);
