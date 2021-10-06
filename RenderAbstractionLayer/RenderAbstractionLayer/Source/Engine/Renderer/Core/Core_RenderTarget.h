@@ -8,8 +8,7 @@
 #ifndef _CORE_RENDER_TARGET_
 #define _CORE_RENDER_TARGET_
 
-#include <cstdint>
-#include <string>
+#include "Core_Texture.h"
 
 namespace core
 {
@@ -29,17 +28,14 @@ namespace core
 
 		/// @brief コンストラクタ
 		/// @param id レンダーターゲットID
-		/// @param name 名前
-		explicit CoreRenderTarget(const RenderTargetID& id, const std::string& name) :
-			m_id(id), m_name(name)
+		/// @param texture テクスチャ
+		explicit CoreRenderTarget(const RenderTargetID& id, core::CoreTexture& texture) :
+			m_id(id), m_name(texture.m_desc.name), m_texID(texture.m_id)
 		{
 		}
+
 		/// @brief デストラクタ
 		~CoreRenderTarget() = default;
-
-		/// @brief レンダーターゲットテクスチャの取得
-		/// @return テクスチャID
-		//virtual const TextureID getRTTexture() const = 0;
 
 	public:
 		//------------------------------------------------------------------------------
@@ -50,6 +46,9 @@ namespace core
 		RenderTargetID	m_id;
 		/// @brief 名前
 		std::string		m_name;
+		/// @brief テクスチャID
+		TextureID		m_texID;
+
 	};
 }
 

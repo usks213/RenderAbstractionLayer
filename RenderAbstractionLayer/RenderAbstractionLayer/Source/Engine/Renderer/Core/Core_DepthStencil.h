@@ -8,8 +8,7 @@
 #ifndef _CORE_DEPTH_STENCIL_
 #define _CORE_DEPTH_STENCIL_
 
-#include <cstdint>
-#include <string>
+#include "Core_Texture.h"
 
 namespace core
 {
@@ -29,9 +28,9 @@ namespace core
 
 		/// @brief コンストラクタ
 		/// @param id 深度ステンシルID
-		/// @param name 名前
-		explicit CoreDepthStencil(const DepthStencilID& id, const std::string& name) :
-			m_id(id), m_name(name)
+		/// @param texture テクスチャ
+		explicit CoreDepthStencil(const DepthStencilID& id, CoreTexture& texture) :
+			m_id(id), m_name(texture.m_desc.name), m_texID(texture.m_id)
 		{
 		}
 
@@ -43,8 +42,9 @@ namespace core
 		// public variables
 		//------------------------------------------------------------------------------
 
-		DepthStencilID	m_id;	///< 深度ステンシルID
-		std::string		m_name;	///< 名前
+		DepthStencilID	m_id;		///< 深度ステンシルID
+		std::string		m_name;		///< 名前
+		TextureID		m_texID;	///< テクスチャID
 
 	};
 }

@@ -194,6 +194,8 @@ namespace core
 		return lhs | static_cast<std::uint32_t>(rhs);
 	}
 
+	//----- CoreTexture -----
+
 	/// @enum TextureFormat
 	/// @brief テクスチャフォーマット
 	enum class TextureFormat : std::uint32_t
@@ -295,6 +297,15 @@ namespace core
 
 		MAX,
 	};
+
+	/// @brief マルチサンプル
+	struct SampleDesc
+	{
+		bool			isUse	= false;	///< マルチサンプルするか
+		std::uint32_t	count	= 1;		///< サンプル数
+		std::uint32_t	quality = 0;		///< サンプルクオリティ
+	};
+
 }
 
 #endif // !_CORE_COMMON_STATE_

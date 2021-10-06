@@ -38,6 +38,7 @@ namespace core
 		std::uint32_t		mipLevels		= 0;						///< ミップマップレベル(0:自動生成)
 		std::uint32_t		arraySize		= 1;						///< 配列サイズ
 		TextureFormat		format			= TextureFormat::UNKNOWN;	///< フォーマット
+		SampleDesc			sampleDesc		= SampleDesc();				///< マルチサンプル指定
 		Usage				usage			= Usage::DEFAULT;			///< リソース使用識別
 		BindFlags			bindFlags		= BindFlags::UNKNOWN;		///< バインドフラグ
 		CPUAccessFlags		cpuAccessFlags	= CPUAccessFlags::NONE;		///< CPUアクセスフラグ
