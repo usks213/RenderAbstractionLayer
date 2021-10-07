@@ -15,6 +15,7 @@
 
 #include "Geometry.h"
 
+core::MaterialID g_matID;
 core::RenderBufferID g_rdID;
 
 
@@ -34,21 +35,46 @@ void TestScene::Start()
 	texData.pInitData = texArray.data();
 	texData.size = texArray.size();
 
-	for (int i = 0; i < texArray.size(); i += texDepth)
+	uint32_t texX = texWidth * texDepth;
+	for (int y = 0; y < texHeight; ++y)
 	{
-		if (i < texArray.size() / 2)
+		for (int x = 0; x < texX; x += texDepth)
 		{
-			texArray[i + 0] = 255;
-			texArray[i + 1] = 0;
-			texArray[i + 2] = 0;
-			texArray[i + 3] = 255;
-		}
-		else
-		{
-			texArray[i + 0] = 255;
-			texArray[i + 1] = 0;
-			texArray[i + 2] = 255;
-			texArray[i + 3] = 255;
+			if (y < texHeight / 2)
+			{
+				if (x < texX / 2)
+				{
+					texArray[y * texX + x + 3] = 255;	// R
+					texArray[y * texX + x + 2] = 0;		// G
+					texArray[y * texX + x + 1] = 0;		// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+				else
+				{
+					texArray[y * texX + x + 3] = 0;		// R
+					texArray[y * texX + x + 2] = 255;	// G
+					texArray[y * texX + x + 1] = 0;		// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+			}
+			else
+			{
+				if (x < texX / 2)
+				{
+					texArray[y * texX + x + 3] = 0;		// R
+					texArray[y * texX + x + 2] = 0;		// G
+					texArray[y * texX + x + 1] = 255;	// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+				else
+				{
+					texArray[y * texX + x + 3] = 255;	// R
+					texArray[y * texX + x + 2] = 255;	// G
+					texArray[y * texX + x + 1] = 255;	// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+			}
+
 		}
 	}
 
@@ -70,7 +96,11 @@ void TestScene::Start()
 	auto unlitShaderID = device->createShader(shaderDesc);
 	auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
 	auto* pUnlitMat = device->getMaterial(unlitMatID);
+	pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
+	pUnlitMat->setTexture("_MainTexture", texID);
+
 	context->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
+	g_matID = unlitMatID;
 
 	// メッシュの生成
 	auto cubeMehID = device->createMesh("cube");
@@ -98,13 +128,45 @@ void TestScene::Render()
 	auto* device = renderer->getDevice();
 	auto* context = renderer->getContext();
 
+	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
+	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
+
 	// システムバッファ送信
+	Vector3 eyepos = Vector3(0, 1.5f, 3);
+	Vector3 eyedir = Vector3(0, 0, 0);
+	Vector3 up = Vector3(0, 1, 0);
+	Matrix view = XMMatrixLookAtLH(eyepos, eyedir, up);
+
+	Matrix proj = XMMatrixPerspectiveFovLH(
+		XMConvertToRadians(60),
+		width / height,
+		10.0f,
+		100.0f
+		);
+
+	core::SHADER::SystemBuffer systemBuffer;
+	systemBuffer._mView = XMMatrixTranspose(view);
+	systemBuffer._mProj = XMMatrixTranspose(proj);
+
+	context->sendSystemBuffer(systemBuffer);
 
 	// トランスフォームバッファ送信
+	static float angleY = 0;
+	angleY += 0.01f;
+	Vector3 pos = Vector3(0, 0, 0);
+	Vector3 rot = Vector3(0, angleY, 0);
+	Vector3 sca = Vector3(1, 1, 1);
+	XMMATRIX world = XMMatrixScaling(sca.x, sca.y, sca.z);
+	world *= XMMatrixRotationRollPitchYawFromVector(rot);
+	world *= XMMatrixTranslationFromVector(pos);
+
+	context->sendTransformBuffer(world);
 
 	// マテリアルの指定
+	context->setMaterial(g_matID);
 
 	// レンダーバッファの指定
+	context->setRenderBuffer(g_rdID);
 
 	// 描画
 	context->render(g_rdID);
