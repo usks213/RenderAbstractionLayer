@@ -283,7 +283,7 @@ void D3D11RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& syst
 void D3D11RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
 {
 	SHADER::TransformBuffer transform;
-	transform._mWorld = DirectX::XMMatrixTranspose(mtxWorld);
+	transform._mWorld = mtxWorld.Transpose();
 
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{

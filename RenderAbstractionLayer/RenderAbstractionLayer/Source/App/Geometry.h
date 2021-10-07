@@ -5,6 +5,8 @@
  * \author USAMI KOSHI
  * \date   2021/10/06
  *********************************************************************/
+#ifndef _GEOMETRY_
+#define _GEOMETRY_
 
 #include <Renderer/Core/Core_Mesh.h>
 
@@ -17,3 +19,5 @@ public:
 	static void Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSize);
 	static void SkyDome(core::CoreMesh& out, int nSegment, float fTexSplit);
 };
+
+#endif // !_GEOMETRY_

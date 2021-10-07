@@ -31,6 +31,7 @@
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Defines.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.cpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp" />
+    <ClCompile Include="Source\Engine\Utility\Util_Mathf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

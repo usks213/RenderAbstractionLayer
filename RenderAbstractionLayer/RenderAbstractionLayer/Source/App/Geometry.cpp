@@ -10,10 +10,10 @@
 
 struct VERTEX_3D 
 {
-	XMFLOAT3 vtx;		// 頂点座標
-	XMFLOAT3 nor;		// 法線ベクトル
-	XMFLOAT4 diffuse;	// 拡散反射光
-	XMFLOAT2 tex;		// テクスチャ座標
+	Vector3 vtx;		// 頂点座標
+	Vector3 nor;		// 法線ベクトル
+	Vector4 diffuse;	// 拡散反射光
+	Vector2 tex;		// テクスチャ座標
 };
 
 void Geometry::Quad(core::CoreMesh& out)
@@ -31,31 +31,31 @@ void Geometry::Quad(core::CoreMesh& out)
 
 	// 頂点座標の設定
 	// 前
-	vertexWk[0].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[1].vtx = XMFLOAT3(SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[2].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, -SIZE_Z);
-	vertexWk[3].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[0].vtx = Vector3(-SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[1].vtx = Vector3(SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[2].vtx = Vector3(-SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[3].vtx = Vector3(SIZE_X, -SIZE_Y, -SIZE_Z);
 	
 	// 法線ベクトルの設定
 	// 前
-	vertexWk[0].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[1].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[2].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[3].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
+	vertexWk[0].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[1].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[2].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[3].nor = Vector3(0.0f, 0.0f, -1.0f);
 
 	// 拡散反射光の設定
 	for (std::uint32_t i = 0; i < QUAD_VERTEX; i++)
 	{
-		vertexWk[i].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		vertexWk[i].diffuse = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	// テクスチャ座標の設定
 	for (std::uint32_t i = 0; i < QUAD_VERTEX; i += 4)
 	{
-		vertexWk[0 + i].tex = XMFLOAT2(0.0f, 0.0f);
-		vertexWk[1 + i].tex = XMFLOAT2(1.0f, 0.0f);
-		vertexWk[2 + i].tex = XMFLOAT2(0.0f, 1.0f);
-		vertexWk[3 + i].tex = XMFLOAT2(1.0f, 1.0f);
+		vertexWk[0 + i].tex = Vector2(0.0f, 0.0f);
+		vertexWk[1 + i].tex = Vector2(1.0f, 0.0f);
+		vertexWk[2 + i].tex = Vector2(0.0f, 1.0f);
+		vertexWk[3 + i].tex = Vector2(1.0f, 1.0f);
 	}
 
 	// 頂点生成
@@ -103,9 +103,9 @@ void Geometry::Plane(core::CoreMesh& out, int split, float size, float texSize)
 			pVtx->vtx.y = 0.0f;
 			pVtx->vtx.z = -z * fSizeBlockZ + (nNumBlockZ * 0.5f) * fSizeBlockZ;
 			// 法線の設定
-			pVtx->nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			pVtx->nor = Vector3(0.0f, 1.0f, 0.0f);
 			// 反射光の設定
-			pVtx->diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx->diffuse = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 			// テクスチャ座標の設定
 			pVtx->tex.x = fTexSizeX * x;
 			pVtx->tex.y = fTexSizeZ * z;
@@ -166,83 +166,83 @@ void Geometry::Cube(core::CoreMesh& out)
 
 	// 頂点座標の設定
 	// 前
-	vertexWk[0].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[1].vtx = XMFLOAT3(SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[2].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, -SIZE_Z);
-	vertexWk[3].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[0].vtx = Vector3(-SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[1].vtx = Vector3(SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[2].vtx = Vector3(-SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[3].vtx = Vector3(SIZE_X, -SIZE_Y, -SIZE_Z);
 	// 右
-	vertexWk[4].vtx = XMFLOAT3(SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[5].vtx = XMFLOAT3(SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[6].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, -SIZE_Z);
-	vertexWk[7].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[4].vtx = Vector3(SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[5].vtx = Vector3(SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[6].vtx = Vector3(SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[7].vtx = Vector3(SIZE_X, -SIZE_Y, SIZE_Z);
 	// 上
-	vertexWk[8].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[9].vtx = XMFLOAT3(SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[10].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[11].vtx = XMFLOAT3(SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[8].vtx = Vector3(-SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[9].vtx = Vector3(SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[10].vtx = Vector3(-SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[11].vtx = Vector3(SIZE_X, SIZE_Y, -SIZE_Z);
 	// 後
-	vertexWk[12].vtx = XMFLOAT3(SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[13].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[14].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, SIZE_Z);
-	vertexWk[15].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[12].vtx = Vector3(SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[13].vtx = Vector3(-SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[14].vtx = Vector3(SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[15].vtx = Vector3(-SIZE_X, -SIZE_Y, SIZE_Z);
 	// 左
-	vertexWk[16].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, SIZE_Z);
-	vertexWk[17].vtx = XMFLOAT3(-SIZE_X, SIZE_Y, -SIZE_Z);
-	vertexWk[18].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, SIZE_Z);
-	vertexWk[19].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[16].vtx = Vector3(-SIZE_X, SIZE_Y, SIZE_Z);
+	vertexWk[17].vtx = Vector3(-SIZE_X, SIZE_Y, -SIZE_Z);
+	vertexWk[18].vtx = Vector3(-SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[19].vtx = Vector3(-SIZE_X, -SIZE_Y, -SIZE_Z);
 	// 下
-	vertexWk[20].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, SIZE_Z);
-	vertexWk[21].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, SIZE_Z);
-	vertexWk[22].vtx = XMFLOAT3(SIZE_X, -SIZE_Y, -SIZE_Z);
-	vertexWk[23].vtx = XMFLOAT3(-SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[20].vtx = Vector3(SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[21].vtx = Vector3(-SIZE_X, -SIZE_Y, SIZE_Z);
+	vertexWk[22].vtx = Vector3(SIZE_X, -SIZE_Y, -SIZE_Z);
+	vertexWk[23].vtx = Vector3(-SIZE_X, -SIZE_Y, -SIZE_Z);
 
 
 	// 法線ベクトルの設定
 	// 前
-	vertexWk[0].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[1].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[2].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	vertexWk[3].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
+	vertexWk[0].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[1].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[2].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[3].nor = Vector3(0.0f, 0.0f, -1.0f);
 	// 右
-	vertexWk[4].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	vertexWk[5].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	vertexWk[6].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	vertexWk[7].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	vertexWk[4].nor = Vector3(1.0f, 0.0f, 0.0f);
+	vertexWk[5].nor = Vector3(1.0f, 0.0f, 0.0f);
+	vertexWk[6].nor = Vector3(1.0f, 0.0f, 0.0f);
+	vertexWk[7].nor = Vector3(1.0f, 0.0f, 0.0f);
 	// 上
-	vertexWk[8].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	vertexWk[9].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	vertexWk[10].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	vertexWk[11].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	vertexWk[8].nor = Vector3(0.0f, 1.0f, 0.0f);
+	vertexWk[9].nor = Vector3(0.0f, 1.0f, 0.0f);
+	vertexWk[10].nor = Vector3(0.0f, 1.0f, 0.0f);
+	vertexWk[11].nor = Vector3(0.0f, 1.0f, 0.0f);
 	// 後
-	vertexWk[12].nor = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	vertexWk[13].nor = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	vertexWk[14].nor = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	vertexWk[15].nor = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	vertexWk[12].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[13].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[14].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[15].nor = Vector3(0.0f, 0.0f, 1.0f);
 	// 左
-	vertexWk[16].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
-	vertexWk[17].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
-	vertexWk[18].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
-	vertexWk[19].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+	vertexWk[16].nor = Vector3(-1.0f, 0.0f, 0.0f);
+	vertexWk[17].nor = Vector3(-1.0f, 0.0f, 0.0f);
+	vertexWk[18].nor = Vector3(-1.0f, 0.0f, 0.0f);
+	vertexWk[19].nor = Vector3(-1.0f, 0.0f, 0.0f);
 	// 下
-	vertexWk[20].nor = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	vertexWk[21].nor = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	vertexWk[22].nor = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	vertexWk[23].nor = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	vertexWk[20].nor = Vector3(0.0f, -1.0f, 0.0f);
+	vertexWk[21].nor = Vector3(0.0f, -1.0f, 0.0f);
+	vertexWk[22].nor = Vector3(0.0f, -1.0f, 0.0f);
+	vertexWk[23].nor = Vector3(0.0f, -1.0f, 0.0f);
 
 
 	// 拡散反射光の設定
 	for (std::uint32_t i = 0; i < CUBE_VERTEX; i++)
 	{
-		vertexWk[i].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		vertexWk[i].diffuse = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	// テクスチャ座標の設定
 	for (std::uint32_t i = 0; i < CUBE_VERTEX; i += 4)
 	{
-		vertexWk[0 + i].tex = XMFLOAT2(0.0f, 0.0f);
-		vertexWk[1 + i].tex = XMFLOAT2(1.0f, 0.0f);
-		vertexWk[2 + i].tex = XMFLOAT2(0.0f, 1.0f);
-		vertexWk[3 + i].tex = XMFLOAT2(1.0f, 1.0f);
+		vertexWk[0 + i].tex = Vector2(0.0f, 0.0f);
+		vertexWk[1 + i].tex = Vector2(1.0f, 0.0f);
+		vertexWk[2 + i].tex = Vector2(0.0f, 1.0f);
+		vertexWk[3 + i].tex = Vector2(1.0f, 1.0f);
 	}
 
 	// インデックス配列の設定
@@ -300,13 +300,13 @@ void Geometry::Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSi
 			pVtx->vtx.y = 1.0f;
 			pVtx->vtx.z = 0.0f;
 			// 角度に対する回転マトリックスを求める
-			XMMATRIX mR = XMMatrixRotationX(XMConvertToRadians(x * (180.0f / nNumBlockX)));
-			mR *= XMMatrixRotationY(XMConvertToRadians(y * -(360.0f / nNumBlockY)));
+			Matrix mR = Matrix::CreateRotationX(Mathf::ToRadians(x * (180.0f / nNumBlockX)));
+			mR *= Matrix::CreateRotationY(Mathf::ToRadians(y * -(360.0f / nNumBlockY)));
 			// 座標を回転マトリックスで回転させる
-			XMVECTOR v = XMLoadFloat3(&pVtx->vtx);
-			v = XMVector3TransformCoord(v, mR);
-			v = XMVector3Normalize(v);
-			XMStoreFloat3(&pVtx->vtx, v);
+			Vector3 v = pVtx->vtx;
+			v = Vector3::Transform(v, mR);
+			v = v.Normalize();
+			pVtx->vtx = v;
 
 			// 法線の設定
 			pVtx->nor = pVtx->vtx;
@@ -322,7 +322,7 @@ void Geometry::Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSi
 			//pVtx->vtx.z += fPosZ;
 
 			// 反射光の設定
-			pVtx->diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx->diffuse = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 			// テクスチャ座標の設定
 			pVtx->tex.x = fTexSize * y;
 			pVtx->tex.y = fTexSize * x;
@@ -380,14 +380,14 @@ void Geometry::SkyDome(core::CoreMesh& out, int nSegment, float fTexSplit)
 	VERTEX_3D* pVertexWk = new VERTEX_3D[out.m_vertexCount];
 
 	for (int i = 0; i <= (nSegment / 2); ++i) {
-		float irad = XM_PI * 2.0f / (float)nSegment * (float)i;
+		float irad = Mathf::Pi * 2.0f / (float)nSegment * (float)i;
 		float y = (float)cos(irad);
 		float r = (float)sin(irad);
 		float v = (float)i / (float)(nSegment / 2) * fTexSplit;
 		for (int j = 0; j <= nSegment; ++j) {
-			float jrad = XM_PI * 2.0f / (float)nSegment * (float)j;
-			float x = r * (float)cos(jrad - XM_PI * 0.5f);
-			float z = r * (float)sin(jrad - XM_PI * 0.5f);
+			float jrad = Mathf::Pi * 2.0f / (float)nSegment * (float)j;
+			float x = r * (float)cos(jrad - Mathf::Pi * 0.5f);
+			float z = r * (float)sin(jrad - Mathf::Pi * 0.5f);
 			float u = (float)j / (float)nSegment * fTexSplit;
 			int   inx = i * (nSegment + 1) + j;
 			pVertexWk[inx].vtx.x = x * -fScale;
@@ -398,7 +398,7 @@ void Geometry::SkyDome(core::CoreMesh& out, int nSegment, float fTexSplit)
 			pVertexWk[inx].nor.z = z;
 			pVertexWk[inx].tex.x = u;
 			pVertexWk[inx].tex.y = v;
-			pVertexWk[inx].diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+			pVertexWk[inx].diffuse = Vector4{ 1.0f, 1.0f, 1.0f, 1.0f };
 		}
 	}
 

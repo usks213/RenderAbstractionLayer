@@ -135,18 +135,19 @@ void TestScene::Render()
 	Vector3 eyepos = Vector3(0, 1.5f, 3);
 	Vector3 eyedir = Vector3(0, 0, 0);
 	Vector3 up = Vector3(0, 1, 0);
-	Matrix view = XMMatrixLookAtLH(eyepos, eyedir, up);
+	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
 
-	Matrix proj = XMMatrixPerspectiveFovLH(
-		XMConvertToRadians(60),
-		width / height,
+	Matrix proj = Matrix::CreatePerspectiveFOV(
+		Mathf::ToRadians(60),
+		width, 
+		height,
 		10.0f,
 		100.0f
 		);
 
 	core::SHADER::SystemBuffer systemBuffer;
-	systemBuffer._mView = XMMatrixTranspose(view);
-	systemBuffer._mProj = XMMatrixTranspose(proj);
+	systemBuffer._mView = view.Transpose();
+	systemBuffer._mProj = proj.Transpose();
 
 	context->sendSystemBuffer(systemBuffer);
 
@@ -156,9 +157,9 @@ void TestScene::Render()
 	Vector3 pos = Vector3(0, 0, 0);
 	Vector3 rot = Vector3(0, angleY, 0);
 	Vector3 sca = Vector3(1, 1, 1);
-	XMMATRIX world = XMMatrixScaling(sca.x, sca.y, sca.z);
-	world *= XMMatrixRotationRollPitchYawFromVector(rot);
-	world *= XMMatrixTranslationFromVector(pos);
+	Matrix world = Matrix::CreateScale(sca.x, sca.y, sca.z);
+	world *= Matrix::CreateRotationZXY(rot);
+	world *= Matrix::CreateTranslation(pos);
 
 	context->sendTransformBuffer(world);
 

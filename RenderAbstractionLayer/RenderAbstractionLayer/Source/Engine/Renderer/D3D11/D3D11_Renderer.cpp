@@ -8,9 +8,6 @@
 
 #include "D3D11_Renderer.h"
 #include <vector>
- // ƒ‰ƒCƒuƒ‰ƒŠƒŠƒ“ƒN
-#pragma comment(lib, "D3D11.lib")
-#pragma comment(lib, "DXGI.lib")
 
 using namespace d3d11;
 

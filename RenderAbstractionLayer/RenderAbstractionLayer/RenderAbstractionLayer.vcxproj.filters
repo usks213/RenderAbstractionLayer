@@ -226,6 +226,12 @@
     <ClCompile Include="Source\App\Geometry.cpp">
       <Filter>ソース ファイル\App</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Util_Mathf.cpp">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Defines.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
