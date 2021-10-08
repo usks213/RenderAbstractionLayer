@@ -115,6 +115,9 @@ namespace core
 		std::unique_ptr<CoreSceneManager>		m_pSceneManager;		///< シーンマネージャー
 
 		//--- タイマー 
+		// ↓これがもっともいい精度
+		// std::chrono::high_resolution_clock;
+
 		std::uint32_t							m_nCurrentFPS;			///< 現在のFPS
 		std::uint64_t							m_nFrameCount;			///< フレームレートカウンタ
 		std::chrono::system_clock::time_point	m_FixedExecLastTime;	///< 一定更新の前時間 

@@ -161,6 +161,12 @@
     <ClInclude Include="Source\App\Geometry.h">
       <Filter>ソース ファイル\App</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Defines.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -231,6 +237,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Defines.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Defines.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

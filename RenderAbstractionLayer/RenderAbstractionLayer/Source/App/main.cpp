@@ -13,6 +13,7 @@
 #include <Engine/Core_Engine.h>
 #include <Engine/Platform/Win/Win_Window.h>
 #include <Engine/Renderer/D3D11/D3D11_Renderer.h>
+#include <Engine/Renderer/D3D12/D3D12_Renderer.h>
 
 #include "TestScene.h"
 
@@ -47,7 +48,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	// ウィンドウの生成
 	win::WinWindow* pWin = engine.createWindow<win::WinWindow>("CoreEngine", 1280 * 0.75f, 720 * 0.75f);
 	// レンダラーの生成
-	d3d11::D3D11Renderer* pRenderer = engine.createRenderer<d3d11::D3D11Renderer>();
+	d3d12::D3D12Renderer* pRenderer = engine.createRenderer<d3d12::D3D12Renderer>();
 
 	// ウィンドウの初期化
 	pWin->initialize(hInstance, "RenderAppClass", nCmdShow, WndProc);
