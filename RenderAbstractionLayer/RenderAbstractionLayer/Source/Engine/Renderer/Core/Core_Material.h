@@ -97,6 +97,9 @@ namespace core
 		/// @brief CBuffer変数データ
 		std::unordered_map<std::string, CoreShader::CBufferVariable> m_cbufferVariable;
 
+		/// @brief  全ステージ、スロット分のCBufferの数
+		std::uint32_t m_cbufferCount;
+
 	public:
 		//------------------------------------------------------------------------------
 		// public methods

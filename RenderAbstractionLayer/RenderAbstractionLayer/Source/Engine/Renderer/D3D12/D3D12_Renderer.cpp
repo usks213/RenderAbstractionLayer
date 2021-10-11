@@ -29,6 +29,27 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 {
 	HRESULT hr = S_OK;
 
+	//----- デバッグレイヤー・ファクトリー -----
+
+#ifdef _DEBUG
+	// デバッグレイヤー
+	{
+		hr = D3D12GetDebugInterface(IID_PPV_ARGS(m_pDebugLater.ReleaseAndGetAddressOf()));
+		CHECK_FAILED(hr);
+		m_pDebugLater->EnableDebugLayer();
+	}
+#endif // _DEBUG
+
+	// ファクトリーの生成
+	{
+#ifdef _DEBUG
+		hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(m_pDXGIFactory.ReleaseAndGetAddressOf()));
+#elif
+		hr = CreateDXGIFactory1(IID_PPV_ARGS(m_pDXGIFactory.ReleaseAndGetAddressOf()));
+#endif // _DEBUG
+		CHECK_FAILED(hr);
+	}
+
 	//----- アダプタ・デバイス -----
 
 	// デバイス生成
@@ -68,13 +89,7 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 	}
 
 
-	//----- ファクトリー・スワップチェイン・レンダーターゲット -----
-
-	// ファクトリーの生成
-	{
-		hr = CreateDXGIFactory1(IID_PPV_ARGS(m_pDXGIFactory.ReleaseAndGetAddressOf()));
-		CHECK_FAILED(hr);
-	}
+	//----- スワップチェイン・フェンス・レンダーターゲット -----
 
 	// スワップチェインの生成
 	{
@@ -108,6 +123,14 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		
 		// フレームバッファ番号取得
 
+	}
+
+	// フェンスの生成
+	{
+		m_nFenceVal = 0;
+		hr = m_pD3DDevice->CreateFence(m_nFenceVal, D3D12_FENCE_FLAG_NONE,
+			IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf()));
+		CHECK_FAILED(hr);
 	}
 
 	// レンダーターゲットヒープの生成
@@ -166,6 +189,17 @@ void D3D12Renderer::clear()
 	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	handlRTV.ptr += backBufferIndex * m_nBackBufferSize;
 
+	// レンダーターゲットのバリア指定
+	D3D12_RESOURCE_BARRIER barrierDesc = {};
+	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+	barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	barrierDesc.Transition.Subresource = 										// サブリソースの数
+		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;			// 遷移前のリソース状態
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;		// 遷移後のリソース状態
+	m_pCmdList->ResourceBarrier(1, &barrierDesc);
+
 	// レンダーターゲットのセット
 	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, nullptr);
 
@@ -180,16 +214,46 @@ void D3D12Renderer::clear()
 /// @brief 画面更新
 void D3D12Renderer::present()
 {
+	HRESULT hr = S_OK;
+
+	// レンダーターゲットのバリア指定
+	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+	D3D12_RESOURCE_BARRIER barrierDesc = {};
+	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+	barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	barrierDesc.Transition.Subresource = 										// サブリソースの数
+		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
+	m_pCmdList->ResourceBarrier(1, &barrierDesc);
+
 	// コマンドの記録終了
-	m_pCmdList->Close();
+	hr = m_pCmdList->Close();
+	CHECK_FAILED(hr);
 
 	// コマンドの実行
 	ID3D12CommandList* ppCmdList[] = { m_pCmdList.Get() };
 	m_pCmdQueue->ExecuteCommandLists(_countof(ppCmdList), ppCmdList);
 
+	// コマンド完了待ち
+	hr = m_pCmdQueue->Signal(m_pFence.Get(), ++m_nFenceVal);
+	CHECK_FAILED(hr);
+
+	// フェンス処理
+	if (m_pFence->GetCompletedValue() != m_nFenceVal)
+	{
+		// イベント発行
+		auto hEvent = CreateEvent(nullptr, false, false, nullptr);
+		hr = m_pFence->SetEventOnCompletion(m_nFenceVal, hEvent);
+		CHECK_FAILED(hr);
+		// イベント終了待ち
+		WaitForSingleObject(hEvent, INFINITE);
+		// イベントを閉じる
+		CloseHandle(hEvent);
+	}
+
 	// 表示
 	m_pSwapChain->Present(1, 0);
-
-	// コマンドの完了を待機
 	
 }

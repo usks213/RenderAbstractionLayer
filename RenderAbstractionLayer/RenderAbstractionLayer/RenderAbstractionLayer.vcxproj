@@ -42,7 +42,9 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Defines.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Shader.cpp" />
     <ClCompile Include="Source\Engine\Utility\Util_Mathf.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +82,9 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Defines.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Material.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Shader.h" />
     <ClInclude Include="Source\Engine\Scene\Core_Scene.h" />
     <ClInclude Include="Source\Engine\Scene\Core_SceneManager.h" />
     <ClInclude Include="Source\Engine\Utility\Util_Hash.h" />

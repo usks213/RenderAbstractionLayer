@@ -167,6 +167,12 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Defines.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Shader.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Material.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -242,6 +248,12 @@
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Defines.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Shader.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Material.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>

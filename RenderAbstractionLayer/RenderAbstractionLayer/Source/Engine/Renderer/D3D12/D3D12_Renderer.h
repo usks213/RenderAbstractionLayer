@@ -79,6 +79,10 @@ namespace d3d12
 		ComPtr<IDXGIFactory6>				m_pDXGIFactory;
 		ComPtr<IDXGISwapChain4>				m_pSwapChain;
 
+		// d3d12 fence param
+		ComPtr<ID3D12Fence>					m_pFence;
+		UINT64								m_nFenceVal;
+
 		// d3d12 command param
 		ComPtr<ID3D12CommandQueue>			m_pCmdQueue;
 		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;
@@ -92,6 +96,11 @@ namespace d3d12
 
 		// d3d12 dsv param
 		ComPtr<ID3D12DescriptorHeap>		m_pHeapDSV;
+
+#ifdef _DEBUG
+		// d3d12 debug
+		ComPtr<ID3D12Debug>					m_pDebugLater;
+#endif // _DEBUG
 
 	};
 }

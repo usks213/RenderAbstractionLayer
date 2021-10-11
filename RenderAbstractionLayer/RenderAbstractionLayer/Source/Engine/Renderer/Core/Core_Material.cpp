@@ -18,7 +18,8 @@ CoreMaterial::CoreMaterial(const MaterialID& id, const std::string& name, const 
 	m_depthStencilState(DepthStencilState::ENABLE_TEST_AND_ENABLE_WRITE),
 	m_rasterizeState(RasterizeState::CULL_BACK),
 	m_shaderID(shader.m_id),
-	m_shaderType(shader.m_type)
+	m_shaderType(shader.m_type),
+	m_cbufferCount(0)
 {
 	// シェーダからマテリアルデータを生成
 	for (ShaderStage stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
@@ -36,6 +37,8 @@ CoreMaterial::CoreMaterial(const MaterialID& id, const std::string& name, const 
 			cbData.size = cbLayout.second.size;
 			// 更新フラグ
 			cbData.isUpdate = true;
+			// カウント加算
+			++m_cbufferCount;
 
 			// 変数データ格納
 			for (const auto& var : cbLayout.second.variables)
