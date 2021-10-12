@@ -27,12 +27,12 @@ namespace {
 	};
 	/// @brief HLSLバージョン
 	const char* HLSL_VERS[] = {
-		"vs_5_0",
-		"gs_5_0",
-		"ds_5_0",
-		"hs_5_0",
-		"ps_5_0",
-		"cs_5_0",
+		"vs_5_1",
+		"gs_5_1",
+		"ds_5_1",
+		"hs_5_1",
+		"ps_5_1",
+		"cs_5_1",
 	};
 }
 
@@ -134,6 +134,7 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 
 			// 入力レイアウト情報
 			m_inputLayoutVariableList[i].semanticName = inputDesc.SemanticName;
+			inputDesc.SemanticName = m_inputLayoutVariableList[i].semanticName.c_str();
 			m_inputLayoutVariableList[i].semanticIndex = inputDesc.SemanticIndex;
 			if (i > 0)
 			{
@@ -191,6 +192,7 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 
 		// 入力レイアウト情報格納
 		if (!inputLayouts.empty()){
+
 			m_inputElementDesc = inputLayouts;
 		}
 	}

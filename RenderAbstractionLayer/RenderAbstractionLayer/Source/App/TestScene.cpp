@@ -13,6 +13,10 @@
 #include <Renderer/Core/Core_RenderDevice.h>
 #include <Renderer/Core/Core_RenderContext.h>
 
+#include <Renderer\D3D12\D3D12_Renderer.h>
+#include <Renderer\D3D12\D3D12_Shader.h>
+#include <Renderer\D3D12\D3D12_Material.h>
+
 #include "Geometry.h"
 
 core::MaterialID g_matID;
@@ -22,9 +26,9 @@ core::RenderBufferID g_rdID;
  /// @brief スタート
 void TestScene::Start()
 {
-	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
-	//auto* device = renderer->getDevice();
-	//auto* context = renderer->getContext();
+	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
+	auto* device = renderer->getDevice();
+	auto* context = renderer->getContext();
 
 	//// テクスチャの生成
 	//uint32_t texWidth = 256u;
@@ -88,14 +92,22 @@ void TestScene::Start()
 
 	//auto texID = device->createTexture(texDesc, &texData);
 
-	//// シェーダー・マテリアルの生成
-	//core::ShaderDesc shaderDesc;
-	//shaderDesc.m_stages = core::ShaderStageFlags::VS | core::ShaderStageFlags::PS;
+	// シェーダー・マテリアルの生成
+	core::ShaderDesc shaderDesc;
+	shaderDesc.m_stages = core::ShaderStageFlags::VS | core::ShaderStageFlags::PS;
 
-	//shaderDesc.m_name = "Unlit";
-	//auto unlitShaderID = device->createShader(shaderDesc);
-	//auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
-	//auto* pUnlitMat = device->getMaterial(unlitMatID);
+	shaderDesc.m_name = "Unlit";
+
+	auto* renderer12 = static_cast<d3d12::D3D12Renderer*>(renderer);
+	auto* device12 = renderer12->m_pD3DDevice.Get();
+	core::ShaderID id;
+	d3d12::D3D12Shader shader = d3d12::D3D12Shader(device12, shaderDesc, id);
+	core::MaterialID matID;
+	d3d12::D3D12Material mat = d3d12::D3D12Material(device12, matID, shaderDesc.m_name, shader);
+
+	auto unlitShaderID = device->createShader(shaderDesc);
+	auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
+	auto* pUnlitMat = device->getMaterial(unlitMatID);
 	//pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
 	//pUnlitMat->setTexture("_MainTexture", texID);
 

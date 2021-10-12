@@ -100,7 +100,7 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		desc.Stereo = false;								// フルスクリーン指定
 		desc.SampleDesc = DXGI_SAMPLE_DESC{ 1,0 };	
 		desc.BufferUsage = DXGI_USAGE_BACK_BUFFER;			// バッファ識別
-		desc.BufferCount = BACK_BUFFER_COUNT;						// バックバッファ数
+		desc.BufferCount = BACK_BUFFER_COUNT;				// バックバッファ数
 		desc.Scaling = DXGI_SCALING_STRETCH;				// バックバッファのスケーリング指定
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;	// スワップ時のバッファの扱い
 		desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;		// アルファモード??

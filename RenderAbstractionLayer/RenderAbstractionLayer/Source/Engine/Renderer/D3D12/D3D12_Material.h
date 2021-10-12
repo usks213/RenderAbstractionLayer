@@ -29,7 +29,7 @@ namespace d3d12
 		/// @param name マテリアル名
 		/// @param shader シェーダ
 		explicit D3D12Material(ID3D12Device* device, const core::MaterialID& id,
-			const std::string& name, const core::CoreShader& shader);
+			const std::string& name, core::CoreShader& shader);
 
 		/// @brief デストラクタ
 		~D3D12Material() noexcept = default;
@@ -40,11 +40,14 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		/// @brief 全ステージ、スロット分のヒープ領域
-		ComPtr<ID3D12DescriptorHeap>		m_pCBufferHeap;
+		std::array<ComPtr<ID3D12DescriptorHeap>, 
+			static_cast<size_t>(core::ShaderStage::MAX)>	m_pCBufferHeap;
 
 		/// @brief 全ステージ、スロット分のCBufferリソースポインタ
 		std::array<std::unordered_map<std::uint32_t, ComPtr<ID3D12Resource>>,
 			static_cast<size_t>(core::ShaderStage::MAX)>	m_d3dCbuffer;
+
+		ComPtr<ID3D12RootSignature>	m_pRootSignature;	///< ルートシグネチャー
 	};
 }
 
