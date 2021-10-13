@@ -53,6 +53,11 @@ namespace core
 
 		//----- リソース指定命令 -----
 
+		/// @brief パイプラインステート指定
+		/// @param materialID マテリアルID
+		/// @param renderBufferID レンダーバッファID
+		virtual void setPipelineState(const MaterialID& materialID, const RenderBufferID& renderBufferID) = 0;
+
 		/// @brief マテリアル指定
 		/// @param materialID マテリアルID
 		virtual void setMaterial(const MaterialID& materialID) = 0;

@@ -144,6 +144,15 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 
 //----- リソース指定命令 -----
 
+void D3D11RenderContext::setPipelineState(const core::MaterialID& materialID, const core::RenderBufferID& renderBufferID)
+{
+	// マテリアルのセット
+	setMaterial(materialID);
+
+	// レンダーバッファのセット
+	setRenderBuffer(renderBufferID);
+}
+
 void D3D11RenderContext::setMaterial(const core::MaterialID& materialID)
 {
 	// マテリアルの取得

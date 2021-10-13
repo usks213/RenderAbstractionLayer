@@ -176,6 +176,15 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderBuffer.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -260,6 +269,15 @@
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>
