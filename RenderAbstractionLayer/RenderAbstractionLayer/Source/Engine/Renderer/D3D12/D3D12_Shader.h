@@ -44,13 +44,16 @@ namespace d3d12
 		/// @brief 入力レイアウト
 		std::vector<D3D12_INPUT_ELEMENT_DESC>					m_inputElementDesc;
 
-		//--- ルートシグネチャー ---
-
+		/// @brief ルートシグネチャー
+		ComPtr<ID3D12RootSignature>	m_pRootSignature;	///< ルートシグネチャー
 
 	private:
 		//------------------------------------------------------------------------------
 		// private methods
 		//------------------------------------------------------------------------------
+
+		/// @brief ルートシグネチャーの生成
+		void CreateRootSignature(ID3D12Device* device);
 
 	private:
 		//------------------------------------------------------------------------------

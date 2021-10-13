@@ -387,6 +387,9 @@ D3D11Shader::D3D11Shader(ID3D11Device1* device, core::ShaderDesc desc, const cor
 					m_staticCBufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 					continue;
 				}
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 				break;
 			}
 			default:

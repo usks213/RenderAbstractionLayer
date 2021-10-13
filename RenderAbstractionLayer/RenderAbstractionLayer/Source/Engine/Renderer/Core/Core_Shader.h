@@ -218,6 +218,9 @@ namespace core
 			std::uint32_t slot;
 		};
 
+		/// @brief 全ステージのCbuffer情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_cbufferBindDatas;
 		/// @brief 全ステージのテクスチャリソース情報
 		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
 			static_cast<size_t>(ShaderStage::MAX)> m_textureBindDatas;

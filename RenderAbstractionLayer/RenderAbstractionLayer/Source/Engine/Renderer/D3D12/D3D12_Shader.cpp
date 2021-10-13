@@ -34,6 +34,14 @@ namespace {
 		"ps_5_1",
 		"cs_5_1",
 	};
+
+	constexpr D3D12_SHADER_VISIBILITY SHADER_VISIBILITYS[static_cast<size_t>(core::ShaderStage::CS)] = {
+		D3D12_SHADER_VISIBILITY_VERTEX,
+		D3D12_SHADER_VISIBILITY_HULL,
+		D3D12_SHADER_VISIBILITY_DOMAIN,
+		D3D12_SHADER_VISIBILITY_GEOMETRY,
+		D3D12_SHADER_VISIBILITY_PIXEL,
+	};
 }
 
 /// @brief  コンストラクタ
@@ -375,6 +383,9 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 					m_staticCBufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 					continue;
 				}
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+				m_cbufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 				break;
 			}
 			default:
@@ -383,5 +394,160 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 			}
 		}
 	}
+
+
+	// ルートシグネチャーの作成
+	CreateRootSignature(device);
+
 }
 
+
+/// @brief ルートシグネチャーの生成
+void D3D12Shader::CreateRootSignature(ID3D12Device* device)
+{
+	// 全ディスクリプタレンジ・パラメータ
+	std::vector<D3D12_DESCRIPTOR_RANGE>		aRanges;
+	std::vector<D3D12_ROOT_PARAMETER>		aParameters;
+	std::vector<D3D12_STATIC_SAMPLER_DESC>	aSamplers;
+
+	// コンスタントバッファの確保(GPU)
+	for (core::ShaderStage stage = core::ShaderStage::VS; stage < core::ShaderStage::CS; ++stage)
+	{
+		auto stageIndex = static_cast<size_t>(stage);
+
+		//--- 動的ディスクリプタレンジ・パラメータ ---
+
+		// 定数バッファ
+		if (m_cbufferBindDatas[stageIndex].size() > 0)
+		{
+			D3D12_DESCRIPTOR_RANGE range = {};
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			range.NumDescriptors = m_cbufferBindDatas[stageIndex].size();
+			range.BaseShaderRegister = 0;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			aRanges.push_back(range);
+
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// テクスチャ
+		for (auto& tex : m_textureBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = tex.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// サンプラー
+		for (auto& sam : m_samplerBindDatas[stageIndex])
+		{
+			D3D12_DESCRIPTOR_RANGE range = {};
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			range.NumDescriptors = m_samplerBindDatas[stageIndex].size();
+			range.BaseShaderRegister = 0;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			aRanges.push_back(range);
+
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// ストラクチャード
+		for (auto& sam : m_structuredBindDatas[stageIndex])
+		{
+			D3D12_DESCRIPTOR_RANGE range = {};
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			range.NumDescriptors = m_structuredBindDatas[stageIndex].size();
+			range.BaseShaderRegister = 0;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			aRanges.push_back(range);
+
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		//--- 静的ディスクリプタレンジ・パラメータ ---
+
+		// 定数バッファ
+		for (auto& cb : m_staticCBufferBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+			param.Descriptor.ShaderRegister = cb.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// テクスチャ
+		for (auto& tex : m_staticTextureBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = tex.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// サンプラー
+		for (auto& sam : m_staticSamplerBindDatas[stageIndex])
+		{
+
+		}
+
+		// ストラクチャード
+		for (auto& sam : m_staticStructuredBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = sam.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+	}
+
+	// ルートシグネチャーの生成
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+	rootSignatureDesc.NumParameters = aParameters.size();
+	rootSignatureDesc.pParameters = aParameters.data();
+	rootSignatureDesc.NumStaticSamplers = aSamplers.size();
+	rootSignatureDesc.pStaticSamplers = aSamplers.data();
+	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	ID3DBlob* rootSigBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
+	if (rootSigBlob)
+	{
+		device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(),
+			IID_PPV_ARGS(m_pRootSignature.ReleaseAndGetAddressOf()));
+		rootSigBlob->Release();
+	}
+	else
+	{
+		std::string errstr;
+		errstr.resize(errorBlob->GetBufferSize());
+		std::copy_n((char*)errorBlob->GetBufferPointer(), errorBlob->GetBufferSize(), errstr.begin());
+		errstr += "\n";
+		OutputDebugStringA(errstr.c_str());
+		errorBlob->Release();
+	}
+}

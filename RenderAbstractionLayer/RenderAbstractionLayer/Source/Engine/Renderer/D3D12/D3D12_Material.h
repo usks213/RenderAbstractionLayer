@@ -47,7 +47,6 @@ namespace d3d12
 		std::array<std::unordered_map<std::uint32_t, ComPtr<ID3D12Resource>>,
 			static_cast<size_t>(core::ShaderStage::MAX)>	m_d3dCbuffer;
 
-		ComPtr<ID3D12RootSignature>	m_pRootSignature;	///< ルートシグネチャー
 	};
 }
 
