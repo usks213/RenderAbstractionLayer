@@ -101,14 +101,14 @@ D3D12Material::D3D12Material(ID3D12Device* device, const core::MaterialID& id,
 
 		}
 
-		//--- ディスクリプタレンジ・パラメータ ---
+		//--- 動的ディスクリプタレンジ・パラメータ ---
 
 		// 定数バッファ
 		if (m_cbufferData[stageIndex].size() > 0)
 		{
 			D3D12_DESCRIPTOR_RANGE range = {};
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			range.NumDescriptors = m_cbufferCount;
+			range.NumDescriptors = m_cbufferData[stageIndex].size();
 			range.BaseShaderRegister = 0;
 			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 			aRanges.push_back(range);
@@ -133,24 +133,82 @@ D3D12Material::D3D12Material(ID3D12Device* device, const core::MaterialID& id,
 		}
 
 		// サンプラー
-		if (m_samplerData[stageIndex].size() > 0)
+		for (auto& sam : m_samplerData[stageIndex])
+		{
+			D3D12_DESCRIPTOR_RANGE range = {};
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			range.NumDescriptors = m_samplerData[stageIndex].size();
+			range.BaseShaderRegister = 0;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			aRanges.push_back(range);
+
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// ストラクチャード
+		for (auto& sam : shader.m_structuredBindDatas[stageIndex])
+		{
+			D3D12_DESCRIPTOR_RANGE range = {};
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			range.NumDescriptors = shader.m_structuredBindDatas[stageIndex].size();
+			range.BaseShaderRegister = 0;
+			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			aRanges.push_back(range);
+
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		//--- 静的ディスクリプタレンジ・パラメータ ---
+
+		// 定数バッファ
+		for (auto& cb : shader.m_staticCBufferBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+			param.Descriptor.ShaderRegister = cb.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// テクスチャ
+		for (auto& tex : shader.m_staticTextureBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = tex.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
+
+		// サンプラー
+		for (auto& sam : m_samplerData[stageIndex])
 		{
 
 		}
+
+		// ストラクチャード
+		for (auto& sam : shader.m_staticStructuredBindDatas[stageIndex])
+		{
+			D3D12_ROOT_PARAMETER param = {};
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = sam.first;
+			param.Descriptor.RegisterSpace = 0;
+			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+			aParameters.push_back(param);
+		}
 	}
-
-	// 固定CBufferの格納
-	D3D12_ROOT_PARAMETER transParam = {};
-	transParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	transParam.Descriptor.ShaderRegister = core::SHADER::SHADER_CB_SLOT_TRANSFORM;
-	transParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	aParameters.push_back(transParam);
-
-	D3D12_ROOT_PARAMETER systemParam = {};
-	systemParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	systemParam.Descriptor.ShaderRegister = core::SHADER::SHADER_CB_SLOT_SYSTEM;
-	systemParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	aParameters.push_back(systemParam);
 
 	// ルートシグネチャーの生成
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};

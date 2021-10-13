@@ -134,9 +134,9 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 	// Sampler
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
-		setSampler(SHADER::SHADER_SS_SLOT_MAIN, SamplerState::LINEAR_WRAP, stage);
-		setSampler(SHADER::SHADER_SS_SLOT_SHADOW, SamplerState::SHADOW, stage);
-		setSampler(SHADER::SHADER_SS_SLOT_SKYBOX, SamplerState::ANISOTROPIC_WRAP, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Main), SamplerState::LINEAR_WRAP, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Shadow), SamplerState::SHADOW, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Sky), SamplerState::ANISOTROPIC_WRAP, stage);
 	}
 
 	return S_OK;
@@ -275,7 +275,8 @@ void D3D11RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& syst
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, SHADER::SHADER_CB_SLOT_SYSTEM, 1, m_systemBuffer.GetAddressOf());
+		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::System)
+			, 1, m_systemBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_systemBuffer.Get(), 0, nullptr, &systemBuffer, 0, 0);
 	}
 }
@@ -288,7 +289,8 @@ void D3D11RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, SHADER::SHADER_CB_SLOT_TRANSFORM, 1, m_transformBuffer.GetAddressOf());
+		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::Transform)
+			, 1, m_transformBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_transformBuffer.Get(), 0, nullptr, &transform, 0, 0);
 	}
 }

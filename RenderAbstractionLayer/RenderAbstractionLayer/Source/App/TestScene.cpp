@@ -105,9 +105,9 @@ void TestScene::Start()
 	core::MaterialID matID;
 	d3d12::D3D12Material mat = d3d12::D3D12Material(device12, matID, shaderDesc.m_name, shader);
 
-	auto unlitShaderID = device->createShader(shaderDesc);
-	auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
-	auto* pUnlitMat = device->getMaterial(unlitMatID);
+	//auto unlitShaderID = device->createShader(shaderDesc);
+	//auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
+	//auto* pUnlitMat = device->getMaterial(unlitMatID);
 	//pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
 	//pUnlitMat->setTexture("_MainTexture", texID);
 

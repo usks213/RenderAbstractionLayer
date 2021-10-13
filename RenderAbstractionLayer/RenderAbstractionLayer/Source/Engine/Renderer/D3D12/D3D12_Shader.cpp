@@ -215,20 +215,22 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 			auto* constantBuffer = reflection->GetConstantBufferByIndex(cbIdx);
 			constantBuffer->GetDesc(&shaderBufferDesc);
 
-			// 共通の定数バッファは飛ばす??
+			// 共通の定数バッファは別に格納
 			std::string cbName = shaderBufferDesc.Name;
-			if (cbName == core::SHADER::SHADER_CB_NAME_SYSTEM ||
-				cbName == core::SHADER::SHADER_CB_NAME_TRANSFORM ||
-				cbName == core::SHADER::SHADER_CB_NAME_ANIMATION)
+			bool isName = false;
+			for (int i = static_cast<int>(core::SHADER::CB_SLOT::GBuffer); i < static_cast<int>(core::SHADER::CB_SLOT::Max); ++i)
+			{
+				if (cbName == core::SHADER::CB_NAME[i])
+				{
+					isName = true;
+					break;
+				}
+			}
+			// 一致していたらスキップ？？
+			if (isName)
 			{
 				++slotOffset;
 				continue;
-			}
-
-			// Gbufferシェーダーの場合
-			if (cbName == core::SHADER::SHADER_CB_NAME_GBUFFER)
-			{
-				m_type = core::ShaderType::Deferred;
 			}
 
 			// レイアウト生成
@@ -270,39 +272,111 @@ D3D12Shader::D3D12Shader(ID3D12Device* device, core::ShaderDesc desc, const core
 			reflection->GetResourceBindingDesc(i, &shaderInputBindDesc);
 
 
-
 			switch (shaderInputBindDesc.Type)
 			{
 			case D3D_SIT_TEXTURE:
+			{
 				// 共通リソースはスキップ
-				if (//shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SRV_SLOT_MAINTEX		||
-					shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SRV_SLOT_SHADOWMAP ||
-					shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SRV_SLOT_SKYDOOM) continue;
+				bool isSlot = false;
+				for (int i = static_cast<int>(core::SHADER::TEX_SLOT::MainTexture); i < static_cast<int>(core::SHADER::TEX_SLOT::Max); ++i)
+				{
+					if (shaderInputBindDesc.BindPoint == i)
+					{
+						isSlot = true;
+						break;
+					}
+				}
+				// 一致していたら
+				if (isSlot)
+				{
+					m_staticTextureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+					m_staticTextureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+					m_staticTextureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
+					continue;
+				}
+
 				m_textureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
 				m_textureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
 				m_textureBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 				break;
-
+			}
 			case D3D_SIT_SAMPLER:
+			{
 				// 共通リソースはスキップ
-				if (shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SS_SLOT_MAIN		||
-					shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SS_SLOT_SHADOW ||
-					shaderInputBindDesc.BindPoint == core::SHADER::SHADER_SS_SLOT_SKYBOX) continue;
+				bool isSlot = false;
+				for (int i = static_cast<int>(core::SHADER::SS_SLOT::Main); i < static_cast<int>(core::SHADER::SS_SLOT::Max); ++i)
+				{
+					if (shaderInputBindDesc.BindPoint == i)
+					{
+						isSlot = true;
+						break;
+					}
+				}
+				// 一致していたら
+				if (isSlot)
+				{
+					m_staticSamplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+					m_staticSamplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+					m_staticSamplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
+					continue;
+				}
 				m_samplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
 				m_samplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
 				m_samplerBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
 				break;
-
+			}
 			// 色々ある…
 			case D3D_SIT_UAV_RWTYPED:
 				break;
 			case D3D_SIT_STRUCTURED:
+			{
+				// 共通リソースはスキップ
+				bool isSlot = false;
+				for (int i = static_cast<int>(core::SHADER::SB_SLOT::PointLights); i < static_cast<int>(core::SHADER::SB_SLOT::Max); ++i)
+				{
+					if (shaderInputBindDesc.BindPoint == i)
+					{
+						isSlot = true;
+						break;
+					}
+				}
+				// 一致していたら
+				if (isSlot)
+				{
+					m_staticStructuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+					m_staticStructuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+					m_staticStructuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
+					continue;
+				}
+				m_structuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+				m_structuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+				m_structuredBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
+			}
 				break;
 			case D3D_SIT_TBUFFER:
 				break;
 			case D3D_SIT_CBUFFER:
+			{
+				// 共通リソースはスキップ
+				bool isSlot = false;
+				for (int i = static_cast<int>(core::SHADER::CB_SLOT::GBuffer); i < static_cast<int>(core::SHADER::CB_SLOT::Max); ++i)
+				{
+					if (shaderInputBindDesc.BindPoint == i)
+					{
+						isSlot = true;
+						break;
+					}
+				}
+				// 一致していたら
+				if (isSlot)
+				{
+					m_staticCBufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].name = shaderInputBindDesc.Name;
+					m_staticCBufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].slot = shaderInputBindDesc.BindPoint;
+					m_staticCBufferBindDatas[stageIndex][shaderInputBindDesc.BindPoint].stage = stage;
+					continue;
+				}
 				break;
-
+			}
 			default:
 				// エラーログ
 				break;

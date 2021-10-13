@@ -210,15 +210,8 @@ namespace core
 		/// @brief CBuffer変数のデフォルト値(初期化子付き値)
 		std::unordered_map<std::string, std::unique_ptr<std::byte[]>> m_cbufferDefaults;
 
-		/// @brief テクスチャリソースバインド情報
-		struct TextureBindData
-		{
-			std::string name;
-			ShaderStage stage;
-			std::uint32_t slot;
-		};
-		/// @brief サンプラリソースバインド情報
-		struct SamplerBindData
+		/// @brief シェーダーリソースバインド情報
+		struct ShaderBindData
 		{
 			std::string name;
 			ShaderStage stage;
@@ -226,11 +219,29 @@ namespace core
 		};
 
 		/// @brief 全ステージのテクスチャリソース情報
-		std::array<std::unordered_map<std::uint32_t, TextureBindData>,
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
 			static_cast<size_t>(ShaderStage::MAX)> m_textureBindDatas;
 		/// @brief 全ステージのサンプラリソース情報
-		std::array<std::unordered_map<std::uint32_t, SamplerBindData>,
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
 			static_cast<size_t>(ShaderStage::MAX)> m_samplerBindDatas;
+		/// @brief 全ステージのストラクチャードリソース情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_structuredBindDatas;
+
+		//--- 共通ディスクリプタ ---
+
+		/// @brief 全ステージのCbuffer情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_staticCBufferBindDatas;
+		/// @brief 全ステージのテクスチャリソース情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_staticTextureBindDatas;
+		/// @brief 全ステージのサンプラリソース情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_staticSamplerBindDatas;
+		/// @brief 全ステージのストラクチャードリソース情報
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			static_cast<size_t>(ShaderStage::MAX)> m_staticStructuredBindDatas;
 
 	public:
 		//------------------------------------------------------------------------------

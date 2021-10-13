@@ -1,7 +1,7 @@
 // GBufferシェーダー
 
 // Gbuffer
-cbuffer Gbuffer : register(b0)
+cbuffer GBuffer : register(b0)
 {
 	float _metallic = 1.0f;
 	float _roughness = 1.0f;

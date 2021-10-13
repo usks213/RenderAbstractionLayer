@@ -44,6 +44,9 @@ namespace d3d12
 		/// @brief 入力レイアウト
 		std::vector<D3D12_INPUT_ELEMENT_DESC>					m_inputElementDesc;
 
+		//--- ルートシグネチャー ---
+
+
 	private:
 		//------------------------------------------------------------------------------
 		// private methods
