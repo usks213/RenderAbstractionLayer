@@ -255,39 +255,39 @@ void D3D12Renderer::clear()
 	m_pCmdAllocator->Reset();
 	m_pCmdList->Reset(m_pCmdAllocator.Get(), nullptr);
 
-	// レンダーターゲットハンドルの取得
-	auto handlRTV = m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-	handlRTV.ptr += backBufferIndex * m_nBackBufferSize;
-	auto handlDSV = m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
+	//// レンダーターゲットハンドルの取得
+	//auto handlRTV = m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
+	//UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+	//handlRTV.ptr += backBufferIndex * m_nBackBufferSize;
+	//auto handlDSV = m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
 
-	// レンダーターゲットのバリア指定
-	D3D12_RESOURCE_BARRIER barrierDesc = {};
-	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
-	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
-	barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
-	barrierDesc.Transition.Subresource = 										// サブリソースの数
-		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;			// 遷移前のリソース状態
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;		// 遷移後のリソース状態
-	m_pCmdList->ResourceBarrier(1, &barrierDesc);
+	//// レンダーターゲットのバリア指定
+	//D3D12_RESOURCE_BARRIER barrierDesc = {};
+	//barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+	//barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+	//barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	//barrierDesc.Transition.Subresource = 										// サブリソースの数
+	//	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+	//barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;			// 遷移前のリソース状態
+	//barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;		// 遷移後のリソース状態
+	//m_pCmdList->ResourceBarrier(1, &barrierDesc);
 
-	// レンダーターゲットのセット
-	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, &handlDSV);
+	//// レンダーターゲットのセット
+	//m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, &handlDSV);
 
-	// レンダーターゲットのクリア
-	static float a = 0;
-	a += 0.1f;
-	FLOAT clearColor[] = { sinf(a), 0.58f, 0.92f, 1.0f };
-	m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
-	// デプスステンシルのクリア
-	m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	//// レンダーターゲットのクリア
+	//static float a = 0;
+	////a += 0.1f;
+	//FLOAT clearColor[] = { sinf(a)+ 0.13f , 0.2f, 0.2f, 1.0f };
+	//m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
+	//// デプスステンシルのクリア
+	//m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-	// ビューポートのセット
-	m_pCmdList->RSSetViewports(1, &m_viewport);
+	//// ビューポートのセット
+	//m_pCmdList->RSSetViewports(1, &m_viewport);
 
-	// シザーのセット
-	m_pCmdList->RSSetScissorRects(1, &m_scissorrect);
+	//// シザーのセット
+	//m_pCmdList->RSSetScissorRects(1, &m_scissorrect);
 }
 
 /// @brief 画面更新

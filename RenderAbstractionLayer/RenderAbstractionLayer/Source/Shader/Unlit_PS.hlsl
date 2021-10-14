@@ -1,5 +1,5 @@
 // 2D用ピクセルシェーダ
-#include "Common.hlsli"
+//#include "Common.hlsli"
 
 // パラメータ
 struct VS_OUTPUT

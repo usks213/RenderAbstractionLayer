@@ -189,6 +189,43 @@ void D3D12RenderContext::setPipelineState(const core::MaterialID& materialID, co
 	// ルートシグネチャーのセット
 	m_pCmdList->SetGraphicsRootSignature(d3dShader->m_pRootSignature.Get());
 
+
+	// レンダーターゲットハンドルの取得
+	auto handlRTV = m_pRenderer->m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT backBufferIndex = m_pRenderer->m_pSwapChain->GetCurrentBackBufferIndex();
+	handlRTV.ptr += backBufferIndex * m_pRenderer->m_nBackBufferSize;
+	auto handlDSV = m_pRenderer->m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
+
+	// レンダーターゲットのバリア指定
+	D3D12_RESOURCE_BARRIER barrierDesc = {};
+	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+	barrierDesc.Transition.pResource = m_pRenderer->m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	barrierDesc.Transition.Subresource = 										// サブリソースの数
+		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;			// 遷移前のリソース状態
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;		// 遷移後のリソース状態
+	m_pCmdList->ResourceBarrier(1, &barrierDesc);
+
+	// レンダーターゲットのセット
+	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, &handlDSV);
+
+	// レンダーターゲットのクリア
+	static float a = 0;
+	//a += 0.1f;
+	FLOAT clearColor[] = { sinf(a) + 0.13f , 0.2f, 0.2f, 1.0f };
+	m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
+	// デプスステンシルのクリア
+	m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	// ビューポートのセット
+	m_pCmdList->RSSetViewports(1, &m_pRenderer->m_viewport);
+
+	// シザーのセット
+	m_pCmdList->RSSetScissorRects(1, &m_pRenderer->m_scissorrect);
+
+
+
 	// レンダーバッファのセット
 	setRenderBuffer(renderBufferID);
 
@@ -387,8 +424,10 @@ void D3D12RenderContext::setMaterialResource(const D3D12Material& d3dMaterial, c
 		if(d3dMaterial.m_pCBufferHeap[stageIndex])
 		{
 			// ヒープ指定
-			m_pCmdList->SetDescriptorHeaps(1, d3dMaterial.m_pCBufferHeap[stageIndex].GetAddressOf());
+			ID3D12DescriptorHeap* pHeap[] = { d3dMaterial.m_pCBufferHeap[stageIndex].Get() };
+			m_pCmdList->SetDescriptorHeaps(1, pHeap);
 			// テーブル指定
+			//m_pCmdList->SetGraphicsRootConstantBufferView(rootIndex, d3dMat.m_d3dCbuffer[stageIndex][0]->GetGPUVirtualAddress());
 			m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex, 
 				d3dMaterial.m_pCBufferHeap[stageIndex]->GetGPUDescriptorHandleForHeapStart());
 		}

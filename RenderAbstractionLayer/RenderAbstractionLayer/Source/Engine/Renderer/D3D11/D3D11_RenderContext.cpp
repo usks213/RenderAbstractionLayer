@@ -160,8 +160,8 @@ void D3D11RenderContext::setMaterial(const core::MaterialID& materialID)
 	if (d3dMat == nullptr) return;
 
 	// マテリアルが同じ
-	if (m_curMaterial == materialID) return;
-	m_curMaterial = materialID;
+	//if (m_curMaterial == materialID) return;
+	//m_curMaterial = materialID;
 
 	// シェーダーの取得
 	auto* d3dShader = static_cast<D3D11Shader*>(m_pDevice->getShader(d3dMat->m_shaderID));

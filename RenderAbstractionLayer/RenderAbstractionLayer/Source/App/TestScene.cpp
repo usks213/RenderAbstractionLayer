@@ -114,6 +114,44 @@ void TestScene::Start()
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
+	// システムバッファ送信
+	Vector3 eyepos = Vector3(0, 2, -5);
+	Vector3 eyedir = Vector3(0, 0, 0);
+	Vector3 up = Vector3(0, 1, 0);
+	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
+
+	Matrix proj = Matrix::CreatePerspectiveFOV(
+		Mathf::ToRadians(60),
+		width,
+		height,
+		1.0f,
+		10.0f
+	);
+
+	core::SHADER::SystemBuffer systemBuffer;
+	systemBuffer._mView = view.Transpose();
+	systemBuffer._mProj = proj.Transpose();
+
+	//context->sendSystemBuffer(systemBuffer);
+
+	// トランスフォームバッファ送信
+	static float angleY = 0;
+	angleY += 0.01f;
+	Vector3 pos = Vector3(0, 0, 0);
+	Vector3 rot = Vector3(0, angleY, 0);
+	Vector3 sca = Vector3(1, 1, 1);
+	Matrix world = Matrix::CreateScale(sca);
+	world *= Matrix::CreateRotationZXY(rot);
+	world *= Matrix::CreateTranslation(pos);
+
+	world = world.Transpose();
+	view = view.Transpose();
+	proj = proj.Transpose();
+
+	//context->sendTransformBuffer(world);
+	pUnlitMat->setMatrix("_mWorld", world);
+	pUnlitMat->setMatrix("_mView", view);
+	pUnlitMat->setMatrix("_mProj", proj);
 }
 
 /// @brief システムの更新
@@ -137,45 +175,7 @@ void TestScene::Render()
 
 	auto* pUnlitMat = device->getMaterial(g_matID);
 
-	// システムバッファ送信
-	Vector3 eyepos = Vector3(0, 0, -5);
-	Vector3 eyedir = Vector3(0, 0, 0);
-	Vector3 up = Vector3(0, 1, 0);
-	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
 
-	Matrix proj = Matrix::CreatePerspectiveFOV(
-		Mathf::ToRadians(60),
-		width,
-		height,
-		10.0f,
-		100.0f
-	);
-
-	core::SHADER::SystemBuffer systemBuffer;
-	//systemBuffer._mView = view.Transpose();
-	//systemBuffer._mProj = proj.Transpose();
-
-	//context->sendSystemBuffer(systemBuffer);
-	//pUnlitMat->setStruct("System", &systemBuffer);
-
-	// トランスフォームバッファ送信
-	static float angleY = 0;
-	angleY += 0.01f;
-	Vector3 pos = Vector3(0, 0, 0);
-	Vector3 rot = Vector3(0, angleY, 0);
-	Vector3 sca = Vector3(1, 1, 1);
-	Matrix world = Matrix::CreateScale(sca);
-	world *= Matrix::CreateRotationZXY(rot);
-	world *= Matrix::CreateTranslation(pos);
-
-	world = world.Transpose();
-	world *= view.Transpose();
-	world *= proj.Transpose();
-
-	//context->sendTransformBuffer(world);
-	pUnlitMat->setMatrix("_mWorld", world);
-	//pUnlitMat->setMatrix("_mView", view);
-	//pUnlitMat->setMatrix("_mProj", proj);
 
 	// マテリアルの指定
 	//context->setMaterial(g_matID);
