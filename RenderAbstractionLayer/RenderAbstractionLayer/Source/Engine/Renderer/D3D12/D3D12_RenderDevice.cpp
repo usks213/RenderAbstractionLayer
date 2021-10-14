@@ -15,7 +15,7 @@
 #include <Renderer/D3D12/D3D12_RenderBuffer.h>
 //#include <Renderer/D3D12/D3D12_RenderTarget.h>
 #include <Renderer/D3D12/D3D12_Shader.h>
-//#include <Renderer/D3D12/D3D12_Texture.h>
+#include <Renderer/D3D12/D3D12_Texture.h>
 
 using namespace core;
 using namespace d3d12;
@@ -179,7 +179,7 @@ core::ShaderID D3D12RenderDevice::createShader(core::ShaderDesc& desc)
 	if (m_shaderPool.end() != itr) return id;
 
 	// êVãKê∂ê¨
-	m_shaderPool[id] = std::make_unique<D3D12Shader>(m_pD3DDevice, desc, id);
+	m_shaderPool[id] = std::make_unique<D3D12Shader>(this, desc, id);
 
 	return id;
 }
@@ -193,7 +193,7 @@ core::TextureID D3D12RenderDevice::createTexture(std::string filePath)
 	if (m_texturePool.end() != itr) return id;
 
 	// êVãKê∂ê¨
-	//m_texturePool[id] = std::make_unique<D3D12Texture>(m_pD3DDevice, id, filePath);
+	m_texturePool[id] = std::make_unique<D3D12Texture>(m_pD3DDevice, id, filePath);
 
 	return id;
 }
@@ -207,7 +207,7 @@ core::TextureID D3D12RenderDevice::createTexture(core::TextureDesc& desc, core::
 	if (m_texturePool.end() != itr) return id;
 
 	// êVãKê∂ê¨
-	//m_texturePool[id] = std::make_unique<D3D12Texture>(m_pD3DDevice, id, desc, pData);
+	m_texturePool[id] = std::make_unique<D3D12Texture>(m_pD3DDevice, id, desc, pData);
 
 	return id;
 }

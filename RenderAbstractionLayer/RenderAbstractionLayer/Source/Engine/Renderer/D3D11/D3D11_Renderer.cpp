@@ -64,6 +64,8 @@ void D3D11Renderer::clear()
 	// バッファのクリア
 	float ClearColor[4] = { 0.2f, 0.22f, 0.22f, 1.0f };
 	m_d3dContext->ClearRenderTargetView(m_device.m_backBufferRTV.Get(), ClearColor);
+	m_d3dContext->ClearDepthStencilView(m_device.m_depthStencilView.Get(), 
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(), 
 		m_device.m_depthStencilView.Get());
 

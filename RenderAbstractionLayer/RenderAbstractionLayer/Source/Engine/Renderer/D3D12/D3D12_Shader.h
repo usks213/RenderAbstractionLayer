@@ -9,6 +9,7 @@
 #define _D3D12_SHADER_
 
 #include <Renderer/Core/Core_Shader.h>
+#include "D3D12_RenderDevice.h"
 #include "D3D12_Defines.h"
 #include <d3d12shader.h>
 
@@ -26,7 +27,7 @@ namespace d3d12
 		/// @brief  コンストラクタ
 		/// @param device デバイス
 		/// @param desc シェーダ情報
-		explicit D3D12Shader(ID3D12Device* device, 
+		explicit D3D12Shader(D3D12RenderDevice* device, 
 			core::ShaderDesc desc, const core::ShaderID& id);
 
 		/// @brief デストラクタ
@@ -53,7 +54,7 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		/// @brief ルートシグネチャーの生成
-		void CreateRootSignature(ID3D12Device* device);
+		void CreateRootSignature(D3D12RenderDevice* device);
 
 	private:
 		//------------------------------------------------------------------------------

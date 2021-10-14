@@ -12,7 +12,7 @@
 
 //#include "D3D12_Buffer.h"
 #include "D3D12_RenderBuffer.h"
-//#include "D3D12_Texture.h"
+#include "D3D12_Texture.h"
 //#include "D3D12_RenderTarget.h"
 //#include "D3D12_DepthStencil.h"
 
@@ -232,8 +232,14 @@ void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 void D3D12RenderContext::setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
 {
 	auto stageIndex = static_cast<std::size_t>(stage);
-	if (m_curTexture[stageIndex][slot] == textureID) return;
+	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
 
+	// ヒープ指定
+	ID3D12DescriptorHeap* pHeap[] = { pD3DTex->m_pTexHeap.Get() };
+	m_pCmdList->SetDescriptorHeaps(1, pHeap);
+	// テーブル指定
+	m_pCmdList->SetGraphicsRootDescriptorTable(slot,
+		pD3DTex->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
 
 	//if (textureID == NONE_TEXTURE_ID)
 	//{
@@ -390,15 +396,14 @@ void D3D12RenderContext::setMaterialResource(const D3D12Material& d3dMaterial, c
 			ID3D12DescriptorHeap* pHeap[] = { d3dMaterial.m_pCBufferHeap[stageIndex].Get() };
 			m_pCmdList->SetDescriptorHeaps(1, pHeap);
 			// テーブル指定
-			//m_pCmdList->SetGraphicsRootConstantBufferView(rootIndex, d3dMat.m_d3dCbuffer[stageIndex][0]->GetGPUVirtualAddress());
-			m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex, 
+			m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex++, 
 				d3dMaterial.m_pCBufferHeap[stageIndex]->GetGPUDescriptorHandleForHeapStart());
 		}
 
 		// テクスチャ更新
 		for (const auto& tex : d3dMat.m_textureData[stageIndex])
 		{
-			setTexture(tex.first, tex.second.id, stage);
+			setTexture(rootIndex++, tex.second.id, stage);
 		}
 
 		// サンプラ更新
@@ -406,7 +411,5 @@ void D3D12RenderContext::setMaterialResource(const D3D12Material& d3dMaterial, c
 		{
 			setSampler(sam.first, sam.second.state, stage);
 		}
-
-		++rootIndex;
 	}
 }

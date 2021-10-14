@@ -16,6 +16,7 @@ namespace d3d12
 {
 	// 前定義
 	class D3D12Renderer;
+	class D3D12Shader;
 
 	/// @class D3D12RenderDevice
 	/// @brief D3D12レンダーデバイス
@@ -23,6 +24,7 @@ namespace d3d12
 	{
 		friend class D3D12Renderer;
 		friend class D3D12RenderContext;
+		friend class D3D12Shader;
 	public:
 		//------------------------------------------------------------------------------
 		// public methods
@@ -81,12 +83,12 @@ namespace d3d12
 		//ComPtr<ID3D12DepthStencilView>		m_depthStencilView;		///< Zバッファビュー
 		DXGI_FORMAT							m_depthStencilFormat;	///< Zバッファフォーマット
 
-		HWND								m_hWnd;					///< ウィンドウハンドル
+		HWND									m_hWnd;					///< ウィンドウハンドル
 		D3D12_VIEWPORT						m_viewport;				///< ビューポート
 
-		UINT								m_backBufferCount;		///< バックバッファ数
-		UINT								m_nOutputWidth;			///< 出力サイズ(幅)
-		UINT								m_nOutputHeight;		///< 出力サイズ(高さ)
+		UINT									m_backBufferCount;		///< バックバッファ数
+		UINT									m_nOutputWidth;			///< 出力サイズ(幅)
+		UINT									m_nOutputHeight;		///< 出力サイズ(高さ)
 
 		D3D12_RASTERIZER_DESC              	m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
 		D3D12_STATIC_SAMPLER_DESC 			m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート

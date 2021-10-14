@@ -15,7 +15,7 @@ CoreMaterial::CoreMaterial(const MaterialID& id, const std::string& name, const 
 	m_name(name),
 	m_isTransparent(false),
 	m_blendState(BlendState::NONE),
-	m_depthStencilState(DepthStencilState::DISABLE_TEST_AND_DISABLE_WRITE),
+	m_depthStencilState(DepthStencilState::ENABLE_TEST_AND_ENABLE_WRITE),
 	m_rasterizeState(RasterizeState::CULL_NONE),
 	m_shaderID(shader.m_id),
 	m_shaderType(shader.m_type),

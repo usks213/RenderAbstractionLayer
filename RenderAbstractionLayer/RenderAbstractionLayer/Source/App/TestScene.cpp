@@ -17,7 +17,7 @@
 
 core::MaterialID g_matID;
 core::RenderBufferID g_rdID;
-
+core::TextureID g_texID;
 
  /// @brief スタート
 void TestScene::Start()
@@ -26,67 +26,68 @@ void TestScene::Start()
 	auto* device = renderer->getDevice();
 	auto* context = renderer->getContext();
 
-	//// テクスチャの生成
-	//uint32_t texWidth = 256u;
-	//uint32_t texHeight = 256u;
-	//uint32_t texDepth = 4u;
-	//std::vector<unsigned char> texArray(texWidth * texHeight * texDepth);
-	//core::TextureData texData;
-	//texData.pInitData = texArray.data();
-	//texData.size = texArray.size();
+	// テクスチャの生成
+	uint32_t texWidth = 256u;
+	uint32_t texHeight = 256u;
+	uint32_t texDepth = 4u;
+	std::vector<unsigned char> texArray(texWidth * texHeight * texDepth);
+	core::TextureData texData;
+	texData.pInitData = texArray.data();
+	texData.size = texArray.size();
 
-	//uint32_t texX = texWidth * texDepth;
-	//for (int y = 0; y < texHeight; ++y)
-	//{
-	//	for (int x = 0; x < texX; x += texDepth)
-	//	{
-	//		if (y < texHeight / 2)
-	//		{
-	//			if (x < texX / 2)
-	//			{
-	//				texArray[y * texX + x + 3] = 255;	// R
-	//				texArray[y * texX + x + 2] = 0;		// G
-	//				texArray[y * texX + x + 1] = 0;		// B
-	//				texArray[y * texX + x + 0] = 255;	// A
-	//			}
-	//			else
-	//			{
-	//				texArray[y * texX + x + 3] = 0;		// R
-	//				texArray[y * texX + x + 2] = 255;	// G
-	//				texArray[y * texX + x + 1] = 0;		// B
-	//				texArray[y * texX + x + 0] = 255;	// A
-	//			}
-	//		}
-	//		else
-	//		{
-	//			if (x < texX / 2)
-	//			{
-	//				texArray[y * texX + x + 3] = 0;		// R
-	//				texArray[y * texX + x + 2] = 0;		// G
-	//				texArray[y * texX + x + 1] = 255;	// B
-	//				texArray[y * texX + x + 0] = 255;	// A
-	//			}
-	//			else
-	//			{
-	//				texArray[y * texX + x + 3] = 255;	// R
-	//				texArray[y * texX + x + 2] = 255;	// G
-	//				texArray[y * texX + x + 1] = 255;	// B
-	//				texArray[y * texX + x + 0] = 255;	// A
-	//			}
-	//		}
+	uint32_t texX = texWidth * texDepth;
+	for (int y = 0; y < texHeight; ++y)
+	{
+		for (int x = 0; x < texX; x += texDepth)
+		{
+			if (y < texHeight / 2)
+			{
+				if (x < texX / 2)
+				{
+					texArray[y * texX + x + 3] = 255;	// R
+					texArray[y * texX + x + 2] = 0;		// G
+					texArray[y * texX + x + 1] = 0;		// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+				else
+				{
+					texArray[y * texX + x + 3] = 0;		// R
+					texArray[y * texX + x + 2] = 255;	// G
+					texArray[y * texX + x + 1] = 0;		// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+			}
+			else
+			{
+				if (x < texX / 2)
+				{
+					texArray[y * texX + x + 3] = 0;		// R
+					texArray[y * texX + x + 2] = 0;		// G
+					texArray[y * texX + x + 1] = 255;	// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+				else
+				{
+					texArray[y * texX + x + 3] = 255;	// R
+					texArray[y * texX + x + 2] = 255;	// G
+					texArray[y * texX + x + 1] = 255;	// B
+					texArray[y * texX + x + 0] = 255;	// A
+				}
+			}
 
-	//	}
-	//}
+		}
+	}
 
-	//core::TextureDesc texDesc;
-	//texDesc.width = texWidth;
-	//texDesc.height = texHeight;
-	//texDesc.depth = texDepth;
-	//texDesc.mipLevels = 1;
-	//texDesc.bindFlags = 0 | core::BindFlags::SHADER_RESOURCE;
-	//texDesc.format = core::TextureFormat::R8G8B8A8_UNORM;
+	core::TextureDesc texDesc;
+	texDesc.width = texWidth;
+	texDesc.height = texHeight;
+	texDesc.depth = texDepth;
+	texDesc.mipLevels = 1;
+	texDesc.bindFlags = 0 | core::BindFlags::SHADER_RESOURCE;
+	texDesc.format = core::TextureFormat::R8G8B8A8_UNORM;
 
-	//auto texID = device->createTexture(texDesc, &texData);
+	auto texID = device->createTexture(texDesc, &texData);
+	g_texID = texID;
 
 	// シェーダー・マテリアルの生成
 	core::ShaderDesc shaderDesc;
@@ -98,7 +99,8 @@ void TestScene::Start()
 	auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
 	auto* pUnlitMat = device->getMaterial(unlitMatID);
 	pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
-	//pUnlitMat->setTexture("_MainTexture", texID);
+	pUnlitMat->setTexture("_Texture", texID);
+	pUnlitMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
 
 	//context->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
 	g_matID = unlitMatID;
@@ -148,7 +150,7 @@ void TestScene::Render()
 		width,
 		height,
 		1.0f,
-		10.0f
+		100.0f
 	);
 
 	core::SHADER::SystemBuffer systemBuffer;
@@ -175,6 +177,7 @@ void TestScene::Render()
 	pUnlitMat->setMatrix("_mWorld", world);
 	pUnlitMat->setMatrix("_mView", view);
 	pUnlitMat->setMatrix("_mProj", proj);
+	//pUnlitMat->setTexture("_Texture", g_texID);
 
 	// マテリアルの指定
 	//context->setMaterial(g_matID);
