@@ -407,6 +407,7 @@ void D3D12Shader::CreateRootSignature(ID3D12Device* device)
 {
 	// 全ディスクリプタレンジ・パラメータ
 	std::vector<D3D12_DESCRIPTOR_RANGE>		aRanges;
+	aRanges.reserve(100);
 	std::vector<D3D12_ROOT_PARAMETER>		aParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC>	aSamplers;
 
@@ -535,19 +536,19 @@ void D3D12Shader::CreateRootSignature(ID3D12Device* device)
 	ID3DBlob* rootSigBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
 	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
+	std::string errstr;
 	if (rootSigBlob)
 	{
 		device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(),
 			IID_PPV_ARGS(m_pRootSignature.ReleaseAndGetAddressOf()));
-		rootSigBlob->Release();
 	}
 	else
 	{
-		std::string errstr;
 		errstr.resize(errorBlob->GetBufferSize());
 		std::copy_n((char*)errorBlob->GetBufferPointer(), errorBlob->GetBufferSize(), errstr.begin());
 		errstr += "\n";
 		OutputDebugStringA(errstr.c_str());
 		errorBlob->Release();
 	}
+	rootSigBlob->Release();
 }

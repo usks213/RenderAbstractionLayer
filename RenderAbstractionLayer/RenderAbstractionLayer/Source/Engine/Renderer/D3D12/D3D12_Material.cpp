@@ -35,6 +35,10 @@ D3D12Material::D3D12Material(ID3D12Device* device, const core::MaterialID& id,
 	for (core::ShaderStage stage = core::ShaderStage::VS; stage < core::ShaderStage::CS; ++stage)
 	{
 		auto stageIndex = static_cast<size_t>(stage);
+		if (m_cbufferData[stageIndex].size() <= 0)
+		{
+			continue;
+		}
 
 		// ƒq[ƒv‚Ìì¬
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};

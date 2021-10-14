@@ -13,10 +13,10 @@
 
 namespace d3d12
 {
-    /// @brief D3D12のリソース使用識別取得
+    /*/// @brief D3D12のリソース使用識別取得
     /// @param usage リソース使用識別
     /// @return D3D12リソース使用識別
-    D3D12_USAGE getD3D12Usage(core::Usage usage);
+    D3D12_USAGE getD3D12Usage(core::Usage usage);*/
 
     /// @brief D3D12のバインドフラグ取得
     /// @param flags バインドフラグ

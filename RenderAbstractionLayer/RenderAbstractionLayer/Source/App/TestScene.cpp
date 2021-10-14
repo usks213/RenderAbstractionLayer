@@ -13,10 +13,6 @@
 #include <Renderer/Core/Core_RenderDevice.h>
 #include <Renderer/Core/Core_RenderContext.h>
 
-#include <Renderer\D3D12\D3D12_Renderer.h>
-#include <Renderer\D3D12\D3D12_Shader.h>
-#include <Renderer\D3D12\D3D12_Material.h>
-
 #include "Geometry.h"
 
 core::MaterialID g_matID;
@@ -98,29 +94,25 @@ void TestScene::Start()
 
 	shaderDesc.m_name = "Unlit";
 
-	auto* renderer12 = static_cast<d3d12::D3D12Renderer*>(renderer);
-	auto* device12 = renderer12->m_pD3DDevice.Get();
-	core::ShaderID id;
-	d3d12::D3D12Shader shader = d3d12::D3D12Shader(device12, shaderDesc, id);
-	core::MaterialID matID;
-	d3d12::D3D12Material mat = d3d12::D3D12Material(device12, matID, shaderDesc.m_name, shader);
-
-	//auto unlitShaderID = device->createShader(shaderDesc);
-	//auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
-	//auto* pUnlitMat = device->getMaterial(unlitMatID);
-	//pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
+	auto unlitShaderID = device->createShader(shaderDesc);
+	auto unlitMatID = device->createMaterial("Unlit", unlitShaderID);
+	auto* pUnlitMat = device->getMaterial(unlitMatID);
+	pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
 	//pUnlitMat->setTexture("_MainTexture", texID);
 
 	//context->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
-	//g_matID = unlitMatID;
+	g_matID = unlitMatID;
 
-	//// メッシュの生成
-	//auto cubeMehID = device->createMesh("cube");
-	//auto* pCubeMesh = device->getMesh(cubeMehID);
-	//Geometry::Cube(*pCubeMesh);
+	// メッシュの生成
+	auto cubeMehID = device->createMesh("cube");
+	auto* pCubeMesh = device->getMesh(cubeMehID);
+	Geometry::Cube(*pCubeMesh);
 
-	//// レンダーバッファの作成
-	//g_rdID = device->createRenderBuffer(unlitShaderID, cubeMehID);
+	// レンダーバッファの作成
+	g_rdID = device->createRenderBuffer(unlitShaderID, cubeMehID);
+
+	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
+	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
 }
 
@@ -136,53 +128,65 @@ void TestScene::Update()
 /// @brief パイプラインの描画
 void TestScene::Render()
 {
-	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
-	//auto* device = renderer->getDevice();
-	//auto* context = renderer->getContext();
+	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
+	auto* device = renderer->getDevice();
+	auto* context = renderer->getContext();
 
-	//float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
-	//float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
+	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
+	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
-	//// システムバッファ送信
-	//Vector3 eyepos = Vector3(0, 1.5f, 3);
-	//Vector3 eyedir = Vector3(0, 0, 0);
-	//Vector3 up = Vector3(0, 1, 0);
-	//Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
+	auto* pUnlitMat = device->getMaterial(g_matID);
 
-	//Matrix proj = Matrix::CreatePerspectiveFOV(
-	//	Mathf::ToRadians(60),
-	//	width, 
-	//	height,
-	//	10.0f,
-	//	100.0f
-	//	);
+	// システムバッファ送信
+	Vector3 eyepos = Vector3(0, 0, -5);
+	Vector3 eyedir = Vector3(0, 0, 0);
+	Vector3 up = Vector3(0, 1, 0);
+	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
 
-	//core::SHADER::SystemBuffer systemBuffer;
+	Matrix proj = Matrix::CreatePerspectiveFOV(
+		Mathf::ToRadians(60),
+		width,
+		height,
+		10.0f,
+		100.0f
+	);
+
+	core::SHADER::SystemBuffer systemBuffer;
 	//systemBuffer._mView = view.Transpose();
 	//systemBuffer._mProj = proj.Transpose();
 
 	//context->sendSystemBuffer(systemBuffer);
+	//pUnlitMat->setStruct("System", &systemBuffer);
 
-	//// トランスフォームバッファ送信
-	//static float angleY = 0;
-	//angleY += 0.01f;
-	//Vector3 pos = Vector3(0, 0, 0);
-	//Vector3 rot = Vector3(0, angleY, 0);
-	//Vector3 sca = Vector3(1, 1, 1);
-	//Matrix world = Matrix::CreateScale(sca.x, sca.y, sca.z);
-	//world *= Matrix::CreateRotationZXY(rot);
-	//world *= Matrix::CreateTranslation(pos);
+	// トランスフォームバッファ送信
+	static float angleY = 0;
+	angleY += 0.01f;
+	Vector3 pos = Vector3(0, 0, 0);
+	Vector3 rot = Vector3(0, angleY, 0);
+	Vector3 sca = Vector3(1, 1, 1);
+	Matrix world = Matrix::CreateScale(sca);
+	world *= Matrix::CreateRotationZXY(rot);
+	world *= Matrix::CreateTranslation(pos);
+
+	world = world.Transpose();
+	world *= view.Transpose();
+	world *= proj.Transpose();
 
 	//context->sendTransformBuffer(world);
+	pUnlitMat->setMatrix("_mWorld", world);
+	//pUnlitMat->setMatrix("_mView", view);
+	//pUnlitMat->setMatrix("_mProj", proj);
 
-	//// マテリアルの指定
+	// マテリアルの指定
 	//context->setMaterial(g_matID);
 
-	//// レンダーバッファの指定
+	// レンダーバッファの指定
 	//context->setRenderBuffer(g_rdID);
 
-	//// 描画
-	//context->render(g_rdID);
+	context->setPipelineState(g_matID, g_rdID);
+
+	// 描画
+	context->render(g_rdID);
 }
 
 /// @brief エンド

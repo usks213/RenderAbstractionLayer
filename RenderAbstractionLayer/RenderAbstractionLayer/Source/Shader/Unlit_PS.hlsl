@@ -16,7 +16,7 @@ cbuffer Material : register(b0)
 
 float4 PS(VS_OUTPUT input) : SV_Target0
 {
-	float4 Color = _Color;
+	float4 Color = float4(1,1,1,1);
 	//Color *= _MainTexture.Sample(_MainSampler, input.TexCoord);
 	
 	return Color;

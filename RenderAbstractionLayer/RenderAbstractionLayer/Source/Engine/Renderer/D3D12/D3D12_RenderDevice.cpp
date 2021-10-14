@@ -29,7 +29,7 @@ D3D12RenderDevice::D3D12RenderDevice() :
 	m_pD3DDevice(nullptr),
 	//m_backBufferRT(nullptr),
 	//m_backBufferRTV(nullptr),
-	m_backBufferFormat(DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM),
+	m_backBufferFormat(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM_SRGB),
 	//m_depthStencilTexture(nullptr),
 	//m_depthStencilView(nullptr),
 	m_depthStencilFormat(DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT),
@@ -48,7 +48,7 @@ D3D12RenderDevice::D3D12RenderDevice() :
 /// @param width ウィンドウの幅
 /// @param height ウィンドウの高さ
 /// @return 初期化: 成功 true | 失敗 false
-HRESULT D3D12RenderDevice::initialize(ID3D12Device1* pDevice, IDXGIFactory2* pFactory2,
+HRESULT D3D12RenderDevice::initialize(ID3D12Device* pDevice, IDXGIFactory2* pFactory2,
 	HWND hWnd, UINT width, UINT height)
 {
 	// 初期化

@@ -13,15 +13,15 @@ using namespace d3d12;
 /// @brief D3D12のリソース使用識別取得
 /// @param usage リソース使用識別
 /// @return D3D12リソース使用識別
-D3D12_USAGE d3d12::getD3D12Usage(core::Usage usage) {
-	switch (usage) {
-	case core::Usage::STATIC:  return D3D12_USAGE_IMMUTABLE;
-	case core::Usage::DEFAULT: return D3D12_USAGE_DEFAULT;
-	case core::Usage::DYNAMIC: return D3D12_USAGE_DYNAMIC;
-	case core::Usage::STAGING: return D3D12_USAGE_STAGING;
-	default:             return D3D12_USAGE_DEFAULT;
-	}
-}
+//D3D12_USAGE d3d12::getD3D12Usage(core::Usage usage) {
+//	switch (usage) {
+//	case core::Usage::STATIC:  return D3D12_USAGE_IMMUTABLE;
+//	case core::Usage::DEFAULT: return D3D12_USAGE_DEFAULT;
+//	case core::Usage::DYNAMIC: return D3D12_USAGE_DYNAMIC;
+//	case core::Usage::STAGING: return D3D12_USAGE_STAGING;
+//	default:             return D3D12_USAGE_DEFAULT;
+//	}
+//}
 
 /// @brief D3D12のバインドフラグ取得
 /// @param flags バインドフラグ
@@ -29,14 +29,14 @@ D3D12_USAGE d3d12::getD3D12Usage(core::Usage usage) {
 UINT32 d3d12::getD3D12BindFlags(core::BindFlags flags) {
 	UINT32 d3d12BindFlags = 0;
 
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::VERTEX_BUFFER) ? D3D12_BIND_VERTEX_BUFFER : 0);
+	/*d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::VERTEX_BUFFER) ? D3D12_BIND_VERTEX_BUFFER : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::INDEX_BUFFER) ? D3D12_BIND_INDEX_BUFFER : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::CONSTANT_BUFFER) ? D3D12_BIND_CONSTANT_BUFFER : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::SHADER_RESOURCE) ? D3D12_BIND_SHADER_RESOURCE : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::STREAM_OUTPUT) ? D3D12_BIND_STREAM_OUTPUT : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::RENDER_TARGET) ? D3D12_BIND_RENDER_TARGET : 0);
 	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::DEPTH_STENCIL) ? D3D12_BIND_DEPTH_STENCIL : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::UNORDERED_ACCESS) ? D3D12_BIND_UNORDERED_ACCESS : 0);
+	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::UNORDERED_ACCESS) ? D3D12_BIND_UNORDERED_ACCESS : 0);*/
 
 	return d3d12BindFlags;
 }
@@ -47,8 +47,8 @@ UINT32 d3d12::getD3D12BindFlags(core::BindFlags flags) {
 UINT32 d3d12::getD3D12CPUAccessFlags(core::CPUAccessFlags flags) {
 	UINT32 d3d12CPUAccessFlags = 0;
 
-	d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::READ) ? D3D12_CPU_ACCESS_READ : 0;
-	d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::WRITE) ? D3D12_CPU_ACCESS_WRITE : 0;
+	//d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::READ) ? D3D12_CPU_ACCESS_READ : 0;
+	//d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::WRITE) ? D3D12_CPU_ACCESS_WRITE : 0;
 
 	return d3d12CPUAccessFlags;
 }
@@ -59,16 +59,16 @@ UINT32 d3d12::getD3D12CPUAccessFlags(core::CPUAccessFlags flags) {
 UINT32 d3d12::getD3D12MiscFlags(core::MiscFlags flags) {
 	UINT32 d3d12MiscFlags = 0;
 
-	d3d12MiscFlags |= (flags & core::MiscFlags::GENERATE_MIPS) ? D3D12_RESOURCE_MISC_GENERATE_MIPS : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::TEXTURECUBE) ? D3D12_RESOURCE_MISC_TEXTURECUBE : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::DRAWINDIRECT_ARGS) ? D3D12_RESOURCE_MISC_DRAWINDIRECT_ARGS : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS) ? D3D12_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::RESOURCE_CLAMP) ? D3D12_RESOURCE_MISC_RESOURCE_CLAMP : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::SHARED_KEYEDMUTEX) ? D3D12_RESOURCE_MISC_SHARED_KEYEDMUTEX : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::TILE_POOL) ? D3D12_RESOURCE_MISC_TILE_POOL : 0;
-	d3d12MiscFlags |= (flags & core::MiscFlags::TILED) ? D3D12_RESOURCE_MISC_TILED : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::GENERATE_MIPS) ? D3D12_RESOURCE_MISC_GENERATE_MIPS : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::TEXTURECUBE) ? D3D12_RESOURCE_MISC_TEXTURECUBE : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::DRAWINDIRECT_ARGS) ? D3D12_RESOURCE_MISC_DRAWINDIRECT_ARGS : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS) ? D3D12_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::RESOURCE_CLAMP) ? D3D12_RESOURCE_MISC_RESOURCE_CLAMP : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::SHARED_KEYEDMUTEX) ? D3D12_RESOURCE_MISC_SHARED_KEYEDMUTEX : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::TILE_POOL) ? D3D12_RESOURCE_MISC_TILE_POOL : 0;
+	//d3d12MiscFlags |= (flags & core::MiscFlags::TILED) ? D3D12_RESOURCE_MISC_TILED : 0;
 
 	return d3d12MiscFlags;
 }
@@ -84,7 +84,7 @@ D3D12_PRIMITIVE_TOPOLOGY d3d12::getD3D12PrimitiveTopology(core::PrimitiveTopolog
 		D3D_PRIMITIVE_TOPOLOGY_POINTLIST,
 		D3D_PRIMITIVE_TOPOLOGY_LINELIST,
 		D3D_PRIMITIVE_TOPOLOGY_LINESTRIP,
-		D3D12_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST
+		//D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST
 	};
 
 	return d3dTopologies[static_cast<size_t>(topology)];

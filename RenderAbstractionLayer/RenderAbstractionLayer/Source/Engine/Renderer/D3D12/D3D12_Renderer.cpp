@@ -44,7 +44,7 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 	{
 #ifdef _DEBUG
 		hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(m_pDXGIFactory.ReleaseAndGetAddressOf()));
-#elif
+#else
 		hr = CreateDXGIFactory1(IID_PPV_ARGS(m_pDXGIFactory.ReleaseAndGetAddressOf()));
 #endif // _DEBUG
 		CHECK_FAILED(hr);
@@ -168,6 +168,77 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		}
 	}
 
+	//深度バッファ作成
+	{
+		//深度バッファの仕様
+		D3D12_RESOURCE_DESC depthResDesc = {};
+		depthResDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;//2次元のテクスチャデータとして
+		depthResDesc.Width = width;//幅と高さはレンダーターゲットと同じ
+		depthResDesc.Height = height;//上に同じ
+		depthResDesc.DepthOrArraySize = 1;//テクスチャ配列でもないし3Dテクスチャでもない
+		depthResDesc.Format = DXGI_FORMAT_D32_FLOAT;//深度値書き込み用フォーマット
+		depthResDesc.SampleDesc.Count = 1;//サンプルは1ピクセル当たり1つ
+		depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;//このバッファは深度ステンシルとして使用します
+		depthResDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		depthResDesc.MipLevels = 1;
+
+		//デプス用ヒーププロパティ
+		D3D12_HEAP_PROPERTIES depthHeapProp = {};
+		depthHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;//DEFAULTだから後はUNKNOWNでよし
+		depthHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		depthHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+		//このクリアバリューが重要な意味を持つ
+		D3D12_CLEAR_VALUE _depthClearValue = {};
+		_depthClearValue.DepthStencil.Depth = 1.0f;//深さ１(最大値)でクリア
+		_depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;//32bit深度値としてクリア
+
+		m_pD3DDevice->CreateCommittedResource(
+			&depthHeapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&depthResDesc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE, //デプス書き込みに使用
+			&_depthClearValue,
+			IID_PPV_ARGS(m_pDepthStencil.ReleaseAndGetAddressOf()));
+
+		//深度のためのデスクリプタヒープ作成
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};//深度に使うよという事がわかればいい
+		dsvHeapDesc.NumDescriptors = 1;//深度ビュー1つのみ
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;//デプスステンシルビューとして使う
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		m_pD3DDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_pDepthStencilHeap.ReleaseAndGetAddressOf()));
+
+		//深度ビュー作成
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;//デプス値に32bit使用
+		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;//2Dテクスチャ
+		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;//フラグは特になし
+		m_pD3DDevice->CreateDepthStencilView(m_pDepthStencil.Get(), &dsvDesc, 
+			m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart());
+	}
+
+	// ビューポート
+	D3D12_VIEWPORT viewport = {};
+	viewport.Width = width;//出力先の幅(ピクセル数)
+	viewport.Height = height;//出力先の高さ(ピクセル数)
+	viewport.TopLeftX = 0;//出力先の左上座標X
+	viewport.TopLeftY = 0;//出力先の左上座標Y
+	viewport.MaxDepth = 1.0f;//深度最大値
+	viewport.MinDepth = 0.0f;//深度最小値
+	m_viewport = viewport;
+	// シザー
+	D3D12_RECT scissorrect = {};
+	scissorrect.top = 0;//切り抜き上座標
+	scissorrect.left = 0;//切り抜き左座標
+	scissorrect.right = scissorrect.left + width;//切り抜き右座標
+	scissorrect.bottom = scissorrect.top + height;//切り抜き下座標
+	m_scissorrect = scissorrect;
+
+	// デバイス・コンテキスト
+	m_device.initialize(m_pD3DDevice.Get(), m_pDXGIFactory.Get(), hWnd, width, height);
+	m_context.initialize(this, &m_device);
+	m_context.m_pCmdList = m_pCmdList.Get();
+
 	return hr;
 }
 
@@ -188,6 +259,7 @@ void D3D12Renderer::clear()
 	auto handlRTV = m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
 	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	handlRTV.ptr += backBufferIndex * m_nBackBufferSize;
+	auto handlDSV = m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
 
 	// レンダーターゲットのバリア指定
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
@@ -201,14 +273,21 @@ void D3D12Renderer::clear()
 	m_pCmdList->ResourceBarrier(1, &barrierDesc);
 
 	// レンダーターゲットのセット
-	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, nullptr);
+	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, &handlDSV);
 
 	// レンダーターゲットのクリア
 	static float a = 0;
 	a += 0.1f;
 	FLOAT clearColor[] = { sinf(a), 0.58f, 0.92f, 1.0f };
 	m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
+	// デプスステンシルのクリア
+	m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+	// ビューポートのセット
+	m_pCmdList->RSSetViewports(1, &m_viewport);
+
+	// シザーのセット
+	m_pCmdList->RSSetScissorRects(1, &m_scissorrect);
 }
 
 /// @brief 画面更新

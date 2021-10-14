@@ -9,7 +9,8 @@
 #define _D3D12_RENDERER_
 
 #include <Renderer\Core\Core_Renderer.h>
-#include "D3D12_Defines.h"
+#include "D3D12_RenderDevice.h"
+#include "D3D12_RenderContext.h"
 
 namespace d3d12
 {
@@ -44,16 +45,14 @@ namespace d3d12
 		/// @return デバイスのポインタ
 		core::CoreRenderDevice* getDevice() override
 		{
-			return nullptr;
-			//return &m_device;
+			return &m_device;
 		}
 
 		/// @brief コンテキストの取得
 		/// @return コンテキストのポインタ 
 		core::CoreRenderContext* getContext() override
 		{
-			return nullptr;
-			//return &m_context;
+			return &m_context;
 		}
 
 		/// @brief コピーコンストラクタ削除
@@ -72,13 +71,16 @@ namespace d3d12
 		// private variables
 		//------------------------------------------------------------------------------
 
-		//D3D12RenderDevice					m_device;				///< デバイスクラス
-		//D3D12RenderContext				m_context;				///< コンテストクラス
+		D3D12RenderDevice					m_device;				///< デバイスクラス
+		D3D12RenderContext					m_context;				///< コンテストクラス
 
 		// d3d12 system param
 		ComPtr<ID3D12Device>				m_pD3DDevice;
 		ComPtr<IDXGIFactory6>				m_pDXGIFactory;
 		ComPtr<IDXGISwapChain4>				m_pSwapChain;
+
+		D3D12_VIEWPORT						m_viewport;
+		D3D12_RECT							m_scissorrect;
 
 		// d3d12 fence param
 		ComPtr<ID3D12Fence>					m_pFence;
@@ -92,11 +94,12 @@ namespace d3d12
 		// d3d12 rtv param
 		static constexpr UINT				BACK_BUFFER_COUNT = 2;
 		ComPtr<ID3D12DescriptorHeap>		m_pBackBufferHeap;
-		ComPtr<ID3D12Resource>				m_pBackBuffer[BACK_BUFFER_COUNT];
+		ComPtr<ID3D12Resource>			m_pBackBuffer[BACK_BUFFER_COUNT];
 		UINT								m_nBackBufferSize;
 
 		// d3d12 dsv param
-		ComPtr<ID3D12DescriptorHeap>		m_pHeapDSV;
+		ComPtr<ID3D12DescriptorHeap>		m_pDepthStencilHeap;
+		ComPtr<ID3D12Resource>			m_pDepthStencil;
 
 #ifdef _DEBUG
 		// d3d12 debug

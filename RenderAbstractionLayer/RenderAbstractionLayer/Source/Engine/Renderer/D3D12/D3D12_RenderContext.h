@@ -14,6 +14,7 @@
 #include "D3D12_Material.h"
 
 #include <tuple>
+#include <map>
 
 namespace d3d12
 {
@@ -92,7 +93,7 @@ namespace d3d12
 		ID3D12GraphicsCommandList*			m_pCmdList;
 
 		// グラフィクスパイプラインステート
-		std::unordered_map<std::tuple<core::MaterialID, core::RenderBufferID>, 
+		std::map<std::tuple<core::MaterialID, core::RenderBufferID>, 
 			ComPtr<ID3D12PipelineState>>	m_pPipelineState;
 
 		//----- シェーダーバッファ

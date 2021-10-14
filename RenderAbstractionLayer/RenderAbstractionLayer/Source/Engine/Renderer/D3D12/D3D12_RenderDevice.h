@@ -40,7 +40,7 @@ namespace d3d12
 		/// @param width ウィンドウの幅
 		/// @param height ウィンドウの高さ
 		/// @return 初期化: 成功 true | 失敗 false
-		HRESULT initialize(ID3D12Device1* pDevice, IDXGIFactory2* pFactory2, 
+		HRESULT initialize(ID3D12Device* pDevice, IDXGIFactory2* pFactory2, 
 			HWND hWnd, UINT width, UINT height);
 
 		//----- リソース生成 -----
@@ -69,7 +69,7 @@ namespace d3d12
 		// private variables 
 		//------------------------------------------------------------------------------
 
-		ID3D12Device1*						m_pD3DDevice;			///< デバイスポインタ
+		ID3D12Device*						m_pD3DDevice;			///< デバイスポインタ
 
 		//ComPtr<IDXGISwapChain1>				m_swapChain;			///< スワップチェーン
 
