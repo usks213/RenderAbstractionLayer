@@ -41,6 +41,7 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Texture.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Defines.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Material.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Texture.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Defines.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Material.h" />

@@ -114,6 +114,29 @@ void TestScene::Start()
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
+}
+
+/// @brief システムの更新
+void TestScene::Update()
+{
+	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
+	//auto* device = renderer->getDevice();
+	//auto* context = renderer->getContext();
+
+}
+
+/// @brief パイプラインの描画
+void TestScene::Render()
+{
+	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
+	auto* device = renderer->getDevice();
+	auto* context = renderer->getContext();
+
+	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
+	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
+
+	auto* pUnlitMat = device->getMaterial(g_matID);
+
 	// システムバッファ送信
 	Vector3 eyepos = Vector3(0, 2, -5);
 	Vector3 eyedir = Vector3(0, 0, 0);
@@ -152,30 +175,6 @@ void TestScene::Start()
 	pUnlitMat->setMatrix("_mWorld", world);
 	pUnlitMat->setMatrix("_mView", view);
 	pUnlitMat->setMatrix("_mProj", proj);
-}
-
-/// @brief システムの更新
-void TestScene::Update()
-{
-	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
-	//auto* device = renderer->getDevice();
-	//auto* context = renderer->getContext();
-
-}
-
-/// @brief パイプラインの描画
-void TestScene::Render()
-{
-	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
-	auto* device = renderer->getDevice();
-	auto* context = renderer->getContext();
-
-	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
-	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
-
-	auto* pUnlitMat = device->getMaterial(g_matID);
-
-
 
 	// マテリアルの指定
 	//context->setMaterial(g_matID);

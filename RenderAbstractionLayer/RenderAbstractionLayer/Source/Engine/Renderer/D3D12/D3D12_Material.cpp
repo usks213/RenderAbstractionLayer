@@ -53,8 +53,8 @@ D3D12Material::D3D12Material(ID3D12Device* device, const core::MaterialID& id,
 		prop.Type = D3D12_HEAP_TYPE_UPLOAD;			// ピープのタイプ
 		prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;	// ページング設定
 		prop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;		// メモリプール設定
-		prop.CreationNodeMask = 1;								// 今は1
-		prop.VisibleNodeMask = 1;								// 今は1
+		prop.CreationNodeMask = 0;								// 今は1
+		prop.VisibleNodeMask = 0;								// 今は1
 
 		// リソースの設定
 		D3D12_RESOURCE_DESC d3dDesc = {};
