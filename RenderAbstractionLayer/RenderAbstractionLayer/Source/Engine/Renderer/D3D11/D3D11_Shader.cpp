@@ -143,55 +143,120 @@ D3D11Shader::D3D11Shader(ID3D11Device1* device, core::ShaderDesc desc, const cor
 
 			// 入力レイアウト情報
 			m_inputLayoutVariableList[i].semanticName = inputDesc.SemanticName;
+			inputDesc.SemanticName = m_inputLayoutVariableList[i].semanticName.c_str();
 			m_inputLayoutVariableList[i].semanticIndex = inputDesc.SemanticIndex;
 			if (i > 0)
 			{
-				m_inputLayoutVariableList[i].offset =
-					static_cast<std::size_t>(m_inputLayoutVariableList[i - 1].formatSize) * sizeof(float) +
-					m_inputLayoutVariableList[i - 1].offset;
+				m_inputLayoutVariableList[i].offset = m_inputLayoutVariableList[i - 1].arrayNum *
+					m_inputLayoutVariableList[i - 1].formatWidth + m_inputLayoutVariableList[i - 1].offset;
 			}
 
 			// ビットマスクでフォーマットを分ける
-			if (signature.Mask == 0x01) {
-				switch (signature.ComponentType) {
-				case D3D_REGISTER_COMPONENT_UINT32 : inputDesc.Format = DXGI_FORMAT_R32_UINT;  break;
-				case D3D_REGISTER_COMPONENT_SINT32 : inputDesc.Format = DXGI_FORMAT_R32_SINT;  break;
-				case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32_FLOAT; break;
+			if (signature.Mask == 0x01)
+			{
+				switch (signature.MinPrecision)
+				{
+				case D3D_MIN_PRECISION_DEFAULT:
+					switch (signature.ComponentType)
+					{
+					case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32_UINT;  break;
+					case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32_SINT;  break;
+					case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32_FLOAT; break;
+					}
+					m_inputLayoutVariableList[i].formatWidth = sizeof(long);
+					break;
+				case D3D_MIN_PRECISION_FLOAT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16_FLOAT; break;
+				case D3D_MIN_PRECISION_SINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16_SINT; break;
+				case D3D_MIN_PRECISION_UINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16_UINT; break;
+				case D3D_MIN_PRECISION_ANY_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16_TYPELESS; break;
 				}
-				m_inputLayoutVariableList[i].formatSize = InputLayoutVariable::FormatSize::R32;
-				m_inputLayoutVariableList[i].formatType =
-					static_cast<InputLayoutVariable::FormatType>(signature.ComponentType);
-				
+				m_inputLayoutVariableList[i].arrayNum = 1U;
 			}
-			else if (signature.Mask <= 0x03) {
-				switch (signature.ComponentType) {
-				case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32_UINT;  break;
-				case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32_SINT;  break;
-				case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32_FLOAT; break;
+			else if (signature.Mask <= 0x03)
+			{
+				switch (signature.MinPrecision)
+				{
+				case D3D_MIN_PRECISION_DEFAULT:
+					switch (signature.ComponentType)
+					{
+					case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32_UINT;  break;
+					case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32_SINT;  break;
+					case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32_FLOAT; break;
+					}
+					m_inputLayoutVariableList[i].formatWidth = sizeof(long);
+					break;
+				case D3D_MIN_PRECISION_FLOAT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16_FLOAT; break;
+				case D3D_MIN_PRECISION_SINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16_SINT; break;
+				case D3D_MIN_PRECISION_UINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16_UINT; break;
+				case D3D_MIN_PRECISION_ANY_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16_TYPELESS; break;
 				}
-				m_inputLayoutVariableList[i].formatSize = InputLayoutVariable::FormatSize::R32G32;
-				m_inputLayoutVariableList[i].formatType =
-					static_cast<InputLayoutVariable::FormatType>(signature.ComponentType);
+				m_inputLayoutVariableList[i].arrayNum = 2U;
 			}
-			else if (signature.Mask <= 0x07) {
-				switch (signature.ComponentType) {
-				case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_UINT;  break;
-				case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_SINT;  break;
-				case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT; break;
+			else if (signature.Mask <= 0x07)
+			{
+				switch (signature.MinPrecision)
+				{
+				case D3D_MIN_PRECISION_DEFAULT:
+					switch (signature.ComponentType)
+					{
+					case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_UINT;  break;
+					case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_SINT;  break;
+					case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT; break;
+					}
+					m_inputLayoutVariableList[i].formatWidth = sizeof(long);
+					break;
+				case D3D_MIN_PRECISION_FLOAT_16:
+				case D3D_MIN_PRECISION_SINT_16:
+				case D3D_MIN_PRECISION_UINT_16:
+				case D3D_MIN_PRECISION_ANY_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_UNKNOWN; break;
 				}
-				m_inputLayoutVariableList[i].formatSize = InputLayoutVariable::FormatSize::R32G32B32;
-				m_inputLayoutVariableList[i].formatType =
-					static_cast<InputLayoutVariable::FormatType>(signature.ComponentType);
+				m_inputLayoutVariableList[i].arrayNum = 3U;
 			}
-			else if (signature.Mask <= 0x0F) {
-				switch (signature.ComponentType) {
-				case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;  break;
-				case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;  break;
-				case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+			else if (signature.Mask <= 0x0F)
+			{
+				switch (signature.MinPrecision)
+				{
+				case D3D_MIN_PRECISION_DEFAULT:
+					switch (signature.ComponentType)
+					{
+					case D3D_REGISTER_COMPONENT_UINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;  break;
+					case D3D_REGISTER_COMPONENT_SINT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;  break;
+					case D3D_REGISTER_COMPONENT_FLOAT32: inputDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+					}
+					m_inputLayoutVariableList[i].formatWidth = sizeof(long);
+					break;
+				case D3D_MIN_PRECISION_FLOAT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; break;
+				case D3D_MIN_PRECISION_SINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16B16A16_SINT; break;
+				case D3D_MIN_PRECISION_UINT_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16B16A16_UINT; break;
+				case D3D_MIN_PRECISION_ANY_16:
+					m_inputLayoutVariableList[i].formatWidth = sizeof(short);
+					inputDesc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS; break;
 				}
-				m_inputLayoutVariableList[i].formatSize = InputLayoutVariable::FormatSize::R32G32B32A32;
-				m_inputLayoutVariableList[i].formatType =
-					static_cast<InputLayoutVariable::FormatType>(signature.ComponentType);
+				m_inputLayoutVariableList[i].arrayNum = 4U;
 			}
 
 			// 入力レイアウト作成用情報格納

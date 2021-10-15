@@ -152,33 +152,17 @@ namespace core
 		/// @brief 入力レイアウト情報構造体
 		struct InputLayoutVariable
 		{
-			enum class FormatSize {
-				UNKNOWN,
-				R32,
-				R32G32,
-				R32G32B32,
-				R32G32B32A32,
-				MAX,
-			};
-			enum class FormatType {
-				UNKNOWN,
-				UINT32,
-				SINT32,
-				FLOAT32,
-				MAX,
-			};
-			enum class Format;
-			std::string semanticName;		// セマンティック名		例:TEXCOOD
-			std::uint32_t semanticIndex;	// セマンティック番号	例:TEXCOOD[0]←
-			std::size_t offset;				// 変数オフセット
-			FormatSize formatSize;			// フォーマットサイズ	例:R32=1,R32B32=2, MAX=5
-			FormatType formatType;			// フォーマットタイプ	例:uint32=1,sint32=2, MAX=5
+			std::string semanticName;		///< セマンティック名		例:TEXCOOD
+			std::uint32_t semanticIndex;	///< セマンティック番号	例:TEXCOOD[0]←
+			std::size_t offset;			///< 変数オフセット
+			std::size_t arrayNum;			///< 配列の数 例:R32=1,R32B32=2,
+			std::size_t formatWidth;		///< フォーマットの幅 例:r16=2,r32=4
 			InputLayoutVariable() :
 				semanticName(),
 				semanticIndex(0),
 				offset(0),
-				formatSize(FormatSize::UNKNOWN),
-				formatType(FormatType::UNKNOWN) {}
+				arrayNum(0),
+				formatWidth(0) {}
 		};
 
 		/// @brief 入力レイアウト情報リスト
@@ -187,18 +171,18 @@ namespace core
 		/// @brief CBufferの変数情報
 		struct CBufferVariable
 		{
-			std::string name;	// 変数名
-			std::size_t size;	// 型サイズ
-			std::size_t offset;	// 変数オフセット
-			std::uint8_t stage;	// ステージ
-			std::uint8_t slot;	// スロット
+			std::string name;		///< 変数名
+			std::size_t size;		///< 型サイズ
+			std::size_t offset;	///< 変数オフセット
+			std::uint8_t stage;	///< ステージ
+			std::uint8_t slot;	///< スロット
 		};
 		/// @brief CBufferの構造体レイアウト情報
 		struct CBufferLayout
 		{
-			std::string		name;	// cbuffer宣言名
-			std::uint32_t	slot;	// レジスタスロット
-			std::size_t		size;	// cbufferサイズ
+			std::string		name;	///< cbuffer宣言名
+			std::uint32_t	slot;	///< レジスタスロット
+			std::size_t		size;	///< cbufferサイズ
 			std::vector<CBufferVariable> variables;	// 変数データ
 			CBufferLayout() :name(), slot(0), size(0), variables() {}
 			CBufferLayout(const std::uint32_t& slot, const std::string& name, const std::size_t& size) :

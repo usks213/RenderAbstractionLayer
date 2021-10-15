@@ -42,7 +42,7 @@ namespace core
 				inputLayoutVariableList = shader.m_inputLayoutVariableList;
 				// バッファサイズ計算
 				for (auto& var : inputLayoutVariableList) {
-					size += static_cast<std::size_t>(var.formatSize) * sizeof(float);
+					size += var.arrayNum * var.formatWidth;
 				}
 				// バッファ作成
 				buffer = std::make_unique<std::byte[]>(size * count);
@@ -81,7 +81,7 @@ namespace core
 				for (auto& var : inputLayoutVariableList) {
 					if (var.semanticName == semanticName && var.semanticIndex == semanticIndex) {
 						std::memcpy(buffer.get() + size * index + var.offset, &data,
-							static_cast<std::size_t>(var.formatSize) * sizeof(float));
+							var.arrayNum * var.formatWidth);
 					}
 				}
 			}
