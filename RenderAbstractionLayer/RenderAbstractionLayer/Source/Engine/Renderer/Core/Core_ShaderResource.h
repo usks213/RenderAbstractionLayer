@@ -137,6 +137,19 @@ namespace core
 			return std::string_view();
 		}
 
+		constexpr const bool HasSlotData(std::size_t type, std::uint32_t slot)
+		{
+			if (type < 0 || type >= static_cast<size_t>(ResourceType::MAX)) return false;
+			for (auto& data : SLOT_DATA[type])
+			{
+				if (slot == data.slot)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		//// CBuffer Slot
 		//enum class CB_SLOT : std::uint8_t
 		//{

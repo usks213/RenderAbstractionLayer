@@ -16,6 +16,8 @@
 #include <memory>
 #include <array>
 
+#include "Core_ShaderResource.h"
+
 #ifdef min
 #undef min
 #endif
@@ -197,46 +199,22 @@ namespace core
 		/// @brief シェーダーリソースバインド情報
 		struct ShaderBindData
 		{
-			SHADER::ResourceType	type;
 			ShaderStage			stage;
 			std::string			name;
 			std::uint32_t		slot;
 			std::uint32_t		space;
+			std::uint32_t		type;
 		};
 
-		//--- 動的ディスクリプタ ---
+		//--- シェーダーバインド情報(ディスクリプタ) ---
 
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			,static_cast<size_t>(ShaderStage::MAX)>, static_cast<size_t>(SHADER::ResourceType::MAX)>
+		/// @brief 動的バインド情報
+		std::unordered_map<std::uint32_t, ShaderBindData> m_dynamicBindData
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::ResourceType::MAX)];
 
-
-		/// @brief 全ステージのCbuffer情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_cbufferBindDatas;
-		/// @brief 全ステージのテクスチャリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_textureBindDatas;
-		/// @brief 全ステージのサンプラリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_samplerBindDatas;
-		/// @brief 全ステージのストラクチャードリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_structuredBindDatas;
-
-		//--- 共通ディスクリプタ ---
-
-		/// @brief 全ステージのCbuffer情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_staticCBufferBindDatas;
-		/// @brief 全ステージのテクスチャリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_staticTextureBindDatas;
-		/// @brief 全ステージのサンプラリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_staticSamplerBindDatas;
-		/// @brief 全ステージのストラクチャードリソース情報
-		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
-			static_cast<size_t>(ShaderStage::MAX)> m_staticStructuredBindDatas;
+		/// @brief 静的バインド情報
+		std::unordered_map<std::uint32_t, ShaderBindData> m_staticBindData
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::ResourceType::MAX)];
 
 	public:
 		//------------------------------------------------------------------------------
