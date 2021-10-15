@@ -37,78 +37,177 @@ EnumType operator++(EnumType& value, int) {	\
 
 namespace core
 { 
-	namespace SHADER {
-		// CBuffer Slot
-		enum class CB_SLOT : std::uint8_t
+	namespace SHADER 
+	{
+		/// @brief シェーダーリソース種別
+		enum class ResourceType
 		{
-			GBuffer			= 4,
-			System,
-			Transform,
-			Animation,
-			Max,
+			CBUFFER,
+			TBUFFER,
+			TEXTURE,
+			SAMPLER,
+			UAV_RWTYPED,
+			STRUCTURED,
+			UAV_RWSTRUCTURED,
+			BYTEADDRESS,
+			UAV_RWBYTEADDRESS,
+			MAX,
 		};
-		// CBuffer Name
-		constexpr std::string_view CB_NAME[static_cast<std::size_t>(CB_SLOT::Max)] = 
-		{	
-			"",
-			"",
-			"",
-			"",
-			"GBuffer",
-			"System",
-			"Transform",
-			"Animation",
+		/// @brief 存在しないスロット番号
+		constexpr std::uint32_t NONE_SLOT_NUM = std::numeric_limits<std::uint32_t>::max();
+		/// @brief スロット構造体
+		struct SlotData
+		{
+			std::string_view name;
+			std::uint32_t slot = NONE_SLOT_NUM;
+		};
+		/// @brief 最大スロット数
+		constexpr std::uint32_t MAX_SLOT_COUNT = 12;
+		/// @brief 固定シェーダースロット情報
+		constexpr SlotData SLOT_DATA[static_cast<std::size_t>(ResourceType::MAX)][MAX_SLOT_COUNT] =
+		{
+			// CBUFFER
+			{
+				{"GBuffer",		4},
+				{"System",		5},
+				{"Transform",	6},
+				{"Animation",	7},
+			},
+			// TBUFFER
+			{
+			},
+			// TEXTURE
+			{
+				{"MainTexture",	4},
+				{"ShadowMap",	5},
+				{"SkyDome",		6},
+			},
+			// SAMPLER
+			{
+				{"Main",		4},
+				{"Shadow",	5},
+				{"Sky",		6},
+			},
+			// UAV_RWTYPED
+			{
+			},
+			// STRUCTURED
+			{
+				{"PointLights",	8},
+				{"SpotLights",	9},
+			},
 		};
 
-		// Texture Slot
-		enum class TEX_SLOT : std::uint8_t
+		constexpr const SlotData* FindSlotData(ResourceType type, std::string_view name)
 		{
-			MainTexture = 4,
-			ShadowMap,
-			SkyDome,
-			Max,
-		};
+			auto typeIndex = static_cast<std::size_t>(type);
+			for (auto& data : SLOT_DATA[typeIndex])
+			{
+				if (name == data.name)
+				{
+					return &data;
+				}
+			}
+			return nullptr;
+		}
 
-		// StructuredBuffer Slot
-		enum class SB_SLOT : std::uint8_t
+		constexpr const std::uint32_t GetSlotByName(ResourceType type, std::string_view name)
 		{
-			PointLights = 8,
-			SpotLights,
-			Max,
-		};
+			auto typeIndex = static_cast<std::size_t>(type);
+			for (auto& data : SLOT_DATA[typeIndex])
+			{
+				if (name == data.name)
+				{
+					return data.slot;
+				}
+			}
+			return NONE_SLOT_NUM;
+		}
 
-		// SamplerState Slot
-		enum class SS_SLOT : std::uint8_t
+		constexpr const std::string_view GetNameBySlot(ResourceType type, std::uint32_t slot)
 		{
-			Main = 4,
-			Shadow,
-			Sky,
-			Max,
-		};
+			auto typeIndex = static_cast<std::size_t>(type);
+			for (auto& data : SLOT_DATA[typeIndex])
+			{
+				if (slot == data.slot)
+				{
+					return data.name;
+				}
+			}
+			return std::string_view();
+		}
 
 		//// CBuffer Slot
-		//constexpr std::uint32_t SHADER_CB_SLOT_GBUFFER = 4;
-		//constexpr std::uint32_t SHADER_CB_SLOT_SYSTEM = 5;
-		//constexpr std::uint32_t SHADER_CB_SLOT_TRANSFORM = 6;
-		//constexpr std::uint32_t SHADER_CB_SLOT_ANIMATION = 7;
-		//// Texture Slot
-		//constexpr std::uint32_t SHADER_SRV_SLOT_MAINTEX = 4;
-		//constexpr std::uint32_t SHADER_SRV_SLOT_SHADOWMAP = 5;
-		//constexpr std::uint32_t SHADER_SRV_SLOT_SKYDOOM = 6;
-		//// StructuredBuffer Slot
-		//constexpr std::uint32_t SHADER_SRV_SLOT_POINTLIGHT = 8;
-		//constexpr std::uint32_t SHADER_SRV_SLOT_SPOTLIGHT = 9;
-		//// Samplear Slot
-		//constexpr std::uint32_t SHADER_SS_SLOT_MAIN = 4;
-		//constexpr std::uint32_t SHADER_SS_SLOT_SHADOW = 5;
-		//constexpr std::uint32_t SHADER_SS_SLOT_SKY = 6;
-		//// UAV Slot
+		//enum class CB_SLOT : std::uint8_t
+		//{
+		//	GBuffer			= 4,
+		//	System,
+		//	Transform,
+		//	Animation,
+		//	Max,
+		//};
+		//// CBuffer Name
+		//constexpr std::string_view CB_NAME[static_cast<std::size_t>(CB_SLOT::Max)] = 
+		//{	
+		//	"",
+		//	"",
+		//	"",
+		//	"",
+		//	"GBuffer",
+		//	"System",
+		//	"Transform",
+		//	"Animation",
+		//};
 
-		// max register
-		constexpr std::uint32_t MAX_CB_SLOT_COUNT = 15;
-		constexpr std::uint32_t MAX_SS_SLOT_COUNT = 16;
-		constexpr std::uint32_t MAX_SRV_SLOT_COUNT = 16;
-		constexpr std::uint32_t MAX_UAV_SLOT_COUNT = 16;
+		//// Texture Slot
+		//enum class TEX_SLOT : std::uint8_t
+		//{
+		//	MainTexture = 4,
+		//	ShadowMap,
+		//	SkyDome,
+		//	Max,
+		//};
+
+		//// StructuredBuffer Slot
+		//enum class SB_SLOT : std::uint8_t
+		//{
+		//	PointLights = 8,
+		//	SpotLights,
+		//	Max,
+		//};
+
+		//// SamplerState Slot
+		//enum class SS_SLOT : std::uint8_t
+		//{
+		//	Main = 4,
+		//	Shadow,
+		//	Sky,
+		//	Max,
+		//};
+
+		////// CBuffer Slot
+		////constexpr std::uint32_t SHADER_CB_SLOT_GBUFFER = 4;
+		////constexpr std::uint32_t SHADER_CB_SLOT_SYSTEM = 5;
+		////constexpr std::uint32_t SHADER_CB_SLOT_TRANSFORM = 6;
+		////constexpr std::uint32_t SHADER_CB_SLOT_ANIMATION = 7;
+		////// Texture Slot
+		////constexpr std::uint32_t SHADER_SRV_SLOT_MAINTEX = 4;
+		////constexpr std::uint32_t SHADER_SRV_SLOT_SHADOWMAP = 5;
+		////constexpr std::uint32_t SHADER_SRV_SLOT_SKYDOOM = 6;
+		////// StructuredBuffer Slot
+		////constexpr std::uint32_t SHADER_SRV_SLOT_POINTLIGHT = 8;
+		////constexpr std::uint32_t SHADER_SRV_SLOT_SPOTLIGHT = 9;
+		////// Samplear Slot
+		////constexpr std::uint32_t SHADER_SS_SLOT_MAIN = 4;
+		////constexpr std::uint32_t SHADER_SS_SLOT_SHADOW = 5;
+		////constexpr std::uint32_t SHADER_SS_SLOT_SKY = 6;
+		////// UAV Slot
+
+		//// max register
+		//constexpr std::uint32_t MAX_CB_SLOT_COUNT = 15;
+		//constexpr std::uint32_t MAX_SS_SLOT_COUNT = 16;
+		//constexpr std::uint32_t MAX_SRV_SLOT_COUNT = 16;
+		//constexpr std::uint32_t MAX_UAV_SLOT_COUNT = 16;
 
 		// Light
 		constexpr std::uint32_t MAX_POINT_LIGHT_COUNT = 128;

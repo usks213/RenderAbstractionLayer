@@ -197,10 +197,18 @@ namespace core
 		/// @brief シェーダーリソースバインド情報
 		struct ShaderBindData
 		{
-			std::string name;
-			ShaderStage stage;
-			std::uint32_t slot;
+			SHADER::ResourceType	type;
+			ShaderStage			stage;
+			std::string			name;
+			std::uint32_t		slot;
+			std::uint32_t		space;
 		};
+
+		//--- 動的ディスクリプタ ---
+
+		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
+			,static_cast<size_t>(ShaderStage::MAX)>, static_cast<size_t>(SHADER::ResourceType::MAX)>
+
 
 		/// @brief 全ステージのCbuffer情報
 		std::array<std::unordered_map<std::uint32_t, ShaderBindData>,
