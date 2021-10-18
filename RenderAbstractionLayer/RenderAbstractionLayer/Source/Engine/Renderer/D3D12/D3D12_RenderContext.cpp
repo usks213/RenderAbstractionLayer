@@ -99,13 +99,13 @@ HRESULT D3D12RenderContext::initialize(D3D12Renderer* pRenderer, D3D12RenderDevi
 	//srvDesc.Buffer.NumElements = SHADER::MAX_SPOT_LIGHT_COUNT;
 	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateShaderResourceView(m_spotLightBuffer.Get(), nullptr, m_spotLightSRV.ReleaseAndGetAddressOf()));
 
-	// Sampler
-	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	{
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Main), SamplerState::LINEAR_WRAP, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Shadow), SamplerState::SHADOW, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Sky), SamplerState::ANISOTROPIC_WRAP, stage);
-	}
+	//// Sampler
+	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	//{
+	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Main), SamplerState::LINEAR_WRAP, stage);
+	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Shadow), SamplerState::SHADOW, stage);
+	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Sky), SamplerState::ANISOTROPIC_WRAP, stage);
+	//}
 
 	return S_OK;
 }

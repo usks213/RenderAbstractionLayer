@@ -134,9 +134,12 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 	// Sampler
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Main), SamplerState::LINEAR_WRAP, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Shadow), SamplerState::SHADOW, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Sky), SamplerState::ANISOTROPIC_WRAP, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+			core::SHADER::ResourceType::SAMPLER, "Main")), SamplerState::LINEAR_WRAP, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+			core::SHADER::ResourceType::SAMPLER, "Shadow")), SamplerState::SHADOW, stage);
+		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+			core::SHADER::ResourceType::SAMPLER, "Sky")), SamplerState::ANISOTROPIC_WRAP, stage);
 	}
 
 	return S_OK;
@@ -284,7 +287,8 @@ void D3D11RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& syst
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::System)
+		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
+			core::SHADER::GetSlotByName(core::SHADER::ResourceType::CBUFFER, "System"))
 			, 1, m_systemBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_systemBuffer.Get(), 0, nullptr, &systemBuffer, 0, 0);
 	}
@@ -298,7 +302,8 @@ void D3D11RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::Transform)
+		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
+			core::SHADER::GetSlotByName(core::SHADER::ResourceType::CBUFFER, "Transform"))
 			, 1, m_transformBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_transformBuffer.Get(), 0, nullptr, &transform, 0, 0);
 	}

@@ -113,15 +113,15 @@ namespace core
 		// protected variables
 		//------------------------------------------------------------------------------
 
-		BlendState			m_curBlendState;		///< 指定中のブレンドステイト
-		RasterizeState		m_curRasterizeState;	///< 指定中のラスタライザーステイト
-		DepthStencilState	m_curDepthStencilState;	///< 指定中のデプスステンシルステイト
-		PrimitiveTopology	m_curPrimitiveTopology;	///< 指定中のプリミティブトポロジー
+		BlendState			m_curBlendState;			///< 指定中のブレンドステイト
+		RasterizeState		m_curRasterizeState;		///< 指定中のラスタライザーステイト
+		DepthStencilState		m_curDepthStencilState;	///< 指定中のデプスステンシルステイト
+		PrimitiveTopology		m_curPrimitiveTopology;	///< 指定中のプリミティブトポロジー
 
-		SamplerState		m_curSamplerState[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SS_SLOT_COUNT];
-		TextureID			m_curTexture[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SRV_SLOT_COUNT];
+		SamplerState			m_curSamplerState[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SLOT_COUNT];
+		TextureID			m_curTexture[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SLOT_COUNT];
 
-		ShaderID			m_curShader;			///< 指定中のシェーダー
+		ShaderID				m_curShader;				///< 指定中のシェーダー
 		MaterialID			m_curMaterial;			///< 指定中のマテリアル
 		RenderBufferID		m_curRenderBuffer;		///< 指定中のレンダーバッファ
 		RenderTargetID		m_curRenderTarget;		///< 指定中のレンダーターゲット

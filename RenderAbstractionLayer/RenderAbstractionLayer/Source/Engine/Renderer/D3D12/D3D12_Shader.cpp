@@ -269,7 +269,7 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 		}
 	}
 
-	// コンスタント・テクスチャ・サンプラの作成
+	// 入力バインドデータの作成
 	D3D12_SHADER_BUFFER_DESC shaderBufferDesc = {};
 	for (auto stage = core::ShaderStage::VS; stage < core::ShaderStage::MAX; ++stage)
 	{
@@ -289,10 +289,10 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 
 			// 共通の定数バッファはスキップ
 			std::string cbName = shaderBufferDesc.Name;
-			if (core::SHADER::FindSlotData(core::SHADER::ResourceType::CBUFFER, cbName) == nullptr)
+			if (core::SHADER::FindSlotData(core::SHADER::ResourceType::CBUFFER, cbName) != nullptr)
 			{
 				++slotOffset;
-				return;
+				continue;
 			}
 
 			// レイアウト生成
@@ -335,7 +335,7 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 			if (bindDesc.Type < 0 || bindDesc.Type >=
 				static_cast<size_t>(core::SHADER::ResourceType::MAX)) continue;
 
-			if (core::SHADER::HasSlotData(bindDesc.Type, bindDesc.BindPoint))
+			if (!core::SHADER::HasSlotData(bindDesc.Type, bindDesc.BindPoint))
 			{
 				m_dynamicBindData[stageIndex][bindDesc.Type][bindDesc.BindPoint].stage = stage;
 				m_dynamicBindData[stageIndex][bindDesc.Type][bindDesc.BindPoint].name = bindDesc.Name;
@@ -377,157 +377,169 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 
 		for (size_t type = 0; type < static_cast<size_t>(core::SHADER::ResourceType::MAX); ++type)
 		{
-			switch (type)
+			// 動的
+			int cnt = 0;
+			for (auto& bindData : m_dynamicBindData[stageIndex][type])
 			{
-				case static_cast<size_t>(core::SHADER::ResourceType::CBUFFER) :
-				case static_cast<size_t>(core::SHADER::ResourceType::TBUFFER) :
+				switch (type)
 				{
-					break;
-				}
-				case static_cast<size_t>(core::SHADER::ResourceType::TEXTURE) :
-				{
-					break;
-				}
-				case static_cast<size_t>(core::SHADER::ResourceType::SAMPLER) :
-				{
-					break;
-				}
-				case static_cast<size_t>(core::SHADER::ResourceType::SAMPLER) :
-				{
-					break;
+					// b
+					case static_cast<size_t>(core::SHADER::ResourceType::CBUFFER) :
+					case static_cast<size_t>(core::SHADER::ResourceType::TBUFFER) :
+					{
+						if (cnt++ > 0) continue;
+						D3D12_DESCRIPTOR_RANGE range = {};
+						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+						range.NumDescriptors = m_dynamicBindData[stageIndex][type].size();
+						range.BaseShaderRegister = 0;
+						range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						aRanges.push_back(range);
+
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+						param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+						param.DescriptorTable.NumDescriptorRanges = 1;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// t
+					case static_cast<size_t>(core::SHADER::ResourceType::TEXTURE) :
+					{
+						D3D12_DESCRIPTOR_RANGE range = {};
+						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+						range.NumDescriptors = 1;
+						range.BaseShaderRegister = bindData.second.slot;
+						range.RegisterSpace = bindData.second.space;
+						range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						aRanges.push_back(range);
+
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+						param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+						param.DescriptorTable.NumDescriptorRanges = 1;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// s
+					case static_cast<size_t>(core::SHADER::ResourceType::SAMPLER) :
+					{
+						//D3D12_DESCRIPTOR_RANGE range = {};
+						//range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+						//range.NumDescriptors = bindData.second.slot;
+						//range.BaseShaderRegister = bindData.second.space;
+						//range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						//aRanges.push_back(range);
+
+						//D3D12_ROOT_PARAMETER param = {};
+						//param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+						//param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+						//param.DescriptorTable.NumDescriptorRanges = 1;
+						//param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						//aParameters.push_back(param);
+
+						aSamplers.push_back(device->m_samplerStates[
+							static_cast<size_t>(core::SamplerState::LINEAR_WRAP)]);
+						break;
+					}
+					// t
+					case static_cast<size_t>(core::SHADER::ResourceType::STRUCTURED) :
+					case static_cast<size_t>(core::SHADER::ResourceType::BYTEADDRESS) :
+					{
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+						param.Descriptor.ShaderRegister = bindData.second.slot;
+						param.Descriptor.RegisterSpace = bindData.second.space;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// u
+					case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWTYPED) :
+					case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWSTRUCTURED) :
+					case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWBYTEADDRESS) :
+					{
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+						param.Descriptor.ShaderRegister = bindData.second.slot;
+						param.Descriptor.RegisterSpace = bindData.second.space;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
 				}
 			}
-		}
+			// 静的
+			for (auto& bindData : m_staticBindData[stageIndex][type])
+			{
+				switch (type)
+				{
+					// b
+					case static_cast<size_t>(core::SHADER::ResourceType::CBUFFER) :
+					case static_cast<size_t>(core::SHADER::ResourceType::TBUFFER) :
+					{
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+						param.Descriptor.ShaderRegister = bindData.second.slot;
+						param.Descriptor.RegisterSpace = bindData.second.space;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// t
+					case static_cast<size_t>(core::SHADER::ResourceType::TEXTURE) :
+					{
+						D3D12_DESCRIPTOR_RANGE range = {};
+						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+						range.NumDescriptors = 1;
+						range.BaseShaderRegister = bindData.second.slot;
+						range.RegisterSpace = bindData.second.space;
+						range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						aRanges.push_back(range);
 
-		//--- 動的ディスクリプタレンジ・パラメータ ---
-
-
-		// 定数バッファ
-		if (m_cbufferBindDatas[stageIndex].size() > 0)
-		{
-			D3D12_DESCRIPTOR_RANGE range = {};
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			range.NumDescriptors = m_cbufferBindDatas[stageIndex].size();
-			range.BaseShaderRegister = 0;
-			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			aRanges.push_back(range);
-
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
-			param.DescriptorTable.NumDescriptorRanges = 1;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
-		}
-
-		// テクスチャ
-		for (auto& tex : m_textureBindDatas[stageIndex])
-		{
-			D3D12_DESCRIPTOR_RANGE range = {};
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-			range.NumDescriptors = 1;
-			range.BaseShaderRegister = tex.second.slot;
-			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			aRanges.push_back(range);
-
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
-			param.DescriptorTable.NumDescriptorRanges = 1;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
-
-			//D3D12_ROOT_PARAMETER param = {};
-			//param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-			//param.Descriptor.ShaderRegister = tex.first;
-			//param.Descriptor.RegisterSpace = 0;
-			//param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			//aParameters.push_back(param);
-		}
-
-		// サンプラー
-		for (auto& sam : m_samplerBindDatas[stageIndex])
-		{
-			//D3D12_DESCRIPTOR_RANGE range = {};
-			//range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-			//range.NumDescriptors = m_samplerBindDatas[stageIndex].size();
-			//range.BaseShaderRegister = 0;
-			//range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			//aRanges.push_back(range);
-
-			//D3D12_ROOT_PARAMETER param = {};
-			//param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			//param.DescriptorTable.pDescriptorRanges = &aRanges.back();
-			//param.DescriptorTable.NumDescriptorRanges = 1;
-			//param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			//aParameters.push_back(param);
-
-			auto samp = device->m_samplerStates[static_cast<size_t>(core::SamplerState::LINEAR_CLAMP)];
-			samp.ShaderRegister = sam.second.slot;
-			samp.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aSamplers.push_back(samp);
-		}
-
-		// ストラクチャード
-		for (auto& sam : m_structuredBindDatas[stageIndex])
-		{
-			D3D12_DESCRIPTOR_RANGE range = {};
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-			range.NumDescriptors = m_structuredBindDatas[stageIndex].size();
-			range.BaseShaderRegister = 0;
-			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-			aRanges.push_back(range);
-
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			param.DescriptorTable.pDescriptorRanges = &aRanges.back();
-			param.DescriptorTable.NumDescriptorRanges = 1;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
-		}
-
-		//--- 静的ディスクリプタレンジ・パラメータ ---
-
-		// 定数バッファ
-		for (auto& cb : m_staticCBufferBindDatas[stageIndex])
-		{
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-			param.Descriptor.ShaderRegister = cb.first;
-			param.Descriptor.RegisterSpace = 0;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
-		}
-
-		// テクスチャ
-		for (auto& tex : m_staticTextureBindDatas[stageIndex])
-		{
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-			param.Descriptor.ShaderRegister = tex.first;
-			param.Descriptor.RegisterSpace = 0;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
-		}
-
-		// サンプラー
-		for (auto& sam : m_staticSamplerBindDatas[stageIndex])
-		{
-			auto samp = device->m_samplerStates[static_cast<size_t>(core::SamplerState::LINEAR_WRAP)];
-			samp.ShaderRegister = sam.second.slot;
-			samp.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aSamplers.push_back(samp);
-		}
-
-		// ストラクチャード
-		for (auto& sam : m_staticStructuredBindDatas[stageIndex])
-		{
-			D3D12_ROOT_PARAMETER param = {};
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-			param.Descriptor.ShaderRegister = sam.first;
-			param.Descriptor.RegisterSpace = 0;
-			param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-			aParameters.push_back(param);
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+						param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+						param.DescriptorTable.NumDescriptorRanges = 1;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// s
+					case static_cast<size_t>(core::SHADER::ResourceType::SAMPLER) :
+					{
+						aSamplers.push_back(device->m_samplerStates[
+							static_cast<size_t>(core::SamplerState::LINEAR_WRAP)]);
+						break;
+					}
+					// t
+					case static_cast<size_t>(core::SHADER::ResourceType::STRUCTURED) :
+						case static_cast<size_t>(core::SHADER::ResourceType::BYTEADDRESS) :
+					{
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+						param.Descriptor.ShaderRegister = bindData.second.slot;
+						param.Descriptor.RegisterSpace = bindData.second.space;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+					// u
+					case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWTYPED) :
+						case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWSTRUCTURED) :
+						case static_cast<size_t>(core::SHADER::ResourceType::UAV_RWBYTEADDRESS) :
+					{
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+						param.Descriptor.ShaderRegister = bindData.second.slot;
+						param.Descriptor.RegisterSpace = bindData.second.space;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -541,12 +553,13 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 
 	ID3DBlob* rootSigBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
-	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
+	CHECK_FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob));
 	std::string errstr;
 	if (rootSigBlob)
 	{
-		device->m_pD3DDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(),
-			IID_PPV_ARGS(m_pRootSignature.ReleaseAndGetAddressOf()));
+		CHECK_FAILED(device->m_pD3DDevice->CreateRootSignature(0, rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(),
+			IID_PPV_ARGS(m_pRootSignature.ReleaseAndGetAddressOf())));
+		rootSigBlob->Release();
 	}
 	else
 	{
@@ -556,5 +569,4 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 		OutputDebugStringA(errstr.c_str());
 		errorBlob->Release();
 	}
-	rootSigBlob->Release();
 }
