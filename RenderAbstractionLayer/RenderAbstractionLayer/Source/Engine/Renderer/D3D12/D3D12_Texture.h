@@ -31,7 +31,7 @@ namespace d3d12
 		/// @param id テクスチャID
 		/// @param desc テクスチャDesc
 		explicit D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id, core::TextureDesc& desc,
-			const core::TextureData* pData = nullptr);
+			const core::TextureData* pData = nullptr, const D3D12_CLEAR_VALUE* pClear = nullptr);
 
 		/// @brief デストラクタ
 		~D3D12Texture() noexcept = default;

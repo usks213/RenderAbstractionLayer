@@ -42,6 +42,16 @@ namespace d3d11
     /// @param format テクスチャフォーマット
     /// @return DXGIフォーマット
     DXGI_FORMAT getDXGIFormat(core::TextureFormat format);
+
+    /// @brief TypeLessフォーマットをDSVフォーマットに変換して返す
+    /// @param format TypeLessフォーマット
+    /// @return DSVフォーマット or そのまま
+    DXGI_FORMAT getTypeLessToDSVFormat(core::TextureFormat format);
+
+    /// @brief TypeLessフォーマットをSRVフォーマットに変換して返す
+    /// @param format TypeLessフォーマット
+    /// @return SRVフォーマット or そのまま
+    DXGI_FORMAT getTypeLessToSRVFormat(core::TextureFormat format);
 }
 
 #endif // !_D3D11_COMMON_STATE_

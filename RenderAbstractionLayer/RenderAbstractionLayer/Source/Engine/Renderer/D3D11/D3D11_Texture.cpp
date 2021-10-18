@@ -67,6 +67,10 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
         desc.miscFlags,
     };
 
+    // シェーダーリソースビュー
+    CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, getTypeLessToSRVFormat(desc.format));
+    if (desc.sampleDesc.isUse) srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+
     // ミップマップ自動生成指定
     if (desc.mipLevels == 0 && 
         desc.bindFlags & core::BindFlags::RENDER_TARGET && 
@@ -91,7 +95,7 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
 
         CHECK_FAILED(pDevice->CreateTexture2D(&d3d11Desc, nullptr, m_tex.GetAddressOf()));
         if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE) {
-            CHECK_FAILED(pDevice->CreateShaderResourceView(m_tex.Get(), nullptr, m_srv.GetAddressOf()));
+            CHECK_FAILED(pDevice->CreateShaderResourceView(m_tex.Get(), &srvDesc, m_srv.GetAddressOf()));
         }
     }
     else {
@@ -102,7 +106,7 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id,
 
         CHECK_FAILED(pDevice->CreateTexture2D(&d3d11Desc, &d3d11SubresourceData, m_tex.GetAddressOf()));
         if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE) {
-            CHECK_FAILED(pDevice->CreateShaderResourceView(m_tex.Get(), nullptr, m_srv.GetAddressOf()));
+            CHECK_FAILED(pDevice->CreateShaderResourceView(m_tex.Get(), &srvDesc, m_srv.GetAddressOf()));
         }
     }
 }

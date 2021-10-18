@@ -13,25 +13,15 @@
 
 namespace d3d12
 {
-    /*/// @brief D3D12のリソース使用識別取得
-    /// @param usage リソース使用識別
-    /// @return D3D12リソース使用識別
-    D3D12_USAGE getD3D12Usage(core::Usage usage);*/
+    /// @brief リソースフラグ取得
+    /// @param flags フラグ
+    /// @return D3D12リソースフラグ
+    D3D12_RESOURCE_FLAGS getD3D12ResourceFlags(UINT bindFlags);
 
-    /// @brief D3D12のバインドフラグ取得
-    /// @param flags バインドフラグ
-    /// @return 符号なし整数型バインドフラグ
-    UINT32 getD3D12BindFlags(core::BindFlags flags);
-
-    /// @brief D3D12のCPUアクセスフラグ取得
-    /// @param flags CPUアクセスフラグ
-    /// @return 符号なし整数型CPUアクセスフラグ
-    UINT32 getD3D12CPUAccessFlags(core::CPUAccessFlags flags);
-
-    /// @brief D3D12のバッファフラグ取得
-    /// @param flags バッファフラグ
-    /// @return 符号なし整数型バッファフラグ
-    UINT32 getD3D12MiscFlags(core::MiscFlags flags);
+    /// @brief ヒープフラグ取得
+    /// @param flags フラグ
+    /// @return D3D12ヒープフラグ
+    D3D12_DESCRIPTOR_HEAP_FLAGS getD3D12HeapFlags(UINT bindFlags);
 
     /// @brief D3D12のプリミティブトポロジー取得
     /// @param topology プリミティブトポロジー
@@ -42,6 +32,16 @@ namespace d3d12
     /// @param format テクスチャフォーマット
     /// @return DXGIフォーマット
     DXGI_FORMAT getDXGIFormat(core::TextureFormat format);
+
+    /// @brief TypeLessフォーマットをDSVフォーマットに変換して返す
+    /// @param format TypeLessフォーマット
+    /// @return DSVフォーマット or そのまま
+    DXGI_FORMAT getTypeLessToDSVFormat(core::TextureFormat format);
+
+    /// @brief TypeLessフォーマットをSRVフォーマットに変換して返す
+    /// @param format TypeLessフォーマット
+    /// @return SRVフォーマット or そのまま
+    DXGI_FORMAT getTypeLessToSRVFormat(core::TextureFormat format);
 }
 
 #endif // !_D3D12_COMMON_STATE_

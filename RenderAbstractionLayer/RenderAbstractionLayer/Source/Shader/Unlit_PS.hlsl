@@ -14,8 +14,8 @@ cbuffer Material : register(b0)
 	float4 _Color;
 }
 
-Texture2D _Texture : register(t0); // メインテクスチャ
-SamplerState _Sampler : register(s0); // メインサンプラ
+Texture2D _Texture : register(t0);		// メインテクスチャ
+SamplerState _Sampler : register(s0);	// メインサンプラ
 
 float4 PS(VS_OUTPUT input) : SV_Target0
 {

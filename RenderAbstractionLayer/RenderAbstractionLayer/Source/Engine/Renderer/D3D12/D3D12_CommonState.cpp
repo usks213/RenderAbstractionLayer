@@ -10,67 +10,24 @@
 using namespace d3d12;
 
 
-/// @brief D3D12のリソース使用識別取得
-/// @param usage リソース使用識別
-/// @return D3D12リソース使用識別
-//D3D12_USAGE d3d12::getD3D12Usage(core::Usage usage) {
-//	switch (usage) {
-//	case core::Usage::STATIC:  return D3D12_USAGE_IMMUTABLE;
-//	case core::Usage::DEFAULT: return D3D12_USAGE_DEFAULT;
-//	case core::Usage::DYNAMIC: return D3D12_USAGE_DYNAMIC;
-//	case core::Usage::STAGING: return D3D12_USAGE_STAGING;
-//	default:             return D3D12_USAGE_DEFAULT;
-//	}
-//}
-
-/// @brief D3D12のバインドフラグ取得
-/// @param flags バインドフラグ
-/// @return 符号なし整数型バインドフラグ
-UINT32 d3d12::getD3D12BindFlags(core::BindFlags flags) {
-	UINT32 d3d12BindFlags = 0;
-
-	/*d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::VERTEX_BUFFER) ? D3D12_BIND_VERTEX_BUFFER : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::INDEX_BUFFER) ? D3D12_BIND_INDEX_BUFFER : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::CONSTANT_BUFFER) ? D3D12_BIND_CONSTANT_BUFFER : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::SHADER_RESOURCE) ? D3D12_BIND_SHADER_RESOURCE : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::STREAM_OUTPUT) ? D3D12_BIND_STREAM_OUTPUT : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::RENDER_TARGET) ? D3D12_BIND_RENDER_TARGET : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::DEPTH_STENCIL) ? D3D12_BIND_DEPTH_STENCIL : 0);
-	d3d12BindFlags = d3d12BindFlags | ((flags & core::BindFlags::UNORDERED_ACCESS) ? D3D12_BIND_UNORDERED_ACCESS : 0);*/
-
-	return d3d12BindFlags;
+/// @brief リソースフラグ取得
+/// @param flags フラグ
+/// @return D3D12リソースフラグ
+D3D12_RESOURCE_FLAGS d3d12::getD3D12ResourceFlags(UINT bindFlags)
+{
+	if (bindFlags & core::BindFlags::RENDER_TARGET) return D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	else if (bindFlags & core::BindFlags::DEPTH_STENCIL) return D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	else if (bindFlags & core::BindFlags::UNORDERED_ACCESS) return D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	else return D3D12_RESOURCE_FLAG_NONE;
 }
 
-/// @brief D3D12のCPUアクセスフラグ取得
-/// @param flags CPUアクセスフラグ
-/// @return 符号なし整数型CPUアクセスフラグ
-UINT32 d3d12::getD3D12CPUAccessFlags(core::CPUAccessFlags flags) {
-	UINT32 d3d12CPUAccessFlags = 0;
-
-	//d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::READ) ? D3D12_CPU_ACCESS_READ : 0;
-	//d3d12CPUAccessFlags |= (flags & core::CPUAccessFlags::WRITE) ? D3D12_CPU_ACCESS_WRITE : 0;
-
-	return d3d12CPUAccessFlags;
-}
-
-/// @brief D3D12のバッファフラグ取得
-/// @param flags バッファフラグ
-/// @return 符号なし整数型バッファフラグ
-UINT32 d3d12::getD3D12MiscFlags(core::MiscFlags flags) {
-	UINT32 d3d12MiscFlags = 0;
-
-	//d3d12MiscFlags |= (flags & core::MiscFlags::GENERATE_MIPS) ? D3D12_RESOURCE_MISC_GENERATE_MIPS : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::TEXTURECUBE) ? D3D12_RESOURCE_MISC_TEXTURECUBE : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::DRAWINDIRECT_ARGS) ? D3D12_RESOURCE_MISC_DRAWINDIRECT_ARGS : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS) ? D3D12_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::RESOURCE_CLAMP) ? D3D12_RESOURCE_MISC_RESOURCE_CLAMP : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::BUFFER_STRUCTURED) ? D3D12_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::SHARED_KEYEDMUTEX) ? D3D12_RESOURCE_MISC_SHARED_KEYEDMUTEX : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::TILE_POOL) ? D3D12_RESOURCE_MISC_TILE_POOL : 0;
-	//d3d12MiscFlags |= (flags & core::MiscFlags::TILED) ? D3D12_RESOURCE_MISC_TILED : 0;
-
-	return d3d12MiscFlags;
+/// @brief ヒープフラグ取得
+/// @param flags フラグ
+/// @return D3D12ヒープフラグ
+D3D12_DESCRIPTOR_HEAP_FLAGS d3d12::getD3D12HeapFlags(UINT bindFlags)
+{
+	if (bindFlags & core::BindFlags::SHADER_RESOURCE) return D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	else return D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 }
 
 /// @brief D3D12のプリミティブトポロジー取得
@@ -194,3 +151,42 @@ DXGI_FORMAT d3d12::getDXGIFormat(core::TextureFormat format) {
 	return d3dDXGIFormat[static_cast<size_t>(format)];
 }
 
+/// @brief TypeLessフォーマットをDSVフォーマットに変換して返す
+/// @param format TypeLessフォーマット
+/// @return DSVフォーマット or そのまま
+DXGI_FORMAT d3d12::getTypeLessToDSVFormat(core::TextureFormat format)
+{
+	auto f = static_cast<size_t>(format);
+	if (f == DXGI_FORMAT_R32_TYPELESS)
+	{
+		return DXGI_FORMAT_D32_FLOAT;
+	}
+	else if (f == DXGI_FORMAT_R24G8_TYPELESS)
+	{
+		return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	}
+	else if (f == DXGI_FORMAT_R24_UNORM_X8_TYPELESS)
+	{
+		return DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+	}
+	else
+	{
+		return getDXGIFormat(format);
+	}
+}
+
+/// @brief TypeLessフォーマットをSRVフォーマットに変換して返す
+/// @param format TypeLessフォーマット
+/// @return SRVフォーマット or そのまま
+DXGI_FORMAT d3d12::getTypeLessToSRVFormat(core::TextureFormat format)
+{
+	auto f = static_cast<size_t>(format);
+	if (f == DXGI_FORMAT_R32_TYPELESS)
+	{
+		return DXGI_FORMAT_R32_FLOAT;
+	}
+	else
+	{
+		return getDXGIFormat(format);
+	}
+}

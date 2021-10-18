@@ -188,6 +188,12 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Texture.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_DepthStencil.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderTarget.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -284,6 +290,12 @@
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Texture.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_DepthStencil.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderTarget.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>

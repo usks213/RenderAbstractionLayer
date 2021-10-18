@@ -194,3 +194,42 @@ DXGI_FORMAT d3d11::getDXGIFormat(core::TextureFormat format) {
 	return d3dDXGIFormat[static_cast<size_t>(format)];
 }
 
+/// @brief TypeLessフォーマットをDSVフォーマットに変換して返す
+/// @param format TypeLessフォーマット
+/// @return DSVフォーマット or そのまま
+DXGI_FORMAT d3d11::getTypeLessToDSVFormat(core::TextureFormat format)
+{
+	auto f = static_cast<size_t>(format);
+	if (f == DXGI_FORMAT_R32_TYPELESS)
+	{
+		return DXGI_FORMAT_D32_FLOAT;
+	}
+	else if (f == DXGI_FORMAT_R24G8_TYPELESS)
+	{
+		return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	}
+	else if (f == DXGI_FORMAT_R24_UNORM_X8_TYPELESS)
+	{
+		return DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+	}
+	else
+	{
+		return getDXGIFormat(format);
+	}
+}
+
+/// @brief TypeLessフォーマットをSRVフォーマットに変換して返す
+/// @param format TypeLessフォーマット
+/// @return SRVフォーマット or そのまま
+DXGI_FORMAT d3d11::getTypeLessToSRVFormat(core::TextureFormat format)
+{
+	auto f = static_cast<size_t>(format);
+	if (f == DXGI_FORMAT_R32_TYPELESS)
+	{
+		return DXGI_FORMAT_R32_FLOAT;
+	}
+	else
+	{
+		return getDXGIFormat(format);
+	}
+}

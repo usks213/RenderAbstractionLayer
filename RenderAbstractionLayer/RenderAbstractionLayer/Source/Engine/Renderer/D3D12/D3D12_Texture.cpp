@@ -47,20 +47,12 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id, con
 /// @param id テクスチャID
 /// @param desc テクスチャDesc
 D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id, 
-    core::TextureDesc& desc, const core::TextureData* pData) :
+    core::TextureDesc& desc, const core::TextureData* pData, const D3D12_CLEAR_VALUE* pClear) :
 	core::CoreTexture(id, desc),
 	m_pTexHeap(nullptr),
 	m_pTex(nullptr)
 {
     DXGI_SAMPLE_DESC d3dSampleDesc = { desc.sampleDesc.count, desc.sampleDesc.quality };
-
-    // ヒープ設定
-    D3D12_HEAP_PROPERTIES texHeapProp = {};
-    texHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;  // 特別
-    texHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-    texHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;    // CPUから
-    texHeapProp.CreationNodeMask = 0;
-    texHeapProp.VisibleNodeMask = 0;
 
     // リソース
     D3D12_RESOURCE_DESC resDesc = {};
@@ -72,35 +64,57 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
     resDesc.MipLevels = 1;//desc.mipLevels;
     resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
+    resDesc.Flags = d3d12::getD3D12ResourceFlags(desc.bindFlags);
 
     // 初期値なし
-    if (pData == nullptr) {
+    if (pData == nullptr) 
+    {
         if (desc.width <= 0 && desc.height <= 0) {
             // 生成不可
             return;
         }
-        if (desc.usage == core::Usage::STATIC) {
-            // エラー 初期値なし、書き換え不可
-            return;
-        }
-
-        //CHECK_FAILED(pDevice->CreateTexture2D(&d3d11Desc, nullptr, m_tex.GetAddressOf()));
-        //if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE) {
-        //    CHECK_FAILED(pDevice->CreateShaderResourceView(m_tex.Get(), nullptr, m_srv.GetAddressOf()));
+        //if (desc.usage == core::Usage::STATIC) {
+        //    // エラー 初期値なし、書き換え不可
+        //    return;
         //}
-    }
-    else {
-        D3D12_SUBRESOURCE_DATA d3d11SubresourceData = {};
 
+        // ヒープ設定
+        D3D12_HEAP_PROPERTIES texHeapProp = {};
+        texHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+        texHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+        texHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+        texHeapProp.CreationNodeMask = 0;
+        texHeapProp.VisibleNodeMask = 0;
+
+        D3D12_SUBRESOURCE_DATA d3d11SubresourceData = {};
         // リソース生成
         CHECK_FAILED(pDevice->CreateCommittedResource(
             &texHeapProp,
             D3D12_HEAP_FLAG_NONE,//特に指定なし
             &resDesc,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,//テクスチャ用(ピクセルシェーダから見る用)
-            nullptr,
+            pClear,
+            IID_PPV_ARGS(m_pTex.ReleaseAndGetAddressOf())
+        ));
+    }
+    else 
+    {
+        // ヒープ設定
+        D3D12_HEAP_PROPERTIES texHeapProp = {};
+        texHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;  // 特別
+        texHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+        texHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;    // CPUから
+        texHeapProp.CreationNodeMask = 0;
+        texHeapProp.VisibleNodeMask = 0;
+
+        D3D12_SUBRESOURCE_DATA d3d11SubresourceData = {};
+        // リソース生成
+        CHECK_FAILED(pDevice->CreateCommittedResource(
+            &texHeapProp,
+            D3D12_HEAP_FLAG_NONE,//特に指定なし
+            &resDesc,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,//テクスチャ用(ピクセルシェーダから見る用)
+            pClear,
             IID_PPV_ARGS(m_pTex.ReleaseAndGetAddressOf())
         ));
         // データ格納
@@ -110,27 +124,31 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
             static_cast<UINT>(desc.width * desc.depth),//1ラインサイズ
             static_cast<UINT>(desc.width * desc.height * desc.depth)//全サイズ
         ));
-        // ヒープ生成
-        D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
-        descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるように
-        descHeapDesc.NodeMask = 0;//マスクは0
-        descHeapDesc.NumDescriptors = 1;//ビューは今のところ１つだけ
-        descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//シェーダリソースビュー(および定数、UAVも)
-
-        CHECK_FAILED(pDevice->CreateDescriptorHeap(&descHeapDesc, 
-            IID_PPV_ARGS(m_pTexHeap.ReleaseAndGetAddressOf())));//生成
-
-        //通常テクスチャビュー作成
-        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-        srvDesc.Format = resDesc.Format;//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
-        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
-        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
-        srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
-
-       pDevice->CreateShaderResourceView(m_pTex.Get(), //ビューと関連付けるバッファ
-            &srvDesc, //先ほど設定したテクスチャ設定情報
-            m_pTexHeap->GetCPUDescriptorHandleForHeapStart()//ヒープのどこに割り当てるか
-        );
     }
+
+    // ヒープ生成
+    D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+    descHeapDesc.Flags = d3d12::getD3D12HeapFlags(desc.bindFlags);//シェーダから見えるように
+    descHeapDesc.NodeMask = 0;//マスクは0
+    descHeapDesc.NumDescriptors = 1;//ビューは今のところ１つだけ
+    descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//シェーダリソースビュー(および定数、UAVも)
+
+    CHECK_FAILED(pDevice->CreateDescriptorHeap(&descHeapDesc,
+        IID_PPV_ARGS(m_pTexHeap.ReleaseAndGetAddressOf())));//生成
+
+    //通常テクスチャビュー作成
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = getTypeLessToSRVFormat(desc.format);//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
+    srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
+
+    // MSAA 
+    if (desc.sampleDesc.isUse) srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+
+    pDevice->CreateShaderResourceView(m_pTex.Get(), //ビューと関連付けるバッファ
+        &srvDesc, //先ほど設定したテクスチャ設定情報
+        m_pTexHeap->GetCPUDescriptorHandleForHeapStart()//ヒープのどこに割り当てるか
+    );
 }
 
