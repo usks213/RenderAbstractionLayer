@@ -102,6 +102,21 @@ namespace core
 		virtual void sendLightBuffer(std::vector<CorePointLight>& pointLights, 
 			std::vector<CoreSpotLight>& spotLights) = 0;
 
+		//--- 指定を汎用的に
+		// シェーダーのバインドデータを基に、バインド名でリソースを指定できるように
+
+		virtual void setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+
+		virtual void setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+
+		virtual void setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+
+		virtual void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) = 0;
+
+		virtual void setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) = 0;
+
+
+
 		//----- 描画命令
 
 		/// @brief 即時描画命令
