@@ -91,7 +91,7 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				D3D_COMPILE_STANDARD_FILE_INCLUDE,
 				SHADER_TYPES[static_cast<size_t>(stage)],
 				HLSL_VERS[static_cast<size_t>(stage)],
-				D3DCOMPILE_ENABLE_STRICTNESS,
+				D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, //D3DCOMPILE_ENABLE_STRICTNESS,
 				0,
 				blob.GetAddressOf(),
 				&d3dError));

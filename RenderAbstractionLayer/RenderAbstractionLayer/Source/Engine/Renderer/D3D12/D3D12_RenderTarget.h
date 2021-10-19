@@ -27,7 +27,7 @@ namespace d3d12
 		/// @param device デバイス
 		/// @param id レンダーターゲットID
 		/// @param d3dTex d3dテクスチャ
-		explicit D3D12RenderTarget(ID3D12Device1* device, const core::RenderTargetID& id, D3D12Texture& d3dTex);
+		explicit D3D12RenderTarget(ID3D12Device* device, const core::RenderTargetID& id, D3D12Texture& d3dTex);
 
 		/// @brief デストラクタ
 		~D3D12RenderTarget() noexcept = default;

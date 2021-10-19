@@ -82,20 +82,21 @@ core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, core::Buf
 
 	return id;
 }
-core::DepthStencilID D3D11RenderDevice::createDepthStencil(std::string name)
+core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& desc, core::TextureData* pData)
 {
 	// IDの取得
-	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(name));
+	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
 
 	// 既に生成済み
 	const auto& itr = m_depthStencilPool.find(id);
 	if (m_depthStencilPool.end() != itr) return id;
 
 	// テクスチャ生成
-	TextureDesc texDesc;
-	texDesc.bindFlags = BindFlags::DEPTH_STENCIL | BindFlags::SHADER_RESOURCE;
+	auto texID = createTexture(desc, pData);
+	auto pTex = static_cast<D3D11Texture*>(getTexture(texID));
 
 	// デプスステンシル生成
+	m_depthStencilPool[id] = std::make_unique<D3D11DepthStencil>(m_pD3DDevice, id, *pTex);
 
 	return id;
 }
@@ -155,20 +156,21 @@ core::RenderBufferID D3D11RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D11RenderDevice::createRenderTarget(std::string name)
+core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& desc, core::TextureData* pData)
 {
 	// IDの取得
-	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(name));
+	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
 
 	// 既に生成済み
 	const auto& itr = m_renderTargetPool.find(id);
 	if (m_renderTargetPool.end() != itr) return id;
 
 	// テクスチャ生成
-	TextureDesc texDesc;
-	texDesc.bindFlags = BindFlags::RENDER_TARGET | BindFlags::SHADER_RESOURCE;
+	auto texID = createTexture(desc, pData);
+	auto pTex = static_cast<D3D11Texture*>(getTexture(texID));
 
 	// レンダーターゲット生成
+	m_renderTargetPool[id] = std::make_unique<D3D11RenderTarget>(m_pD3DDevice, id, *pTex);
 
 	return id;
 }

@@ -14,7 +14,7 @@ using namespace d3d12;
 /// @brief コンストラクタ
 /// @param device デバイス
 /// @param d3dTex d3dテクスチャ
-D3D12RenderTarget::D3D12RenderTarget(ID3D12Device1* device, const core::RenderTargetID& id, D3D12Texture& d3dTex) :
+D3D12RenderTarget::D3D12RenderTarget(ID3D12Device* device, const core::RenderTargetID& id, D3D12Texture& d3dTex) :
 	core::CoreRenderTarget(id, d3dTex),
 	m_pHeapRTV(nullptr)
 {

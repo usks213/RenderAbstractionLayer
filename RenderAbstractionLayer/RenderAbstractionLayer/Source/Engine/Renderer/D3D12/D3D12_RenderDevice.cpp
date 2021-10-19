@@ -10,10 +10,10 @@
 #include <Engine/Utility/Util_Hash.h>
 
 //#include <Renderer/D3D12/D3D12_Buffer.h>
-//#include <Renderer/D3D12/D3D12_DepthStencil.h>
+#include <Renderer/D3D12/D3D12_DepthStencil.h>
 #include <Renderer/D3D12/D3D12_Material.h>
 #include <Renderer/D3D12/D3D12_RenderBuffer.h>
-//#include <Renderer/D3D12/D3D12_RenderTarget.h>
+#include <Renderer/D3D12/D3D12_RenderTarget.h>
 #include <Renderer/D3D12/D3D12_Shader.h>
 #include <Renderer/D3D12/D3D12_Texture.h>
 
@@ -79,20 +79,25 @@ core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, core::Buf
 
 	return id;
 }
-core::DepthStencilID D3D12RenderDevice::createDepthStencil(std::string name)
+core::DepthStencilID D3D12RenderDevice::createDepthStencil(core::TextureDesc& desc, core::TextureData* pData)
 {
 	// IDの取得
-	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(name));
+	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
 
 	// 既に生成済み
 	const auto& itr = m_depthStencilPool.find(id);
 	if (m_depthStencilPool.end() != itr) return id;
 
+	// クリアデータ
+	D3D12_CLEAR_VALUE depthClearValue = {};
+	depthClearValue.DepthStencil.Depth = 1.0f;
+	depthClearValue.Format = d3d12::getTypeLessToDSVFormat(desc.format);
+
 	// テクスチャ生成
-	TextureDesc texDesc;
-	texDesc.bindFlags = BindFlags::DEPTH_STENCIL | BindFlags::SHADER_RESOURCE;
+	auto pTex = createD3D12Texture(desc, &depthClearValue);
 
 	// デプスステンシル生成
+	m_depthStencilPool[id] = std::make_unique<D3D12DepthStencil>(m_pD3DDevice, id, *pTex);
 
 	return id;
 }
@@ -152,20 +157,25 @@ core::RenderBufferID D3D12RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D12RenderDevice::createRenderTarget(std::string name)
+core::RenderTargetID D3D12RenderDevice::createRenderTarget(core::TextureDesc& desc, core::TextureData* pData)
 {
 	// IDの取得
-	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(name));
+	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
 
 	// 既に生成済み
 	const auto& itr = m_renderTargetPool.find(id);
 	if (m_renderTargetPool.end() != itr) return id;
 
-	// テクスチャ生成
-	TextureDesc texDesc;
-	texDesc.bindFlags = BindFlags::RENDER_TARGET | BindFlags::SHADER_RESOURCE;
+	// クリアデータ
+	D3D12_CLEAR_VALUE rtvClearValue = {};
+	std::memset(rtvClearValue.Color, 0, sizeof(FLOAT) * 4);
+	rtvClearValue.Format = d3d12::getTypeLessToDSVFormat(desc.format);
 
-	// レンダーターゲット生成
+	// テクスチャ生成
+	auto pTex = createD3D12Texture(desc, &rtvClearValue);
+
+	// デプスステンシル生成
+	m_renderTargetPool[id] = std::make_unique<D3D12RenderTarget>(m_pD3DDevice, id, *pTex);
 
 	return id;
 }
@@ -384,4 +394,22 @@ HRESULT D3D12RenderDevice::createCommonState()
 	}
 
 	return S_OK;
+}
+
+D3D12Texture* D3D12RenderDevice::createD3D12Texture(core::TextureDesc& desc, D3D12_CLEAR_VALUE* pClear)
+{
+	// IDの取得
+	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));
+
+	// 既に生成済み
+	const auto& itr = m_texturePool.find(id);
+	if (m_texturePool.end() != itr) return nullptr;
+
+	// 新規生成
+	auto pD3D12Tex = std::make_unique<D3D12Texture>(m_pD3DDevice, id, desc, nullptr, pClear);
+	auto pTex = pD3D12Tex.get();
+
+	m_texturePool[id] = std::move(pD3D12Tex);
+
+	return pTex;
 }

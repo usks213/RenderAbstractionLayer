@@ -40,11 +40,11 @@ namespace core
 		//----- ÉäÉ\Å[ÉXê∂ê¨ -----
 
 		virtual BufferID		createBuffer(BufferDesc& desc, BufferData* pData = nullptr)		= 0;
-		virtual DepthStencilID	createDepthStencil(std::string name)							= 0;
+		virtual DepthStencilID	createDepthStencil(TextureDesc& desc, TextureData* pData = nullptr)							= 0;
 		virtual MaterialID		createMaterial(std::string name, ShaderID& shaderID)			= 0;
 		virtual MeshID			createMesh(std::string name)									= 0;
 		virtual RenderBufferID	createRenderBuffer(ShaderID& shaderID, MeshID& meshID)			= 0;
-		virtual RenderTargetID	createRenderTarget(std::string name)							= 0;
+		virtual RenderTargetID	createRenderTarget(TextureDesc& desc, TextureData* pData = nullptr)							= 0;
 		virtual ShaderID		createShader(ShaderDesc& desc)									= 0;
 		virtual TextureID		createTexture(std::string filePath)								= 0;
 		virtual TextureID		createTexture(TextureDesc& desc, TextureData* pData = nullptr)	= 0;

@@ -17,6 +17,7 @@ namespace d3d12
 	// 前定義
 	class D3D12Renderer;
 	class D3D12Shader;
+	class D3D12Texture;
 
 	/// @class D3D12RenderDevice
 	/// @brief D3D12レンダーデバイス
@@ -47,15 +48,15 @@ namespace d3d12
 
 		//----- リソース生成 -----
 
-		core::BufferID			createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
-		core::DepthStencilID	createDepthStencil(std::string name) override;
+		core::BufferID		createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
+		core::DepthStencilID	createDepthStencil(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
 		core::MaterialID		createMaterial(std::string name, core::ShaderID& shaderID) override;
 		core::MeshID			createMesh(std::string name) override;
 		core::RenderBufferID	createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID) override;
-		core::RenderTargetID	createRenderTarget(std::string name) override;
-		core::ShaderID			createShader(core::ShaderDesc& desc) override;
-		core::TextureID			createTexture(std::string filePath) override;
-		core::TextureID			createTexture(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::RenderTargetID	createRenderTarget(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::ShaderID		createShader(core::ShaderDesc& desc) override;
+		core::TextureID		createTexture(std::string filePath) override;
+		core::TextureID		createTexture(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
 
 	private:
 		//------------------------------------------------------------------------------
@@ -65,6 +66,13 @@ namespace d3d12
 		/// @brief 共通ステートの生成
 		/// @return HRESULT
 		HRESULT createCommonState();
+
+		/// @brief D3D12テクスチャ生成(クリア値あり)
+		/// @param desc テクスチャDesc
+		/// @param pClear クリアデータ
+		/// @return D3D12テクスチャポインタ
+		D3D12Texture* createD3D12Texture(core::TextureDesc& desc, D3D12_CLEAR_VALUE* pClear);
+
 
 	private:
 		//------------------------------------------------------------------------------
