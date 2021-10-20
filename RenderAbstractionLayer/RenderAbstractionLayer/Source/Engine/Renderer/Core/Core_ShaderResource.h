@@ -39,18 +39,14 @@ namespace core
 { 
 	namespace SHADER 
 	{
-		/// @brief シェーダーリソース種別
-		enum class ResourceType
+		/// @brief シェーダーバインド種別
+		enum class BindType
 		{
-			CBUFFER,
-			TBUFFER,
+			CBV,
+			SRV,
+			UAV,
 			TEXTURE,
 			SAMPLER,
-			UAV_RWTYPED,
-			STRUCTURED,
-			UAV_RWSTRUCTURED,
-			BYTEADDRESS,
-			UAV_RWBYTEADDRESS,
 			MAX,
 		};
 		/// @brief 存在しないスロット番号
@@ -64,16 +60,21 @@ namespace core
 		/// @brief 最大スロット数
 		constexpr std::uint32_t MAX_SLOT_COUNT = 12;
 		/// @brief 固定シェーダースロット情報
-		constexpr SlotData SLOT_DATA[static_cast<std::size_t>(ResourceType::MAX)][MAX_SLOT_COUNT] =
+		constexpr SlotData SLOT_DATA[static_cast<std::size_t>(BindType::MAX)][MAX_SLOT_COUNT] =
 		{
-			// CBUFFER
+			// CBV
 			{
 				{"GBuffer",		4},
 				{"System",		5},
 				{"Transform",	6},
 				{"Animation",	7},
 			},
-			// TBUFFER
+			// SRV
+			{
+				{"PointLights",	8},
+				{"SpotLights",	9},
+			},
+			// UAV
 			{
 			},
 			// TEXTURE
@@ -88,17 +89,9 @@ namespace core
 				{"Shadow",	5},
 				{"Sky",		6},
 			},
-			// UAV_RWTYPED
-			{
-			},
-			// STRUCTURED
-			{
-				{"PointLights",	8},
-				{"SpotLights",	9},
-			},
 		};
 
-		constexpr const SlotData* FindSlotData(ResourceType type, std::string_view name)
+		constexpr const SlotData* FindSlotData(BindType type, std::string_view name)
 		{
 			auto typeIndex = static_cast<std::size_t>(type);
 			for (auto& data : SLOT_DATA[typeIndex])
@@ -111,7 +104,7 @@ namespace core
 			return nullptr;
 		}
 
-		constexpr const std::uint32_t GetSlotByName(ResourceType type, std::string_view name)
+		constexpr const std::uint32_t GetSlotByName(BindType type, std::string_view name)
 		{
 			auto typeIndex = static_cast<std::size_t>(type);
 			for (auto& data : SLOT_DATA[typeIndex])
@@ -124,7 +117,7 @@ namespace core
 			return NONE_SLOT_NUM;
 		}
 
-		constexpr const std::string_view GetNameBySlot(ResourceType type, std::uint32_t slot)
+		constexpr const std::string_view GetNameBySlot(BindType type, std::uint32_t slot)
 		{
 			auto typeIndex = static_cast<std::size_t>(type);
 			for (auto& data : SLOT_DATA[typeIndex])
@@ -137,10 +130,11 @@ namespace core
 			return std::string_view();
 		}
 
-		constexpr const bool HasSlotData(std::size_t type, std::uint32_t slot)
+		constexpr const bool HasSlotData(BindType type, std::uint32_t slot)
 		{
-			if (type < 0 || type >= static_cast<size_t>(ResourceType::MAX)) return false;
-			for (auto& data : SLOT_DATA[type])
+			auto typeIndex = static_cast<std::size_t>(type);
+			if (typeIndex < 0 || typeIndex >= static_cast<size_t>(BindType::MAX)) return false;
+			for (auto& data : SLOT_DATA[typeIndex])
 			{
 				if (slot == data.slot)
 				{

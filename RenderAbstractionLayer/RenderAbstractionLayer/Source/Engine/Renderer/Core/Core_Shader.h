@@ -210,11 +210,11 @@ namespace core
 
 		/// @brief 動的バインド情報
 		std::unordered_map<std::uint32_t, ShaderBindData> m_dynamicBindData
-			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::ResourceType::MAX)];
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
 
 		/// @brief 静的バインド情報
 		std::unordered_map<std::uint32_t, ShaderBindData> m_staticBindData
-			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::ResourceType::MAX)];
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
 
 	public:
 		//------------------------------------------------------------------------------
