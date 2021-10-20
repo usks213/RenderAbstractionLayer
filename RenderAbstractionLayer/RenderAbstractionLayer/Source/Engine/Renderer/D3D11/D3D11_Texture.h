@@ -41,8 +41,9 @@ namespace d3d11
 		// public variables
 		//------------------------------------------------------------------------------
 
-		ComPtr<ID3D11Texture2D>          m_tex; ///< テクスチャ
-		ComPtr<ID3D11ShaderResourceView> m_srv; ///< シェーダリソースビュー
+		ComPtr<ID3D11Texture2D>			m_tex; ///< テクスチャ
+		ComPtr<ID3D11ShaderResourceView>	m_srv; ///< シェーダリソースビュー
+		ComPtr<ID3D11UnorderedAccessView>	m_uav; ///< 順不同アクセスビュー
 
 	};
 }

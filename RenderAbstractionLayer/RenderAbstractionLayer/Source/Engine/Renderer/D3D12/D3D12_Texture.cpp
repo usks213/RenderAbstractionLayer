@@ -134,19 +134,46 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
     CHECK_FAILED(pDevice->CreateDescriptorHeap(&descHeapDesc,
         IID_PPV_ARGS(m_pTexHeap.ReleaseAndGetAddressOf())));//生成
 
-    //通常テクスチャビュー作成
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format = getTypeLessToSRVFormat(desc.format);//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
-    srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
+    // シェーダーリソース
+    if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
+    {
+        //通常テクスチャビュー作成
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Format = getTypeLessToSRVFormat(desc.format);//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
+        srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
 
-    // MSAA 
-    if (desc.sampleDesc.isUse) srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+        // MSAA 
+        if (desc.sampleDesc.isUse) srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
 
-    pDevice->CreateShaderResourceView(m_pTex.Get(), //ビューと関連付けるバッファ
-        &srvDesc, //先ほど設定したテクスチャ設定情報
-        m_pTexHeap->GetCPUDescriptorHandleForHeapStart()//ヒープのどこに割り当てるか
-    );
+        pDevice->CreateShaderResourceView(m_pTex.Get(), //ビューと関連付けるバッファ
+            &srvDesc, //先ほど設定したテクスチャ設定情報
+            m_pTexHeap->GetCPUDescriptorHandleForHeapStart()//ヒープのどこに割り当てるか
+        );
+    }
+
+    // 順不同アクセスビュー
+    if (desc.bindFlags & core::BindFlags::UNORDERED_ACCESS)
+    {
+        // 順不同アクセスビューの作成
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+        uavDesc.Format = getTypeLessToSRVFormat(desc.format);
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        uavDesc.Texture2D.MipSlice = 0;     // ??
+        uavDesc.Texture2D.PlaneSlice = 0;   // ??
+
+        // カウンター？？？
+        if (true)
+        {
+            pDevice->CreateUnorderedAccessView(m_pTex.Get(), nullptr, &uavDesc,
+                m_pTexHeap->GetCPUDescriptorHandleForHeapStart());
+        }
+        else
+        {
+            pDevice->CreateUnorderedAccessView(m_pTex.Get(), nullptr, &uavDesc,
+                m_pTexHeap->GetCPUDescriptorHandleForHeapStart());
+        }
+    }
 }
 

@@ -61,14 +61,14 @@ D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const 
 		{
 			// ByteAddressBuffer
 			srvDesc.BufferEx.FirstElement = 0;
-			srvDesc.BufferEx.NumElements = desc.size;
+			srvDesc.BufferEx.NumElements = desc.count;
 			srvDesc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
 		}
 		else
 		{
 			// StructuredBuffer
 			srvDesc.Buffer.FirstElement = 0;
-			srvDesc.Buffer.NumElements = desc.size;
+			srvDesc.Buffer.NumElements = desc.count;
 		}
 
 		CHECK_FAILED(device->CreateShaderResourceView(m_pBuffer.Get(), &srvDesc, m_pSRV.GetAddressOf()));
@@ -81,7 +81,7 @@ D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const 
 		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
 		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = desc.size;
+		uavDesc.Buffer.NumElements = desc.count;
 		// RAW
 		if (desc.miscFlags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS && 
 			desc.uavFlag == core::BufferUAVFlag::RAW)
