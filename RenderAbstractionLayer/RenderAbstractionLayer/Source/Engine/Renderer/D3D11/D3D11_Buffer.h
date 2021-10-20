@@ -28,7 +28,7 @@ namespace d3d11
 		/// @param desc バッファDesc
 		/// @param data 初期化データ
 		explicit D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, 
-			const core::BufferDesc& desc, const core::BufferData* data = nullptr);
+			const core::BufferDesc& desc, const core::BufferData* pData = nullptr);
 
 		/// @brief デストラクタ
 		~D3D11Buffer() noexcept = default;
@@ -39,9 +39,13 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 
 		/// @brief バッファ
-		ComPtr<ID3D11Buffer>				m_buffer;
+		ComPtr<ID3D11Buffer>				m_pBuffer;
+
 		/// @brief シェーダーリソースビュー
-		ComPtr<ID3D11ShaderResourceView>	m_srv;
+		ComPtr<ID3D11ShaderResourceView>	m_pSRV;
+
+		/// @brief 順不同アクセスビュー
+		ComPtr<ID3D11UnorderedAccessView>	m_pUAV;
 	};
 }
 

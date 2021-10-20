@@ -88,7 +88,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 		cbvDesc.SizeInBytes = d3dDesc.Width;
 		device->CreateConstantBufferView(&cbvDesc, m_pHeap->GetCPUDescriptorHandleForHeapStart());
 	}
-	else if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
+	if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
 	{
 		// シェーダーリソースビューの作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -110,7 +110,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 		device->CreateShaderResourceView(m_pBuffer.Get() ,&srvDesc, 
 			m_pHeap->GetCPUDescriptorHandleForHeapStart());
 	}
-	else if (desc.bindFlags & core::BindFlags::UNORDERED_ACCESS)
+	if (desc.bindFlags & core::BindFlags::UNORDERED_ACCESS)
 	{
 		// 順不同アクセスビューの作成
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -119,14 +119,20 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 
 		uavDesc.Buffer.FirstElement = 0;
 		uavDesc.Buffer.NumElements = desc.count;
-		uavDesc.Buffer.CounterOffsetInBytes = 0; // よくわからない…
 		if (desc.miscFlags & core::MiscFlags::BUFFER_STRUCTURED)
 		{
 			uavDesc.Buffer.StructureByteStride = desc.size;
 			uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+			// UAVカウンター
+			if(desc.uavFlag == core::BufferUAVFlag::COUNTER)
+			{
+				uavDesc.Buffer.CounterOffsetInBytes = 0; // よくわからない…
+			}
 		}
-		else if (desc.miscFlags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS)
+		else if (desc.miscFlags & core::MiscFlags::BUFFER_ALLOW_RAW_VIEWS && 
+				desc.uavFlag == core::BufferUAVFlag::RAW)
 		{
+			uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 			uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
 		}
 

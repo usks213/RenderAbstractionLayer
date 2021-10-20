@@ -35,6 +35,13 @@ namespace core
 		std::size_t size = 0;
 	};
 
+	enum class BufferUAVFlag : std::uint8_t
+	{
+		RAW,			///< バイトアドレス
+		APPEND,		///< スタック操作
+		COUNTER,		///< カウンター追加
+	};
+
 	/// @struct BufferDesc
 	/// @brief バッファDesc
 	struct BufferDesc
@@ -46,6 +53,7 @@ namespace core
 		std::uint32_t	bindFlags		= 0 | BindFlags::UNKNOWN;
 		std::uint32_t	cpuAccessFlags	= 0 | CPUAccessFlags::NONE;
 		std::uint32_t	miscFlags		= 0 | MiscFlags::UNKNONE;
+		BufferUAVFlag	uavFlag			= BufferUAVFlag::RAW;
 	};
 
 	/// @class CoreBuffer

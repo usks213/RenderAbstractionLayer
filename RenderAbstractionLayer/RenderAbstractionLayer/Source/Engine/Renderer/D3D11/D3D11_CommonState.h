@@ -21,17 +21,17 @@ namespace d3d11
     /// @brief D3D11のバインドフラグ取得
     /// @param flags バインドフラグ
     /// @return 符号なし整数型バインドフラグ
-    UINT32 getD3D11BindFlags(core::BindFlags flags);
+    UINT32 getD3D11BindFlags(UINT flags);
 
     /// @brief D3D11のCPUアクセスフラグ取得
     /// @param flags CPUアクセスフラグ
     /// @return 符号なし整数型CPUアクセスフラグ
-    UINT32 getD3D11CPUAccessFlags(core::CPUAccessFlags flags);
+    UINT32 getD3D11CPUAccessFlags(UINT flags);
 
     /// @brief D3D11のバッファフラグ取得
     /// @param flags バッファフラグ
     /// @return 符号なし整数型バッファフラグ
-    UINT32 getD3D11MiscFlags(core::MiscFlags flags);
+    UINT32 getD3D11MiscFlags(UINT flags);
 
     /// @brief D3D11のプリミティブトポロジー取得
     /// @param topology プリミティブトポロジー

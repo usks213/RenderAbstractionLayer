@@ -26,7 +26,7 @@ D3D11_USAGE d3d11::getD3D11Usage(core::Usage usage) {
 /// @brief D3D11のバインドフラグ取得
 /// @param flags バインドフラグ
 /// @return 符号なし整数型バインドフラグ
-UINT32 d3d11::getD3D11BindFlags(core::BindFlags flags) {
+UINT32 d3d11::getD3D11BindFlags(UINT flags) {
 	UINT32 d3d11BindFlags = 0;
 
 	d3d11BindFlags = d3d11BindFlags | ((flags & core::BindFlags::VERTEX_BUFFER) ? D3D11_BIND_VERTEX_BUFFER : 0);
@@ -44,7 +44,7 @@ UINT32 d3d11::getD3D11BindFlags(core::BindFlags flags) {
 /// @brief D3D11のCPUアクセスフラグ取得
 /// @param flags CPUアクセスフラグ
 /// @return 符号なし整数型CPUアクセスフラグ
-UINT32 d3d11::getD3D11CPUAccessFlags(core::CPUAccessFlags flags) {
+UINT32 d3d11::getD3D11CPUAccessFlags(UINT flags) {
 	UINT32 d3d11CPUAccessFlags = 0;
 
 	d3d11CPUAccessFlags |= (flags & core::CPUAccessFlags::READ) ? D3D11_CPU_ACCESS_READ : 0;
@@ -56,7 +56,7 @@ UINT32 d3d11::getD3D11CPUAccessFlags(core::CPUAccessFlags flags) {
 /// @brief D3D11のバッファフラグ取得
 /// @param flags バッファフラグ
 /// @return 符号なし整数型バッファフラグ
-UINT32 d3d11::getD3D11MiscFlags(core::MiscFlags flags) {
+UINT32 d3d11::getD3D11MiscFlags(UINT flags) {
 	UINT32 d3d11MiscFlags = 0;
 
 	d3d11MiscFlags |= (flags & core::MiscFlags::GENERATE_MIPS) ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
