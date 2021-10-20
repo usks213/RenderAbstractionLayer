@@ -41,7 +41,7 @@ namespace core
 	{
 		std::string		name;
 		std::uint32_t	count			= 0;
-		std::uint32_t	size			= 0;
+		std::uint32_t	size				= 0;
 		Usage			usage			= Usage::DEFAULT;
 		std::uint32_t	bindFlags		= 0 | BindFlags::UNKNOWN;
 		std::uint32_t	cpuAccessFlags	= 0 | CPUAccessFlags::NONE;
@@ -73,7 +73,7 @@ namespace core
 		// public variables
 		//------------------------------------------------------------------------------
 
-		BufferID	m_id;	///< バッファID
+		BufferID		m_id;	///< バッファID
 		BufferDesc	m_desc;	///< バッファDesc
 
 	};

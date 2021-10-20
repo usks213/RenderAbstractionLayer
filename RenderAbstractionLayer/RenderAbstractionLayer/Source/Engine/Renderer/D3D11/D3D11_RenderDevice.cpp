@@ -68,7 +68,7 @@ HRESULT D3D11RenderDevice::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFa
 
 //----- リソース生成 -----
 
-core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, core::BufferData* pData)
+core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
 {
 	// IDの取得
 	BufferID id = static_cast<BufferID>(hash::stringHash(desc.name));
@@ -82,7 +82,7 @@ core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, core::Buf
 
 	return id;
 }
-core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& desc, core::TextureData* pData)
+core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& desc)
 {
 	// IDの取得
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -92,7 +92,7 @@ core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& de
 	if (m_depthStencilPool.end() != itr) return id;
 
 	// テクスチャ生成
-	auto texID = createTexture(desc, pData);
+	auto texID = createTexture(desc, nullptr);
 	auto pTex = static_cast<D3D11Texture*>(getTexture(texID));
 
 	// デプスステンシル生成
@@ -156,7 +156,7 @@ core::RenderBufferID D3D11RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& desc, core::TextureData* pData)
+core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& desc)
 {
 	// IDの取得
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
@@ -166,7 +166,7 @@ core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& de
 	if (m_renderTargetPool.end() != itr) return id;
 
 	// テクスチャ生成
-	auto texID = createTexture(desc, pData);
+	auto texID = createTexture(desc, nullptr);
 	auto pTex = static_cast<D3D11Texture*>(getTexture(texID));
 
 	// レンダーターゲット生成
@@ -202,7 +202,7 @@ core::TextureID D3D11RenderDevice::createTexture(std::string filePath)
 
 	return id;
 }
-core::TextureID D3D11RenderDevice::createTexture(core::TextureDesc& desc, core::TextureData* pData)
+core::TextureID D3D11RenderDevice::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));

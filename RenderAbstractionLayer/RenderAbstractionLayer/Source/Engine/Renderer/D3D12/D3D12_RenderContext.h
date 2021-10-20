@@ -47,28 +47,21 @@ namespace d3d12
 
 		//----- リソース指定命令 -----
 
-		void setPipelineState(const core::MaterialID& materialID, const core::RenderBufferID& renderBufferID);
-
 		void setMaterial(const core::MaterialID& materialID) override;
 
 		void setRenderBuffer(const core::RenderBufferID& renderBufferID)  override;
 
-		void setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)  override;
+		//----- バインド命令 -----
 
-		void setSampler(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)  override;
+		void setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		void setPrimitiveTopology(core::PrimitiveTopology topology)  override;
+		void setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		//----- バッファ指定命令 -----
+		void setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		void sendSystemBuffer(const core::SHADER::SystemBuffer& systemBuffer)  override;
+		void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
 
-		void sendTransformBuffer(const Matrix& mtxWorld)  override;
-
-		void sendAnimationBuffer(std::vector<Matrix>& mtxBones)  override;
-
-		void sendLightBuffer(std::vector<core::CorePointLight>& pointLights,
-			std::vector<core::CoreSpotLight>& spotLights)  override;
+		void setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
 
 		//----- 描画命令
 
@@ -79,7 +72,13 @@ namespace d3d12
 		// private methods 
 		//------------------------------------------------------------------------------
 
-		void setMaterialResource(const D3D12Material& d3dMaterial, const D3D12Shader& d3dShader);
+		void setPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat);
+
+		void setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID);
+
+		void setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID);
+
+		void setSamplerResource(std::uint32_t rootIndex, core::SamplerState state);
 
 	private:
 		//------------------------------------------------------------------------------
@@ -91,10 +90,10 @@ namespace d3d12
 
 		// コマンドリスト
 		ID3D12GraphicsCommandList*			m_pCmdList;
+		// コマンドアロケーター
 
 		// グラフィクスパイプラインステート
-		std::map<std::tuple<core::MaterialID, core::RenderBufferID>, 
-			ComPtr<ID3D12PipelineState>>	m_pPipelineState;
+		std::unordered_map<core::ShaderID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
 
 		//----- シェーダーバッファ
 		//ComPtr<ID3D12Buffer>				m_systemBuffer;

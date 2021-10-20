@@ -48,15 +48,15 @@ namespace d3d12
 
 		//----- ÉäÉ\Å[ÉXê∂ê¨ -----
 
-		core::BufferID		createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
-		core::DepthStencilID	createDepthStencil(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::BufferID		createBuffer(core::BufferDesc& desc, const core::BufferData* pData = nullptr) override;
+		core::DepthStencilID	createDepthStencil(core::TextureDesc& desc) override;
 		core::MaterialID		createMaterial(std::string name, core::ShaderID& shaderID) override;
 		core::MeshID			createMesh(std::string name) override;
 		core::RenderBufferID	createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID) override;
-		core::RenderTargetID	createRenderTarget(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::RenderTargetID	createRenderTarget(core::TextureDesc& desc) override;
 		core::ShaderID		createShader(core::ShaderDesc& desc) override;
 		core::TextureID		createTexture(std::string filePath) override;
-		core::TextureID		createTexture(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::TextureID		createTexture(core::TextureDesc& desc, const core::TextureData* pData = nullptr) override;
 
 	private:
 		//------------------------------------------------------------------------------

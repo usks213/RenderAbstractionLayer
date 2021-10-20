@@ -45,28 +45,9 @@ namespace d3d11
 
 		//----- リソース指定命令 -----
 
-		void setPipelineState(const core::MaterialID& materialID, const core::RenderBufferID& renderBufferID);
-
 		void setMaterial(const core::MaterialID& materialID) override;
 
 		void setRenderBuffer(const core::RenderBufferID& renderBufferID)  override;
-
-		void setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)  override;
-
-		void setSampler(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)  override;
-
-		void setPrimitiveTopology(core::PrimitiveTopology topology)  override;
-
-		//----- バッファ指定命令 -----
-
-		void sendSystemBuffer(const core::SHADER::SystemBuffer& systemBuffer)  override;
-
-		void sendTransformBuffer(const Matrix& mtxWorld)  override;
-
-		void sendAnimationBuffer(std::vector<Matrix>& mtxBones)  override;
-
-		void sendLightBuffer(std::vector<core::CorePointLight>& pointLights,
-			std::vector<core::CoreSpotLight>& spotLights)  override;
 
 		//----- 描画命令
 
@@ -78,6 +59,10 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 
 		void setMaterialResource(const D3D11Material& d3dMaterial, const D3D11Shader& d3dShader);
+
+		void setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)  override;
+
+		void setSampler(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)  override;
 
 	private:
 		//------------------------------------------------------------------------------
@@ -99,6 +84,21 @@ namespace d3d11
 		ComPtr<ID3D11Buffer>				m_spotLightBuffer;
 		ComPtr<ID3D11ShaderResourceView>	m_pointLightSRV;
 		ComPtr<ID3D11ShaderResourceView>	m_spotLightSRV;
+
+
+		BlendState			m_curBlendState;			///< 指定中のブレンドステイト
+		RasterizeState		m_curRasterizeState;		///< 指定中のラスタライザーステイト
+		DepthStencilState		m_curDepthStencilState;	///< 指定中のデプスステンシルステイト
+		PrimitiveTopology		m_curPrimitiveTopology;	///< 指定中のプリミティブトポロジー
+
+		SamplerState			m_curSamplerState[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SLOT_COUNT];
+		TextureID			m_curTexture[static_cast<size_t>(ShaderStage::MAX)][SHADER::MAX_SLOT_COUNT];
+
+		ShaderID				m_curShader;				///< 指定中のシェーダー
+		MaterialID			m_curMaterial;			///< 指定中のマテリアル
+		RenderBufferID		m_curRenderBuffer;		///< 指定中のレンダーバッファ
+		RenderTargetID		m_curRenderTarget;		///< 指定中のレンダーターゲット
+		DepthStencilID		m_curDepthStencil;		///< 指定中のデプスステンシル
 	};
 }
 

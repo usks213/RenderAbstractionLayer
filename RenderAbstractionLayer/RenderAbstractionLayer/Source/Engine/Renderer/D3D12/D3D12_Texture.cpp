@@ -86,7 +86,6 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
         texHeapProp.CreationNodeMask = 0;
         texHeapProp.VisibleNodeMask = 0;
 
-        D3D12_SUBRESOURCE_DATA d3d11SubresourceData = {};
         // リソース生成
         CHECK_FAILED(pDevice->CreateCommittedResource(
             &texHeapProp,
@@ -107,7 +106,6 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
         texHeapProp.CreationNodeMask = 0;
         texHeapProp.VisibleNodeMask = 0;
 
-        D3D12_SUBRESOURCE_DATA d3d11SubresourceData = {};
         // リソース生成
         CHECK_FAILED(pDevice->CreateCommittedResource(
             &texHeapProp,

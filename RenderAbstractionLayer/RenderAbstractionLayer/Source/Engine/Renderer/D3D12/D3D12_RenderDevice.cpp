@@ -9,7 +9,7 @@
 #include "D3D12_RenderDevice.h"
 #include <Engine/Utility/Util_Hash.h>
 
-//#include <Renderer/D3D12/D3D12_Buffer.h>
+#include <Renderer/D3D12/D3D12_Buffer.h>
 #include <Renderer/D3D12/D3D12_DepthStencil.h>
 #include <Renderer/D3D12/D3D12_Material.h>
 #include <Renderer/D3D12/D3D12_RenderBuffer.h>
@@ -65,7 +65,7 @@ HRESULT D3D12RenderDevice::initialize(ID3D12Device* pDevice, IDXGIFactory2* pFac
 
 //----- リソース生成 -----
 
-core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, core::BufferData* pData)
+core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
 {
 	// IDの取得
 	BufferID id = static_cast<BufferID>(hash::stringHash(desc.name));
@@ -75,11 +75,11 @@ core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, core::Buf
 	if (m_bufferPool.end() != itr) return id;
 
 	// 新規生成
-	//m_bufferPool[id] = std::make_unique<D3D12Buffer>(m_pD3DDevice, id, desc, pData);
+	m_bufferPool[id] = std::make_unique<D3D12Buffer>(m_pD3DDevice, id, desc, pData);
 
 	return id;
 }
-core::DepthStencilID D3D12RenderDevice::createDepthStencil(core::TextureDesc& desc, core::TextureData* pData)
+core::DepthStencilID D3D12RenderDevice::createDepthStencil(core::TextureDesc& desc)
 {
 	// IDの取得
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -157,7 +157,7 @@ core::RenderBufferID D3D12RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D12RenderDevice::createRenderTarget(core::TextureDesc& desc, core::TextureData* pData)
+core::RenderTargetID D3D12RenderDevice::createRenderTarget(core::TextureDesc& desc)
 {
 	// IDの取得
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
@@ -207,7 +207,7 @@ core::TextureID D3D12RenderDevice::createTexture(std::string filePath)
 
 	return id;
 }
-core::TextureID D3D12RenderDevice::createTexture(core::TextureDesc& desc, core::TextureData* pData)
+core::TextureID D3D12RenderDevice::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));

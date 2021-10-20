@@ -341,19 +341,19 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				auto type = static_cast<std::size_t>(core::SHADER::BindType::CBV);
 				if (!core::SHADER::HasSlotData(core::SHADER::BindType::CBV, bindDesc.BindPoint))
 				{
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::CBV;
 				}
 				else
 				{
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::CBV;
 				}
 				break;
 			}
@@ -368,19 +368,19 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				auto type = static_cast<std::size_t>(core::SHADER::BindType::UAV);
 				if (!core::SHADER::HasSlotData(core::SHADER::BindType::UAV, bindDesc.BindPoint))
 				{
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::UAV;
 				}
 				else
 				{
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::UAV;
 				}
 				break;
 			}
@@ -392,19 +392,19 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				auto type = static_cast<std::size_t>(core::SHADER::BindType::SRV);
 				if (!core::SHADER::HasSlotData(core::SHADER::BindType::SRV, bindDesc.BindPoint))
 				{
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SRV;
 				}
 				else
 				{
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SRV;
 				}
 				break;
 			}
@@ -414,19 +414,19 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				auto type = static_cast<std::size_t>(core::SHADER::BindType::TEXTURE);
 				if (!core::SHADER::HasSlotData(core::SHADER::BindType::TEXTURE, bindDesc.BindPoint))
 				{
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::TEXTURE;
 				}
 				else
 				{
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::TEXTURE;
 				}
 				break;
 			}
@@ -436,19 +436,19 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				auto type = static_cast<std::size_t>(core::SHADER::BindType::SAMPLER);
 				if (!core::SHADER::HasSlotData(core::SHADER::BindType::SAMPLER, bindDesc.BindPoint))
 				{
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SAMPLER;
 				}
 				else
 				{
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.BindPoint].type = bindDesc.Type;
+					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
+					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
+					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
+					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
+					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SAMPLER;
 				}
 				break;
 			}
@@ -484,6 +484,10 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 			int cnt = 0;
 			for (auto& bindData : m_dynamicBindData[stageIndex][type])
 			{
+				// ルートパラメータインデックス
+				bindData.second.rootIndex = aParameters.size();
+
+				// バインドタイプでパラメータ作成
 				switch (type)
 				{
 					// b

@@ -200,20 +200,21 @@ namespace core
 		struct ShaderBindData
 		{
 			ShaderStage			stage;
+			SHADER::BindType		type;
 			std::string			name;
 			std::uint32_t		slot;
 			std::uint32_t		space;
-			std::uint32_t		type;
+			std::uint32_t		rootIndex;
 		};
 
 		//--- シェーダーバインド情報(ディスクリプタ) ---
 
 		/// @brief 動的バインド情報
-		std::unordered_map<std::uint32_t, ShaderBindData> m_dynamicBindData
+		std::unordered_map<std::string, ShaderBindData> m_dynamicBindData
 			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
 
 		/// @brief 静的バインド情報
-		std::unordered_map<std::uint32_t, ShaderBindData> m_staticBindData
+		std::unordered_map<std::string, ShaderBindData> m_staticBindData
 			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
 
 	public:

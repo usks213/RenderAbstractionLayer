@@ -45,15 +45,15 @@ namespace d3d11
 
 		//----- リソース生成 -----
 
-		core::BufferID			createBuffer(core::BufferDesc& desc, core::BufferData* pData = nullptr) override;
-		core::DepthStencilID	createDepthStencil(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::BufferID		createBuffer(core::BufferDesc& desc, const core::BufferData* pData = nullptr) override;
+		core::DepthStencilID	createDepthStencil(core::TextureDesc& desc) override;
 		core::MaterialID		createMaterial(std::string name, core::ShaderID& shaderID) override;
 		core::MeshID			createMesh(std::string name) override;
 		core::RenderBufferID	createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID) override;
-		core::RenderTargetID	createRenderTarget(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
-		core::ShaderID			createShader(core::ShaderDesc& desc) override;
-		core::TextureID			createTexture(std::string filePath) override;
-		core::TextureID			createTexture(core::TextureDesc& desc, core::TextureData* pData = nullptr) override;
+		core::RenderTargetID	createRenderTarget(core::TextureDesc& desc) override;
+		core::ShaderID		createShader(core::ShaderDesc& desc) override;
+		core::TextureID		createTexture(std::string filePath) override;
+		core::TextureID		createTexture(core::TextureDesc& desc, const core::TextureData* pData = nullptr) override;
 
 	private:
 		//------------------------------------------------------------------------------
@@ -73,29 +73,29 @@ namespace d3d11
 		// private variables 
 		//------------------------------------------------------------------------------
 
-		ID3D11Device1*						m_pD3DDevice;			///< デバイスポインタ
+		ID3D11Device1*					m_pD3DDevice;			///< デバイスポインタ
 
-		ComPtr<IDXGISwapChain1>				m_swapChain;			///< スワップチェーン
+		ComPtr<IDXGISwapChain1>			m_swapChain;			///< スワップチェーン
 
-		ComPtr<ID3D11Texture2D>				m_backBufferRT;			///< バックバッファ
+		ComPtr<ID3D11Texture2D>			m_backBufferRT;			///< バックバッファ
 		ComPtr<ID3D11RenderTargetView>		m_backBufferRTV;		///< バックバッファビュー
-		DXGI_FORMAT							m_backBufferFormat;		///< バッファバッファフォーマット
+		DXGI_FORMAT						m_backBufferFormat;		///< バッファバッファフォーマット
 
-		ComPtr<ID3D11Texture2D>				m_depthStencilTexture;	///< Zバッファ
+		ComPtr<ID3D11Texture2D>			m_depthStencilTexture;	///< Zバッファ
 		ComPtr<ID3D11DepthStencilView>		m_depthStencilView;		///< Zバッファビュー
-		DXGI_FORMAT							m_depthStencilFormat;	///< Zバッファフォーマット
+		DXGI_FORMAT						m_depthStencilFormat;	///< Zバッファフォーマット
 
 		HWND								m_hWnd;					///< ウィンドウハンドル
-		D3D11_VIEWPORT						m_viewport;				///< ビューポート
+		D3D11_VIEWPORT					m_viewport;				///< ビューポート
 
 		UINT								m_backBufferCount;		///< バックバッファ数
 		UINT								m_nOutputWidth;			///< 出力サイズ(幅)
 		UINT								m_nOutputHeight;		///< 出力サイズ(高さ)
 
 		ComPtr<ID3D11RasterizerState>		m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
-		ComPtr<ID3D11SamplerState>			m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート
+		ComPtr<ID3D11SamplerState>		m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート
 		ComPtr<ID3D11BlendState>			m_blendStates[(size_t)core::BlendState::MAX];				///< ブレンドステート
-		ComPtr<ID3D11DepthStencilState>		m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
+		ComPtr<ID3D11DepthStencilState>	m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
 
 	};
 }

@@ -39,26 +39,26 @@ namespace core
 
 		//----- リソース生成 -----
 
-		virtual BufferID		createBuffer(BufferDesc& desc, BufferData* pData = nullptr)		= 0;
-		virtual DepthStencilID	createDepthStencil(TextureDesc& desc, TextureData* pData = nullptr)							= 0;
-		virtual MaterialID		createMaterial(std::string name, ShaderID& shaderID)			= 0;
-		virtual MeshID			createMesh(std::string name)									= 0;
-		virtual RenderBufferID	createRenderBuffer(ShaderID& shaderID, MeshID& meshID)			= 0;
-		virtual RenderTargetID	createRenderTarget(TextureDesc& desc, TextureData* pData = nullptr)							= 0;
-		virtual ShaderID		createShader(ShaderDesc& desc)									= 0;
-		virtual TextureID		createTexture(std::string filePath)								= 0;
-		virtual TextureID		createTexture(TextureDesc& desc, TextureData* pData = nullptr)	= 0;
+		virtual BufferID			createBuffer(BufferDesc& desc, const BufferData* pData = nullptr)	= 0;
+		virtual DepthStencilID	createDepthStencil(TextureDesc& desc)								= 0;
+		virtual MaterialID		createMaterial(std::string name, ShaderID& shaderID)				= 0;
+		virtual MeshID			createMesh(std::string name)										= 0;
+		virtual RenderBufferID	createRenderBuffer(ShaderID& shaderID, MeshID& meshID)				= 0;
+		virtual RenderTargetID	createRenderTarget(TextureDesc& desc)								= 0;
+		virtual ShaderID			createShader(ShaderDesc& desc)										= 0;
+		virtual TextureID			createTexture(std::string filePath)								= 0;
+		virtual TextureID			createTexture(TextureDesc& desc, const TextureData* pData = nullptr)	= 0;
 
 		//----- リソース取得 -----
 
 		CoreBuffer*			getBuffer(const BufferID& id) noexcept;
-		CoreDepthStencil*	getDepthStencil(const DepthStencilID& id) noexcept;
+		CoreDepthStencil*		getDepthStencil(const DepthStencilID& id) noexcept;
 		CoreMaterial*		getMaterial(const MaterialID& id) noexcept;
 		CoreMesh*			getMesh(const MeshID& id) noexcept;
-		CoreRenderBuffer*	getRenderBuffer(const RenderBufferID& id) noexcept;
-		CoreRenderTarget*	getRenderTarget(const RenderTargetID& id) noexcept;
+		CoreRenderBuffer*		getRenderBuffer(const RenderBufferID& id) noexcept;
+		CoreRenderTarget*		getRenderTarget(const RenderTargetID& id) noexcept;
 		CoreShader*			getShader(const ShaderID& id) noexcept;
-		CoreTexture*		getTexture(const TextureID& id) noexcept;
+		CoreTexture*			getTexture(const TextureID& id) noexcept;
 
 	protected:
 		//------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace core
 		std::unordered_map<BufferID,		std::unique_ptr<CoreBuffer>>			m_bufferPool;
 		std::unordered_map<DepthStencilID,	std::unique_ptr<CoreDepthStencil>>		m_depthStencilPool;
 		std::unordered_map<MaterialID,		std::unique_ptr<CoreMaterial>>			m_materialPool;
-		std::unordered_map<MeshID,			std::unique_ptr<CoreMesh>>				m_meshPool;
+		std::unordered_map<MeshID,		std::unique_ptr<CoreMesh>>			m_meshPool;
 		std::unordered_map<RenderBufferID,	std::unique_ptr<CoreRenderBuffer>>		m_renderBufferPool;
 		std::unordered_map<RenderTargetID,	std::unique_ptr<CoreRenderTarget>>		m_renderTargetPool;
 		std::unordered_map<ShaderID,		std::unique_ptr<CoreShader>>			m_shaderPool;

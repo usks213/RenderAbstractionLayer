@@ -73,7 +73,21 @@ D3D11RenderContext::D3D11RenderContext() :
 	m_pointLightBuffer(nullptr),
 	m_spotLightBuffer(nullptr),
 	m_pointLightSRV(nullptr),
-	m_spotLightSRV(nullptr)
+	m_spotLightSRV(nullptr),
+
+	m_curBlendState(BlendState::NONE),
+	m_curRasterizeState(RasterizeState::CULL_NONE),
+	m_curDepthStencilState(DepthStencilState::UNKNOWN),
+	m_curPrimitiveTopology(PrimitiveTopology::UNKNOWN),
+
+	m_curSamplerState(),
+	m_curTexture(),
+
+	m_curShader(NONE_SHADER_ID),
+	m_curMaterial(NONE_MATERIAL_ID),
+	m_curRenderBuffer(NONE_RENDERBUFFER_ID),
+	m_curRenderTarget(NONE_RENDER_TARGET_ID),
+	m_curDepthStencil(NONE_DEPTH_STENCIL_ID)
 {
 }
 
@@ -135,11 +149,11 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
 		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::ResourceType::SAMPLER, "Main")), SamplerState::LINEAR_WRAP, stage);
+			core::SHADER::BindType::SAMPLER, "Main")), SamplerState::LINEAR_WRAP, stage);
 		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::ResourceType::SAMPLER, "Shadow")), SamplerState::SHADOW, stage);
+			core::SHADER::BindType::SAMPLER, "Shadow")), SamplerState::SHADOW, stage);
 		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::ResourceType::SAMPLER, "Sky")), SamplerState::ANISOTROPIC_WRAP, stage);
+			core::SHADER::BindType::SAMPLER, "Sky")), SamplerState::ANISOTROPIC_WRAP, stage);
 	}
 
 	return S_OK;
@@ -288,7 +302,7 @@ void D3D11RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& syst
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
 		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
-			core::SHADER::GetSlotByName(core::SHADER::ResourceType::CBUFFER, "System"))
+			core::SHADER::GetSlotByName(core::SHADER::BindType::CBV, "System"))
 			, 1, m_systemBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_systemBuffer.Get(), 0, nullptr, &systemBuffer, 0, 0);
 	}
@@ -303,7 +317,7 @@ void D3D11RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
 	{
 		auto stageIndex = static_cast<std::size_t>(stage);
 		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
-			core::SHADER::GetSlotByName(core::SHADER::ResourceType::CBUFFER, "Transform"))
+			core::SHADER::GetSlotByName(core::SHADER::BindType::CBV, "Transform"))
 			, 1, m_transformBuffer.GetAddressOf());
 		m_pD3DContext->UpdateSubresource(m_transformBuffer.Get(), 0, nullptr, &transform, 0, 0);
 	}

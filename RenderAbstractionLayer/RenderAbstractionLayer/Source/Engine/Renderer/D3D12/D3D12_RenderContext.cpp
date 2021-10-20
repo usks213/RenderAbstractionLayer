@@ -32,16 +32,6 @@ using namespace d3d12;
 D3D12RenderContext::D3D12RenderContext() :
 	m_pRenderer(nullptr),
 	m_pDevice(nullptr)
-	//m_pD3DContext(nullptr),
-	//m_pD3DDeffered(nullptr),
-
-	//m_systemBuffer(nullptr),
-	//m_transformBuffer(nullptr),
-	//m_animationBuffer(nullptr),
-	//m_pointLightBuffer(nullptr),
-	//m_spotLightBuffer(nullptr),
-	//m_pointLightSRV(nullptr),
-	//m_spotLightSRV(nullptr)
 {
 }
 
@@ -55,147 +45,10 @@ HRESULT D3D12RenderContext::initialize(D3D12Renderer* pRenderer, D3D12RenderDevi
 	m_pRenderer = pRenderer;
 	m_pDevice = pDevice;
 
-	//--- バッファの生成
-
-	//// 共通CBufferの初期化
-	//D3D12_BUFFER_DESC d3dDesc = {};
-	//d3dDesc.BindFlags = D3D12_BIND_CONSTANT_BUFFER;
-	//d3dDesc.Usage = D3D12_USAGE_DEFAULT;
-	//d3dDesc.CPUAccessFlags = 0;
-	//d3dDesc.MiscFlags = 0;
-
-	//// System
-	//d3dDesc.ByteWidth = sizeof(SHADER::SystemBuffer);
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateBuffer(&d3dDesc, nullptr, m_systemBuffer.ReleaseAndGetAddressOf()));
-	//// Transform
-	//d3dDesc.ByteWidth = sizeof(SHADER::TransformBuffer);
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateBuffer(&d3dDesc, nullptr, m_transformBuffer.ReleaseAndGetAddressOf()));
-
-	//// Map/Unmap Param
-	//d3dDesc.Usage = D3D12_USAGE_DYNAMIC;
-	//d3dDesc.CPUAccessFlags = D3D12_CPU_ACCESS_WRITE;
-	//// Animation
-	//d3dDesc.ByteWidth = sizeof(SHADER::AnimationBuffer);
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateBuffer(&d3dDesc, nullptr, m_animationBuffer.ReleaseAndGetAddressOf()));
-
-	//// Light
-	//d3dDesc.BindFlags = D3D12_BIND_SHADER_RESOURCE;
-	//d3dDesc.MiscFlags = D3D12_RESOURCE_MISC_BUFFER_STRUCTURED;
-	//D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	//srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	//srvDesc.Buffer.FirstElement = 0;
-
-	//// ポイントライト
-	//d3dDesc.ByteWidth = sizeof(CorePointLight) * SHADER::MAX_POINT_LIGHT_COUNT;
-	//d3dDesc.StructureByteStride = sizeof(CorePointLight);
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateBuffer(&d3dDesc, nullptr, m_pointLightBuffer.ReleaseAndGetAddressOf()));
-	//srvDesc.Buffer.NumElements = SHADER::MAX_POINT_LIGHT_COUNT;
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateShaderResourceView(m_pointLightBuffer.Get(), nullptr, m_pointLightSRV.ReleaseAndGetAddressOf()));
-	//// スポットライト
-	//d3dDesc.ByteWidth = sizeof(CoreSpotLight) * SHADER::MAX_SPOT_LIGHT_COUNT;
-	//d3dDesc.StructureByteStride = sizeof(CoreSpotLight);
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateBuffer(&d3dDesc, nullptr, m_spotLightBuffer.ReleaseAndGetAddressOf()));
-	//srvDesc.Buffer.NumElements = SHADER::MAX_SPOT_LIGHT_COUNT;
-	//CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateShaderResourceView(m_spotLightBuffer.Get(), nullptr, m_spotLightSRV.ReleaseAndGetAddressOf()));
-
-	//// Sampler
-	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	//{
-	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Main), SamplerState::LINEAR_WRAP, stage);
-	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Shadow), SamplerState::SHADOW, stage);
-	//	setSampler(static_cast<std::uint32_t>(core::SHADER::SS_SLOT::Sky), SamplerState::ANISOTROPIC_WRAP, stage);
-	//}
-
 	return S_OK;
 }
 
 //----- リソース指定命令 -----
-
-void D3D12RenderContext::setPipelineState(const core::MaterialID& materialID, const core::RenderBufferID& renderBufferID)
-{
-	// パイプラインステート
-
-	// マテリアルの取得
-	auto* d3dMat = static_cast<D3D12Material*>(m_pDevice->getMaterial(materialID));
-	if (d3dMat == nullptr) return;
-
-	// シェーダーの取得
-	auto* d3dShader = static_cast<D3D12Shader*>(m_pDevice->getShader(d3dMat->m_shaderID));
-	if (d3dShader == nullptr) return;
-
-	// レンダーバッファの取得
-	auto* d3dRenderBuffer = static_cast<D3D12RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
-	if (d3dRenderBuffer == nullptr) return;
-
-	// グラフィクスパイプラインを検索
-	auto itr = m_pPipelineState.find(std::make_tuple(materialID, renderBufferID));
-
-	// パイプラインステートを新規作成
-	if (m_pPipelineState.end() == itr)
-	{
-		// グラフィクスパイプラインの作成
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
-		// シグネチャー
-		gpipeline.pRootSignature = d3dShader->m_pRootSignature.Get();
-		// 各シェーダー
-		gpipeline.VS.pShaderBytecode = d3dShader->m_pShaderBlob[0]->GetBufferPointer();
-		gpipeline.VS.BytecodeLength = d3dShader->m_pShaderBlob[0]->GetBufferSize();
-		gpipeline.PS.pShaderBytecode = d3dShader->m_pShaderBlob[4]->GetBufferPointer();
-		gpipeline.PS.BytecodeLength = d3dShader->m_pShaderBlob[4]->GetBufferSize();
-		// ストリームアウトプット
-		gpipeline.StreamOutput;
-		// ブレンドステイト
-		gpipeline.BlendState = m_pDevice->m_blendStates[static_cast<std::size_t>(d3dMat->m_blendState)];
-		// サンプルマスク
-		gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		// ラスタライザーステート
-		gpipeline.RasterizerState = m_pDevice->m_rasterizeStates[static_cast<std::size_t>(d3dMat->m_rasterizeState)];
-		// デプスステンシルステート
-		gpipeline.DepthStencilState = m_pDevice->m_depthStencilStates[static_cast<std::size_t>(d3dMat->m_depthStencilState)];
-		// インプットレイアウト
-		gpipeline.InputLayout.pInputElementDescs = d3dShader->m_inputElementDesc.data();
-		gpipeline.InputLayout.NumElements = d3dShader->m_inputElementDesc.size();
-		// ストリップカット
-		gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-		// プリミティブトポロジータイプ
-		gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		// レンダーターゲット数
-		gpipeline.NumRenderTargets = 1;
-		// 各レンダーターゲットフォーマット
-		gpipeline.RTVFormats[0] = m_pDevice->m_backBufferFormat;
-		// デプスステンシルフォーマット
-		gpipeline.DSVFormat = m_pDevice->m_depthStencilFormat;
-		// サンプルDesc
-		gpipeline.SampleDesc.Count = m_pDevice->m_sampleDesc.count;
-		gpipeline.SampleDesc.Quality = m_pDevice->m_sampleDesc.quality;
-		// ノードマスク
-		gpipeline.NodeMask;
-		// キャッシュPSO
-		gpipeline.CachedPSO;
-		// パイプラインフラグ
-		gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		//gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
-
-		// パイプラインステート作成
-		ID3D12PipelineState* pPipelinestate = nullptr;
-		CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pPipelinestate)));
-		if (pPipelinestate)
-			m_pPipelineState.emplace(std::make_tuple(materialID, renderBufferID), pPipelinestate);
-	}
-
-	// パイプラインステートのセット
-	m_pCmdList->SetPipelineState(m_pPipelineState[std::make_tuple(materialID, renderBufferID)].Get());
-	// ルートシグネチャーのセット
-	m_pCmdList->SetGraphicsRootSignature(d3dShader->m_pRootSignature.Get());
-
-	// レンダーバッファのセット
-	setRenderBuffer(renderBufferID);
-
-	// マテリアルのセット
-	setMaterial(materialID);
-
-}
 
 void D3D12RenderContext::setMaterial(const core::MaterialID& materialID)
 {
@@ -207,8 +60,55 @@ void D3D12RenderContext::setMaterial(const core::MaterialID& materialID)
 	auto* d3dShader = static_cast<D3D12Shader*>(m_pDevice->getShader(d3dMat->m_shaderID));
 	if (d3dShader == nullptr) return;
 
-	// マテリアルリソース指定・更新
-	setMaterialResource(*d3dMat, *d3dShader);
+	// パイプラインステートの指定
+	setPipelineState(*d3dShader, *d3dMat);
+
+	// ステージごと
+	UINT rootIndex = 0;
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		if (!hasStaderStage(d3dShader->m_desc.m_stages, stage)) continue;
+
+		auto stageIndex = static_cast<std::size_t>(stage);
+
+		// コンスタントバッファ更新
+		for (auto& cb : d3dMat->m_d3dCbuffer[stageIndex])
+		{
+			auto& cbData = d3dMat->m_cbufferData[stageIndex][cb.first];
+			if (cbData.isUpdate)
+			{
+				void* pData = nullptr;
+				CHECK_FAILED(cb.second->Map(0, nullptr, &pData));
+				if (!pData) continue;
+				std::memcpy(pData, cbData.data.get(), cbData.size);
+				cb.second->Unmap(0, nullptr);
+				cbData.isUpdate = false;
+			}
+		}
+
+		// コンスタントバッファ指定
+		if (d3dMat->m_pCBufferHeap[stageIndex])
+		{
+			// ヒープ指定
+			ID3D12DescriptorHeap* pHeap[] = { d3dMat->m_pCBufferHeap[stageIndex].Get() };
+			m_pCmdList->SetDescriptorHeaps(_countof(pHeap), pHeap);
+			// テーブル指定
+			m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex++,
+				pHeap[0]->GetGPUDescriptorHandleForHeapStart());
+		}
+
+		// テクスチャ更新
+		for (const auto& tex : d3dMat->m_textureData[stageIndex])
+		{
+			setTextureResource(rootIndex++, tex.second.id);
+		}
+
+		// サンプラ更新
+		for (const auto& sam : d3dMat->m_samplerData[stageIndex])
+		{
+			setSamplerResource(sam.first, sam.second.state);
+		}
+	}
 }
 
 void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBufferID)
@@ -226,117 +126,50 @@ void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 	}
 
 	// プリミティブ指定
-	setPrimitiveTopology(renderBuffer->m_topology);
+	m_pCmdList->IASetPrimitiveTopology(getD3D12PrimitiveTopology(renderBuffer->m_topology));
+
 }
 
-void D3D12RenderContext::setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
+//----- バインド命令 -----
+
+void D3D12RenderContext::setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
-	auto stageIndex = static_cast<std::size_t>(stage);
-	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
+	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
+	auto type = static_cast<std::size_t>(SHADER::BindType::CBV);
 
-	// ヒープ指定
-	ID3D12DescriptorHeap* pHeap[] = { pD3DTex->m_pTexHeap.Get() };
-	m_pCmdList->SetDescriptorHeaps(1, pHeap);
-	// テーブル指定
-	m_pCmdList->SetGraphicsRootDescriptorTable(slot,
-		pD3DTex->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
-
-	//if (textureID == NONE_TEXTURE_ID)
-	//{
-	//	ID3D12ShaderResourceView* nullView = nullptr;
-	//	setShaderResource[stageIndex](m_pD3DContext, slot, 1, &nullView);
-	//	m_curTexture[stageIndex][slot] = NONE_TEXTURE_ID;
-	//}
-	//else
-	//{
-	//	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
-	//	ID3D12ShaderResourceView* pTex = pD3DTex ? pD3DTex->m_srv.Get() : nullptr;
-	//	setShaderResource[stageIndex](m_pD3DContext, slot, 1, &pTex);
-	//	m_curTexture[stageIndex][slot] = textureID;
-	//}
-}
-
-void D3D12RenderContext::setSampler(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)
-{
-	auto stageIndex = static_cast<size_t>(stage);
-	if (m_curSamplerState[stageIndex][slot] == state) {
-		return;
-	}
-
-	//setSamplers[stageIndex](m_pD3DContext, slot, 1, m_pDevice->m_samplerStates[static_cast<size_t>(state)].GetAddressOf());
-	//m_curSamplerState[stageIndex][slot] = state;
-}
-
-void D3D12RenderContext::setPrimitiveTopology(core::PrimitiveTopology topology)
-{
-	//if (m_curPrimitiveTopology == topology) return;
-
-	m_pCmdList->IASetPrimitiveTopology(getD3D12PrimitiveTopology(topology));
-	m_curPrimitiveTopology = topology;
-}
-
-//----- バッファ指定命令 -----
-
-void D3D12RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& systemBuffer)
-{
-	/*for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::System)
-			, 1, m_systemBuffer.GetAddressOf());
-		m_pD3DContext->UpdateSubresource(m_systemBuffer.Get(), 0, nullptr, &systemBuffer, 0, 0);
-	}*/
+
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			// ヒープ指定
+
+			break;
+		}
+	}
 }
 
-void D3D12RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
+void D3D12RenderContext::setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
-	SHADER::TransformBuffer transform;
-	transform._mWorld = mtxWorld.Transpose();
 
-	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	//{
-	//	auto stageIndex = static_cast<std::size_t>(stage);
-	//	setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(SHADER::CB_SLOT::Transform)
-	//		, 1, m_transformBuffer.GetAddressOf());
-	//	m_pD3DContext->UpdateSubresource(m_transformBuffer.Get(), 0, nullptr, &transform, 0, 0);
-	//}
 }
 
-void D3D12RenderContext::sendAnimationBuffer(std::vector<Matrix>& mtxBones)
+void D3D12RenderContext::setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
-	//// マトリックスは倒置前提
-	//SubResource resource;
-	//std::size_t size = mtxBones.size() < SHADER::MAX_ANIMATION_BONE_COUNT ?
-	//	mtxBones.size() * sizeof(Matrix) : SHADER::MAX_ANIMATION_BONE_COUNT * sizeof(Matrix);
-	//// 更新
-	//d3dMap(m_animationBuffer.Get(), D3D12_MAP::D3D12_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, mtxBones.data(), size);
-	//d3dUnmap(m_animationBuffer.Get());
-	//// 指定
-	//setCBuffer[static_cast<std::size_t>(ShaderStage::VS)](m_pD3DContext.Get(),
-	//	SHADER::SHADER_CB_SLOT_ANIMATION, 1, m_animationBuffer.GetAddressOf());
+
 }
 
-void D3D12RenderContext::sendLightBuffer(std::vector<core::CorePointLight>& pointLights,
-	std::vector<core::CoreSpotLight>& spotLights)
+void D3D12RenderContext::setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
-	//SubResource resource;
-	//// ポイントライト
-	//std::size_t size = pointLights.size() < SHADER::MAX_POINT_LIGHT_COUNT ?
-	//	pointLights.size() * sizeof(CorePointLight) :
-	//	SHADER::MAX_POINT_LIGHT_COUNT * sizeof(CorePointLight);
-	//d3dMap(m_pointLightBuffer.Get(), D3D12_MAP::D3D12_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, pointLights.data(), size);
-	//d3dUnmap(m_pointLightBuffer.Get());
-	//setShaderResource[static_cast<std::size_t>(ShaderStage::PS)](m_pD3DContext, SHADER::SHADER_SRV_SLOT_POINTLIGHT, 1, m_pointLightSRV.GetAddressOf());
-	//// スポットライト
-	//size = spotLights.size() < SHADER::MAX_SPOT_LIGHT_COUNT ?
-	//	spotLights.size() * sizeof(CoreSpotLight) :
-	//	SHADER::MAX_SPOT_LIGHT_COUNT * sizeof(CoreSpotLight);
-	//d3dMap(m_spotLightBuffer.Get(), D3D12_MAP::D3D12_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, spotLights.data(), spotLights.size() * sizeof(CoreSpotLight));
-	//d3dUnmap(m_spotLightBuffer.Get());
-	//setShaderResource[static_cast<std::size_t>(ShaderStage::PS)](m_pD3DContext, SHADER::SHADER_SRV_SLOT_SPOTLIGHT, 1, m_spotLightSRV.GetAddressOf());
+
+}
+
+void D3D12RenderContext::setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+{
+
 }
 
 //----- 描画命令
@@ -362,54 +195,99 @@ void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID)
 // private methods 
 //------------------------------------------------------------------------------
 
-void D3D12RenderContext::setMaterialResource(const D3D12Material& d3dMaterial, const D3D12Shader& d3dShader)
+void D3D12RenderContext::setPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat)
 {
-	auto& d3dMat = const_cast<D3D12Material&>(d3dMaterial);
-	UINT rootIndex = 0;
+	// グラフィクスパイプラインを検索
+	auto pipelineID = d3d12Shader.m_id;
+	auto itr = m_pPipelineState.find(pipelineID);
 
-	// ステージごと
-	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	// パイプラインステートを新規作成
+	if (m_pPipelineState.end() == itr)
 	{
-		if (!hasStaderStage(d3dShader.m_desc.m_stages, stage)) continue;
+		// グラフィクスパイプラインの作成
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
+		// シグネチャー
+		gpipeline.pRootSignature = d3d12Shader.m_pRootSignature.Get();
+		// 各シェーダー
+		gpipeline.VS.pShaderBytecode = d3d12Shader.m_pShaderBlob[0]->GetBufferPointer();
+		gpipeline.VS.BytecodeLength = d3d12Shader.m_pShaderBlob[0]->GetBufferSize();
+		gpipeline.PS.pShaderBytecode = d3d12Shader.m_pShaderBlob[4]->GetBufferPointer();
+		gpipeline.PS.BytecodeLength = d3d12Shader.m_pShaderBlob[4]->GetBufferSize();
+		// ストリームアウトプット
+		gpipeline.StreamOutput;
+		// ブレンドステイト
+		gpipeline.BlendState = m_pDevice->m_blendStates[static_cast<std::size_t>(d3d12Mat.m_blendState)];
+		// サンプルマスク
+		gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		// ラスタライザーステート
+		gpipeline.RasterizerState = m_pDevice->m_rasterizeStates[static_cast<std::size_t>(d3d12Mat.m_rasterizeState)];
+		// デプスステンシルステート
+		gpipeline.DepthStencilState = m_pDevice->m_depthStencilStates[static_cast<std::size_t>(d3d12Mat.m_depthStencilState)];
+		// インプットレイアウト
+		gpipeline.InputLayout.pInputElementDescs = d3d12Shader.m_inputElementDesc.data();
+		gpipeline.InputLayout.NumElements = d3d12Shader.m_inputElementDesc.size();
+		// ストリップカット
+		gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+		// プリミティブトポロジータイプ
+		gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		// レンダーターゲット数
+		gpipeline.NumRenderTargets = 1;
+		// 各レンダーターゲットフォーマット
+		gpipeline.RTVFormats[0] = m_pDevice->m_backBufferFormat;
+		// デプスステンシルフォーマット
+		gpipeline.DSVFormat = m_pDevice->m_depthStencilFormat;
+		// サンプルDesc
+		gpipeline.SampleDesc.Count = m_pDevice->m_sampleDesc.count;
+		gpipeline.SampleDesc.Quality = m_pDevice->m_sampleDesc.quality;
+		// ノードマスク
+		gpipeline.NodeMask;
+		// キャッシュPSO
+		gpipeline.CachedPSO;
+		// パイプラインフラグ
+		gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		//gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
 
-		auto stageIndex = static_cast<std::size_t>(stage);
+		// パイプラインステート作成
+		ID3D12PipelineState* pPipelinestate = nullptr;
+		CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pPipelinestate)));
+		if (pPipelinestate)
+			m_pPipelineState.emplace(pipelineID, pPipelinestate);
+	}
 
-		// コンスタントバッファ更新
-		for (auto& cb : d3dMat.m_d3dCbuffer[stageIndex])
-		{
-			auto& cbData = d3dMat.m_cbufferData[stageIndex][cb.first];
-			if (cbData.isUpdate)
-			{
-				void* pData = nullptr;
-				CHECK_FAILED(cb.second->Map(0, nullptr, &pData));
-				if (!pData) continue;
-				std::memcpy(pData, cbData.data.get(), cbData.size);
-				cb.second->Unmap(0, nullptr);
-				cbData.isUpdate = false;
-			}
-		}
+	// パイプラインステートのセット
+	m_pCmdList->SetPipelineState(m_pPipelineState[pipelineID].Get());
+	// ルートシグネチャーのセット
+	m_pCmdList->SetGraphicsRootSignature(d3d12Shader.m_pRootSignature.Get());
 
-		// コンスタントバッファ指定
-		if(d3dMaterial.m_pCBufferHeap[stageIndex])
-		{
-			// ヒープ指定
-			ID3D12DescriptorHeap* pHeap[] = { d3dMaterial.m_pCBufferHeap[stageIndex].Get() };
-			m_pCmdList->SetDescriptorHeaps(1, pHeap);
-			// テーブル指定
-			m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex++, 
-				d3dMaterial.m_pCBufferHeap[stageIndex]->GetGPUDescriptorHandleForHeapStart());
-		}
+}
 
-		// テクスチャ更新
-		for (const auto& tex : d3dMat.m_textureData[stageIndex])
-		{
-			setTexture(rootIndex++, tex.second.id, stage);
-		}
+void D3D12RenderContext::setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID)
+{
 
-		// サンプラ更新
-		for (const auto& sam : d3dMat.m_samplerData[stageIndex])
-		{
-			setSampler(sam.first, sam.second.state, stage);
-		}
+}
+
+void D3D12RenderContext::setTextureResource(std::uint32_t slot, const core::TextureID& textureID)
+{
+	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
+
+	if (pD3DTex)
+	{
+		// ヒープ指定
+		ID3D12DescriptorHeap* pHeap[] = { pD3DTex->m_pTexHeap.Get() };
+		m_pCmdList->SetDescriptorHeaps(_countof(pHeap), pHeap);
+		// テーブル指定
+		m_pCmdList->SetGraphicsRootDescriptorTable(slot,
+			pD3DTex->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
+	}
+	else
+	{
+		// デフォルトテクスチャ指定
+
 	}
 }
+
+void D3D12RenderContext::setSamplerResource(std::uint32_t slot, core::SamplerState state)
+{
+
+}
+
