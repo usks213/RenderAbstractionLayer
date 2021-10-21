@@ -50,11 +50,19 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 	if (desc.bindFlags & core::BindFlags::CONSTANT_BUFFER)
 	{
 		const UINT64 MAX_SIZE = 256;
-		d3dDesc.Width = (width % MAX_SIZE + 1) * MAX_SIZE;
+		d3dDesc.Width = (width / MAX_SIZE + 1) * MAX_SIZE;
 	}
 	else
 	{
 		d3dDesc.Width = width;
+	}
+
+	// CPUデータ作成
+	m_aData.resize(d3dDesc.Width);
+	if (pData)
+	{
+		std::memcpy(m_aData.data(), pData->pInitData, pData->size);
+		m_isUpdate = false;
 	}
 
 	// リソース生成
@@ -68,7 +76,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 	));
 
 	// 初期値代入
-	if (pData && pData->pInitData && pData->size)
+	if (pData)
 	{
 		void* pBuffer = nullptr;
 		CHECK_FAILED(m_pBuffer->Map(0, nullptr, &pBuffer));

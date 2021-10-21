@@ -15,9 +15,13 @@
 
 #include "Geometry.h"
 
-core::MaterialID g_matID;
-core::RenderBufferID g_rdID;
-core::TextureID g_texID;
+core::ShaderID			g_shaderID;
+core::MaterialID			g_matID;
+core::RenderBufferID		g_rdID;
+core::TextureID			g_texID;
+core::BufferID			g_worldID;
+
+constexpr int MAX_WORLD = 512;
 
  /// @brief スタート
 void TestScene::Start()
@@ -101,6 +105,7 @@ void TestScene::Start()
 	pUnlitMat->setVector4("_Color", Vector4(1, 1, 1, 1));
 	pUnlitMat->setTexture("_Texture", texID);
 	pUnlitMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
+	g_shaderID = unlitShaderID;
 
 	//context->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
 	g_matID = unlitMatID;
@@ -116,6 +121,16 @@ void TestScene::Start()
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
+	// ワールドマトリックスの作成
+	core::BufferDesc bufferDesc;
+	bufferDesc.name = "WorldMatrix";
+	bufferDesc.size = sizeof(Matrix);
+	bufferDesc.count = MAX_WORLD;
+	bufferDesc.bindFlags = 0 | core::BindFlags::CONSTANT_BUFFER;
+	bufferDesc.usage = core::Usage::DEFAULT;
+	bufferDesc.cpuAccessFlags = 0 | core::CPUAccessFlags::NONE;
+
+	g_worldID = device->createBuffer(bufferDesc);
 }
 
 /// @brief システムの更新
@@ -138,9 +153,10 @@ void TestScene::Render()
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
 	auto* pUnlitMat = device->getMaterial(g_matID);
+	auto* pWorldBuffer = device->getBuffer(g_worldID);
 
 	// システムバッファ送信
-	Vector3 eyepos = Vector3(0, 2, -5);
+	Vector3 eyepos = Vector3(0, 0, -15);
 	Vector3 eyedir = Vector3(0, 0, 0);
 	Vector3 up = Vector3(0, 1, 0);
 	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
@@ -152,29 +168,36 @@ void TestScene::Render()
 		1.0f,
 		100.0f
 	);
+	view = view.Transpose();
+	proj = proj.Transpose();
 
 	core::SHADER::SystemBuffer systemBuffer;
 	systemBuffer._mView = view.Transpose();
 	systemBuffer._mProj = proj.Transpose();
 
 	//context->sendSystemBuffer(systemBuffer);
-
-	// トランスフォームバッファ送信
 	static float angleY = 0;
 	angleY += 0.01f;
-	Vector3 pos = Vector3(0, 0, 0);
-	Vector3 rot = Vector3(0, angleY, 0);
-	Vector3 sca = Vector3(1, 1, 1);
-	Matrix world = Matrix::CreateScale(sca);
-	world *= Matrix::CreateRotationZXY(rot);
-	world *= Matrix::CreateTranslation(pos);
+	float y = -8;
+	// トランスフォームバッファ送信
+	std::vector<Matrix> aWorld(MAX_WORLD);
+	for (int i = 0; i < MAX_WORLD; ++i)
+	{
+		if (i % 40 == 0)
+			y += 1.0f;
+		auto& world = aWorld[i];
+		Vector3 pos = Vector3(-10 + i % 40 * 0.5f, y, 0);
+		Vector3 rot = Vector3(0, angleY, 0);
+		Vector3 sca = Vector3(0.3f, 0.3f, 0.3f);
+		world = Matrix::CreateScale(sca);
+		world *= Matrix::CreateRotationZXY(rot);
+		world *= Matrix::CreateTranslation(pos);
+		world = world.Transpose();
+	}
 
-	world = world.Transpose();
-	view = view.Transpose();
-	proj = proj.Transpose();
-
+	pWorldBuffer->UpdateBuffer(aWorld.data(), sizeof(Matrix) * MAX_WORLD);
 	//context->sendTransformBuffer(world);
-	pUnlitMat->setMatrix("_mWorld", world);
+	//pUnlitMat->setMatrix("_mWorld", world);
 	pUnlitMat->setMatrix("_mView", view);
 	pUnlitMat->setMatrix("_mProj", proj);
 	//pUnlitMat->setTexture("_Texture", g_texID);
@@ -185,8 +208,14 @@ void TestScene::Render()
 	// レンダーバッファの指定
 	context->setRenderBuffer(g_rdID);
 
+	// バッファ指定
+	context->setBuffer("World", g_shaderID, g_worldID);
+
 	// 描画
-	context->render(g_rdID);
+	//for (int i = 0; i < 100; ++i)
+	{
+		context->render(g_rdID, MAX_WORLD);
+	}
 }
 
 /// @brief エンド

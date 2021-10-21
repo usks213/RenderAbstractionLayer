@@ -26,6 +26,14 @@ D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const 
 	d3dDesc.CPUAccessFlags = d3d11::getD3D11CPUAccessFlags(desc.cpuAccessFlags);
 	d3dDesc.MiscFlags = d3d11::getD3D11MiscFlags(desc.miscFlags);
 
+	// CPUデータ作成
+	m_aData.resize(d3dDesc.ByteWidth);
+	if (pData)
+	{
+		std::memcpy(m_aData.data(), pData->pInitData, pData->size);
+		m_isUpdate = false;
+	}
+
 	// コンスタントバッファ
 	if (desc.bindFlags & core::BindFlags::CONSTANT_BUFFER)
 	{

@@ -12,7 +12,7 @@ Vulkan / DX12では、この決定は開発者に任されています。
 #define MAX_BONE (512)
 
 // システム定数バッファ
-cbuffer System : register(b5)
+cbuffer System : register(b8)
 {
 	float4x4 _mView;
 	float4x4 _mProj;
@@ -27,26 +27,26 @@ cbuffer System : register(b5)
 }
 
 // トランスフォーム定数バッファ
-cbuffer Transform : register(b6)
+cbuffer Transform : register(b9)
 {
 	float4x4 _mWorld;
 }
 
-cbuffer Animation : register(b7)
+cbuffer Animation : register(b10)
 {
 	float4x4 _mBone[MAX_BONE];
 }
 
-Texture2D		_MainTexture	: register(t4); // メインテクスチャ
-Texture2D		_ShadowTexture	: register(t5); // シャドウマップ
-Texture2D		_SkyTexture		: register(t6);	// スカイボックス
+Texture2D		_MainTexture		: register(t8); // メインテクスチャ
+Texture2D		_ShadowTexture	: register(t9); // シャドウマップ
+Texture2D		_SkyTexture		: register(t10);	// スカイボックス
 
-StructuredBuffer<PointLightData> _PointLights : register(t8);	// ポイントライト
-StructuredBuffer<SpotLightData>  _SpotLights  : register(t9);	// スポットライト
+StructuredBuffer<PointLightData> _PointLights : register(t11);	// ポイントライト
+StructuredBuffer<SpotLightData>  _SpotLights  : register(t12);	// スポットライト
 
-SamplerState	_MainSampler	: register(s4); // メインサンプラ
-SamplerState	_ShadowSampler	: register(s5); // シャドウマップ
-SamplerState	_SkySampler		: register(s6); // スカイボックス
+SamplerState	_MainSampler		: register(s8); // メインサンプラ
+SamplerState	_ShadowSampler	: register(s9); // シャドウマップ
+SamplerState	_SkySampler		: register(s10); // スカイボックス
 
 
 // 引数には正規化された反射ベクトルを代入

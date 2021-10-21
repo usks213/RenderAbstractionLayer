@@ -63,7 +63,7 @@ namespace core
 
 		/// @brief 即時描画命令
 		/// @param renderBufferID レンダーバッファID
-		virtual void render(const RenderBufferID& renderBufferID) = 0;
+		virtual void render(const RenderBufferID& renderBufferID, std::uint32_t instanceCount = 1) = 0;
 
 	protected:
 		//------------------------------------------------------------------------------

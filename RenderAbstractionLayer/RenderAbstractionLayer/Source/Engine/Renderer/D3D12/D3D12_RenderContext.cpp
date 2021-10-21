@@ -146,6 +146,15 @@ void D3D12RenderContext::setBuffer(std::string_view bindName, const core::Shader
 		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
 		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
 		{
+			// GPU更新
+			if (pBuffer->m_isUpdate)
+			{
+				void* pData = nullptr;
+				pBuffer->m_pBuffer->Map(0, nullptr, &pData);
+				std::memcpy(pData, pBuffer->m_aData.data(), pBuffer->m_aData.size());
+				pBuffer->m_isUpdate = false;
+			}
+
 			// ヒープ指定
 			m_pCmdList->SetDescriptorHeaps(1, pBuffer->m_pHeap.GetAddressOf());
 			// ビュー指定
@@ -248,7 +257,7 @@ void D3D12RenderContext::setSampler(std::string_view bindName, const core::Shade
 
 //----- 描画命令
 
-void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID)
+void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
 {
 	// データの取得
 	auto* renderBuffer = static_cast<D3D12RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
@@ -256,11 +265,11 @@ void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID)
 	// ポリゴンの描画
 	if (renderBuffer->m_indexData.count > 0)
 	{
-		m_pCmdList->DrawIndexedInstanced(renderBuffer->m_indexData.count, 1, 0, 0, 0);
+		m_pCmdList->DrawIndexedInstanced(renderBuffer->m_indexData.count, instanceCount, 0, 0, 0);
 	}
 	else
 	{
-		m_pCmdList->DrawInstanced(renderBuffer->m_vertexData.count, 1, 0, 0);
+		m_pCmdList->DrawInstanced(renderBuffer->m_vertexData.count, instanceCount, 0, 0);
 	}
 }
 

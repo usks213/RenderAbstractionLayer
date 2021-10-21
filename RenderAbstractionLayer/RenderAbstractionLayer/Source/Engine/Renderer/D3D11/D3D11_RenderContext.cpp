@@ -265,6 +265,26 @@ void D3D11RenderContext::setBuffer(std::string_view bindName, const core::Shader
 		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
 		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
 		{
+			// GPUバッファ更新
+			if (pBuffer->m_isUpdate)
+			{
+				if (pBuffer->m_desc.usage == core::Usage::DYNAMIC || 
+					pBuffer->m_desc.usage == core::Usage::STAGING)
+				{
+					D3D11_MAPPED_SUBRESOURCE subData = {};
+					m_pD3DContext->Map(pBuffer->m_pBuffer.Get(), 0,
+						D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &subData);
+					std::memcpy(subData.pData, pBuffer->m_aData.data(), pBuffer->m_aData.size());
+					m_pD3DContext->Unmap(pBuffer->m_pBuffer.Get(), 0);
+				}
+				else if(pBuffer->m_desc.usage == core::Usage::DEFAULT)
+				{
+					m_pD3DContext->UpdateSubresource(pBuffer->m_pBuffer.Get(), 0, nullptr,
+						pBuffer->m_aData.data(), 0, 0);
+				}
+				pBuffer->m_isUpdate = false;
+			}
+
 			// CBV,SRV,UAV
 			if (pBuffer->m_type == CoreBuffer::BufferType::CBV)
 			{
@@ -302,7 +322,7 @@ void D3D11RenderContext::setSampler(std::string_view bindName, const core::Shade
 
 //----- 描画命令
 
-void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID)
+void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
 {
 	auto* context = m_pD3DContext;
 
@@ -312,11 +332,11 @@ void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID)
 	// ポリゴンの描画
 	if (renderBuffer->m_indexData.count > 0)
 	{
-		context->DrawIndexed(renderBuffer->m_indexData.count, 0, 0);
+		context->DrawIndexedInstanced(renderBuffer->m_indexData.count, instanceCount, 0, 0, 0);
 	}
 	else
 	{
-		context->Draw(renderBuffer->m_vertexData.count, 0);
+		context->DrawInstanced(renderBuffer->m_vertexData.count, instanceCount, 0, 0);
 	}
 }
 

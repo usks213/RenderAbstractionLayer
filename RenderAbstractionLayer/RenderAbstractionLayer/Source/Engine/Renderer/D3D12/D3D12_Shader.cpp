@@ -413,7 +413,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 	std::vector<D3D12_ROOT_PARAMETER>			aParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC>		aSamplers;
 
-	// コンスタントバッファの確保(GPU)
+	// 動的バインド
 	for (core::ShaderStage stage = core::ShaderStage::VS; stage < core::ShaderStage::CS; ++stage)
 	{
 		auto stageIndex = static_cast<size_t>(stage);
@@ -513,9 +513,21 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 					}
 				}
 			}
+		}
+	}
+	// 静的バインド
+	for (core::ShaderStage stage = core::ShaderStage::VS; stage < core::ShaderStage::CS; ++stage)
+	{
+		auto stageIndex = static_cast<size_t>(stage);
+
+		for (size_t type = 0; type < static_cast<size_t>(BindType::MAX); ++type)
+		{
 			// 静的
 			for (auto& bindData : m_staticBindData[stageIndex][type])
 			{
+				// ルートパラメータインデックス
+				bindData.second.rootIndex = aParameters.size();
+
 				switch (type)
 				{
 					// b
@@ -607,5 +619,6 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 		errstr += "\n";
 		OutputDebugStringA(errstr.c_str());
 		errorBlob->Release();
+		throw std::exception(errstr.c_str());
 	}
 }

@@ -11,6 +11,7 @@
 #include "Core_CommonState.h"
 #include <numeric>
 #include <string>
+#include <vector>
 
 #ifdef min
 #undef min
@@ -70,12 +71,22 @@ namespace core
 		/// @param id バッファID
 		/// @param desc バッファDesc
 		CoreBuffer(const BufferID& id, const BufferDesc& desc) :
-			m_id(id), m_desc(desc), m_type(BufferType::MAX)
+			m_id(id), m_desc(desc), m_type(BufferType::MAX),
+			m_isUpdate(true), m_aData()
 		{
 		}
 
 		/// @brief デストラクタ
 		virtual ~CoreBuffer() noexcept = default;
+
+		/// @brief バッファ更新
+		/// @param pData 更新データ
+		/// @param size 更新サイズ
+		void UpdateBuffer(void* pData, std::size_t size)
+		{
+			std::memcpy(m_aData.data(), pData, size);
+			m_isUpdate = true;
+		}
 
 	public:
 		//------------------------------------------------------------------------------
@@ -91,9 +102,12 @@ namespace core
 			MAX,
 		};
 
-		BufferID		m_id;	///< バッファID
-		BufferDesc	m_desc;	///< バッファDesc
-		BufferType	m_type;	///< バッファタイプ
+		BufferID						m_id;		///< バッファID
+		BufferDesc					m_desc;		///< バッファDesc
+		BufferType					m_type;		///< バッファタイプ
+
+		bool							m_isUpdate;	///< バッファ更新フラグ
+		std::vector<std::byte>		m_aData;		///< CPU側のデータ
 
 	};
 }

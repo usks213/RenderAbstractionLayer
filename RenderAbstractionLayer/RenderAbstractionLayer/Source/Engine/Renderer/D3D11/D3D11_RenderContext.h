@@ -59,7 +59,7 @@ namespace d3d11
 
 		//----- •`‰æ–½—ß
 
-		void render(const core::RenderBufferID& renderBufferID)  override;
+		void render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount = 1)  override;
 
 	private:
 		//------------------------------------------------------------------------------

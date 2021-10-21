@@ -5,6 +5,7 @@
 struct VS_INPUT {
 	float3	Position	: POSITION;
 	float2	TexCoord	: TEXCOORD0;
+	uint		instID : SV_InstanceID;
 };
 
 struct VS_OUTPUT {
@@ -13,17 +14,23 @@ struct VS_OUTPUT {
 };
 
 // トランスフォーム定数バッファ
-cbuffer World : register(b0)
+cbuffer ViewProj : register(b0)
 {
-	float4x4 _mWorld;
 	float4x4 _mView;
 	float4x4 _mProj;
 }
 
+cbuffer World : register(b8)
+{
+	float4x4 _mWorld[512];
+}
+
+
 VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	float4x4 mWVP = mul(_mWorld, _mView);
+	int n = input.instID % 512;
+	float4x4 mWVP = mul(_mWorld[n], _mView);
 	mWVP = mul(mWVP, _mProj);
 	output.Position = mul(float4(input.Position, 1.0f), mWVP);
 	//output.Position = mul(float4(input.Position, 1.0f), _mWorld);
