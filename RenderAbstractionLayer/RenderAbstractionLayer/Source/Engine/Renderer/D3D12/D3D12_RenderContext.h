@@ -53,11 +53,7 @@ namespace d3d12
 
 		//----- ƒoƒCƒ“ƒh–½—ß -----
 
-		void setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
-
-		void setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
-
-		void setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
+		void setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
 		void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
 

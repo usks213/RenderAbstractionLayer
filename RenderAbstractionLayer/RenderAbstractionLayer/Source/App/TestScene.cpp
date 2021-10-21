@@ -180,12 +180,10 @@ void TestScene::Render()
 	//pUnlitMat->setTexture("_Texture", g_texID);
 
 	// マテリアルの指定
-	//context->setMaterial(g_matID);
+	context->setMaterial(g_matID);
 
 	// レンダーバッファの指定
-	//context->setRenderBuffer(g_rdID);
-
-	context->setPipelineState(g_matID, g_rdID);
+	context->setRenderBuffer(g_rdID);
 
 	// 描画
 	context->render(g_rdID);

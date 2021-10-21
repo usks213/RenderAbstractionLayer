@@ -10,7 +10,7 @@
 #include "D3D12_Renderer.h"
 #include "D3D12_RenderDevice.h"
 
-//#include "D3D12_Buffer.h"
+#include "D3D12_Buffer.h"
 #include "D3D12_RenderBuffer.h"
 #include "D3D12_Texture.h"
 //#include "D3D12_RenderTarget.h"
@@ -132,10 +132,11 @@ void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 
 //----- バインド命令 -----
 
-void D3D12RenderContext::setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D12RenderContext::setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
-	auto type = static_cast<std::size_t>(SHADER::BindType::CBV);
+	auto* pBuffer = static_cast<D3D12Buffer*>(m_pDevice->getBuffer(bufferID));
+	auto type = static_cast<std::size_t>(pBuffer->m_type);
 
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
@@ -146,30 +147,103 @@ void D3D12RenderContext::setCBV(std::string_view bindName, const core::ShaderID&
 		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
 		{
 			// ヒープ指定
-
+			m_pCmdList->SetDescriptorHeaps(1, pBuffer->m_pHeap.GetAddressOf());
+			// ビュー指定
+			if (stage != ShaderStage::CS)
+			{
+				if (pBuffer->m_type == CoreBuffer::BufferType::CBV)
+				{
+					m_pCmdList->SetGraphicsRootConstantBufferView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+				else if (pBuffer->m_type == CoreBuffer::BufferType::SRV)
+				{
+					m_pCmdList->SetGraphicsRootShaderResourceView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+				else if (pBuffer->m_type == CoreBuffer::BufferType::UAV)
+				{
+					m_pCmdList->SetGraphicsRootUnorderedAccessView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+			}
+			else
+			{
+				if (pBuffer->m_type == CoreBuffer::BufferType::CBV)
+				{
+					m_pCmdList->SetComputeRootConstantBufferView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+				else if (pBuffer->m_type == CoreBuffer::BufferType::SRV)
+				{
+					m_pCmdList->SetComputeRootShaderResourceView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+				else if (pBuffer->m_type == CoreBuffer::BufferType::UAV)
+				{
+					m_pCmdList->SetComputeRootUnorderedAccessView(
+						itr->second.rootIndex,
+						pBuffer->m_pBuffer->GetGPUVirtualAddress());
+				}
+			}
 			break;
 		}
 	}
 }
 
-void D3D12RenderContext::setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
-{
-
-}
-
-void D3D12RenderContext::setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
-{
-
-}
-
 void D3D12RenderContext::setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
+	constexpr auto type = static_cast<std::size_t>(BindType::TEXTURE);
+	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
+	auto* pTexture = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
 
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
+		auto stageIndex = static_cast<std::size_t>(stage);
+
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			// ヒープ指定
+			m_pCmdList->SetDescriptorHeaps(1, pTexture->m_pTexHeap.GetAddressOf());
+			// Table
+			m_pCmdList->SetGraphicsRootDescriptorTable(
+				itr->second.rootIndex,
+				pTexture->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
+			break;
+		}
+	}
 }
 
 void D3D12RenderContext::setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
+	//constexpr auto type = static_cast<std::size_t>(SHADER::BindType::SAMPLER);
+	//auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
+	//auto* pTexture = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
 
+	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	//{
+	//	if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
+	//	auto stageIndex = static_cast<std::size_t>(stage);
+
+	//	auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+	//	if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+	//	{
+	//		// ヒープ指定
+	//		m_pCmdList->SetDescriptorHeaps(1, pTexture->m_pTexHeap.GetAddressOf());
+	//		// Table
+	//		m_pCmdList->SetGraphicsRootDescriptorTable(
+	//			itr->second.rootIndex,
+	//			pTexture->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
+	//		break;
+	//	}
+	//}
 }
 
 //----- 描画命令
@@ -266,7 +340,7 @@ void D3D12RenderContext::setCBufferResource(std::uint32_t rootIndex, const core:
 
 }
 
-void D3D12RenderContext::setTextureResource(std::uint32_t slot, const core::TextureID& textureID)
+void D3D12RenderContext::setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID)
 {
 	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
 
@@ -276,7 +350,7 @@ void D3D12RenderContext::setTextureResource(std::uint32_t slot, const core::Text
 		ID3D12DescriptorHeap* pHeap[] = { pD3DTex->m_pTexHeap.Get() };
 		m_pCmdList->SetDescriptorHeaps(_countof(pHeap), pHeap);
 		// テーブル指定
-		m_pCmdList->SetGraphicsRootDescriptorTable(slot,
+		m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex,
 			pD3DTex->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
 	}
 	else

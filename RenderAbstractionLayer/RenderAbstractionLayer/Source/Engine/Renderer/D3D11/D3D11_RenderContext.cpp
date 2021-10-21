@@ -145,30 +145,21 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 	srvDesc.Buffer.NumElements = SHADER::MAX_SPOT_LIGHT_COUNT;
 	CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateShaderResourceView(m_spotLightBuffer.Get(), nullptr, m_spotLightSRV.ReleaseAndGetAddressOf()));
 
-	// Sampler
-	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	{
-		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::BindType::SAMPLER, "Main")), SamplerState::LINEAR_WRAP, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::BindType::SAMPLER, "Shadow")), SamplerState::SHADOW, stage);
-		setSampler(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
-			core::SHADER::BindType::SAMPLER, "Sky")), SamplerState::ANISOTROPIC_WRAP, stage);
-	}
+	//// Sampler
+	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	//{
+	//	setSamplerResource(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+	//		core::BindType::SAMPLER, "Main")), SamplerState::LINEAR_WRAP, stage);
+	//	setSamplerResource(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+	//		core::BindType::SAMPLER, "Shadow")), SamplerState::SHADOW, stage);
+	//	setSamplerResource(static_cast<std::uint32_t>(core::SHADER::GetSlotByName(
+	//		core::BindType::SAMPLER, "Sky")), SamplerState::ANISOTROPIC_WRAP, stage);
+	//}
 
 	return S_OK;
 }
 
 //----- リソース指定命令 -----
-
-void D3D11RenderContext::setPipelineState(const core::MaterialID& materialID, const core::RenderBufferID& renderBufferID)
-{
-	// マテリアルのセット
-	setMaterial(materialID);
-
-	// レンダーバッファのセット
-	setRenderBuffer(renderBufferID);
-}
 
 void D3D11RenderContext::setMaterial(const core::MaterialID& materialID)
 {
@@ -251,114 +242,63 @@ void D3D11RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 	}
 
 	// プリミティブ指定
-	setPrimitiveTopology(renderBuffer->m_topology);
+	if (m_curPrimitiveTopology == renderBuffer->m_topology) return;
+	m_pD3DContext->IASetPrimitiveTopology(getD3D11PrimitiveTopology(renderBuffer->m_topology));
+	m_curPrimitiveTopology = renderBuffer->m_topology;
+
 }
 
-void D3D11RenderContext::setTexture(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
+//----- バインド命令 -----
+
+void D3D11RenderContext::setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
-	auto stageIndex = static_cast<std::size_t>(stage);
-	if (m_curTexture[stageIndex][slot] == textureID) return;
+	auto pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
+	auto* pBuffer = static_cast<D3D11Buffer*>(m_pDevice->getBuffer(bufferID));
+	auto type = static_cast<std::size_t>(pBuffer->m_type);
 
-
-	if (textureID == NONE_TEXTURE_ID)
-	{
-		ID3D11ShaderResourceView* nullView = nullptr;
-		setShaderResource[stageIndex](m_pD3DContext, slot, 1, &nullView);
-		m_curTexture[stageIndex][slot] = NONE_TEXTURE_ID;
-	}
-	else
-	{
-		D3D11Texture* pD3DTex = static_cast<D3D11Texture*>(m_pDevice->getTexture(textureID));
-		ID3D11ShaderResourceView* pTex = pD3DTex ? pD3DTex->m_srv.Get() : nullptr;
-		setShaderResource[stageIndex](m_pD3DContext, slot, 1, &pTex);
-		m_curTexture[stageIndex][slot] = textureID;
-	}
-}
-
-void D3D11RenderContext::setSampler(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)
-{
-	auto stageIndex = static_cast<size_t>(stage);
-	if (m_curSamplerState[stageIndex][slot] == state) {
-		return;
-	}
-
-	setSamplers[stageIndex](m_pD3DContext, slot, 1, m_pDevice->m_samplerStates[static_cast<size_t>(state)].GetAddressOf());
-	m_curSamplerState[stageIndex][slot] = state;
-}
-
-void D3D11RenderContext::setPrimitiveTopology(core::PrimitiveTopology topology)
-{
-	if (m_curPrimitiveTopology == topology) return;
-
-	m_pD3DContext->IASetPrimitiveTopology(getD3D11PrimitiveTopology(topology));
-	m_curPrimitiveTopology = topology;
-}
-
-//----- バッファ指定命令 -----
-
-void D3D11RenderContext::sendSystemBuffer(const core::SHADER::SystemBuffer& systemBuffer)
-{
+	// ステージごと
 	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
 	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
 		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
-			core::SHADER::GetSlotByName(core::SHADER::BindType::CBV, "System"))
-			, 1, m_systemBuffer.GetAddressOf());
-		m_pD3DContext->UpdateSubresource(m_systemBuffer.Get(), 0, nullptr, &systemBuffer, 0, 0);
+
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			// CBV,SRV,UAV
+			if (pBuffer->m_type == CoreBuffer::BufferType::CBV)
+			{
+				setCBuffer[stageIndex](m_pD3DContext, itr->second.slot,
+					1, pBuffer->m_pBuffer.GetAddressOf());
+			}
+			else if (pBuffer->m_type == CoreBuffer::BufferType::SRV)
+			{
+				setShaderResource[stageIndex](m_pD3DContext, itr->second.slot,
+					1, pBuffer->m_pSRV.GetAddressOf());
+			}
+			else if (pBuffer->m_type == CoreBuffer::BufferType::UAV)
+			{
+				if (stage == ShaderStage::CS)
+				{
+					m_pD3DContext->CSGetUnorderedAccessViews(itr->second.slot,
+						1, pBuffer->m_pUAV.GetAddressOf());
+				}
+			}
+			break;
+		}
 	}
 }
 
-void D3D11RenderContext::sendTransformBuffer(const Matrix& mtxWorld)
+void D3D11RenderContext::setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
-	SHADER::TransformBuffer transform;
-	transform._mWorld = mtxWorld.Transpose();
 
-	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	{
-		auto stageIndex = static_cast<std::size_t>(stage);
-		setCBuffer[stageIndex](m_pD3DContext, static_cast<std::uint32_t>(
-			core::SHADER::GetSlotByName(core::SHADER::BindType::CBV, "Transform"))
-			, 1, m_transformBuffer.GetAddressOf());
-		m_pD3DContext->UpdateSubresource(m_transformBuffer.Get(), 0, nullptr, &transform, 0, 0);
-	}
 }
 
-void D3D11RenderContext::sendAnimationBuffer(std::vector<Matrix>& mtxBones)
+void D3D11RenderContext::setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
-	//// マトリックスは倒置前提
-	//SubResource resource;
-	//std::size_t size = mtxBones.size() < SHADER::MAX_ANIMATION_BONE_COUNT ?
-	//	mtxBones.size() * sizeof(Matrix) : SHADER::MAX_ANIMATION_BONE_COUNT * sizeof(Matrix);
-	//// 更新
-	//d3dMap(m_animationBuffer.Get(), D3D11_MAP::D3D11_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, mtxBones.data(), size);
-	//d3dUnmap(m_animationBuffer.Get());
-	//// 指定
-	//setCBuffer[static_cast<std::size_t>(ShaderStage::VS)](m_pD3DContext.Get(),
-	//	SHADER::SHADER_CB_SLOT_ANIMATION, 1, m_animationBuffer.GetAddressOf());
+
 }
 
-void D3D11RenderContext::sendLightBuffer(std::vector<core::CorePointLight>& pointLights,
-	std::vector<core::CoreSpotLight>& spotLights)
-{
-	//SubResource resource;
-	//// ポイントライト
-	//std::size_t size = pointLights.size() < SHADER::MAX_POINT_LIGHT_COUNT ?
-	//	pointLights.size() * sizeof(CorePointLight) :
-	//	SHADER::MAX_POINT_LIGHT_COUNT * sizeof(CorePointLight);
-	//d3dMap(m_pointLightBuffer.Get(), D3D11_MAP::D3D11_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, pointLights.data(), size);
-	//d3dUnmap(m_pointLightBuffer.Get());
-	//setShaderResource[static_cast<std::size_t>(ShaderStage::PS)](m_pD3DContext, SHADER::SHADER_SRV_SLOT_POINTLIGHT, 1, m_pointLightSRV.GetAddressOf());
-	//// スポットライト
-	//size = spotLights.size() < SHADER::MAX_SPOT_LIGHT_COUNT ?
-	//	spotLights.size() * sizeof(CoreSpotLight) :
-	//	SHADER::MAX_SPOT_LIGHT_COUNT * sizeof(CoreSpotLight);
-	//d3dMap(m_spotLightBuffer.Get(), D3D11_MAP::D3D11_MAP_WRITE_DISCARD, true, resource);
-	//std::memcpy(resource.pData, spotLights.data(), spotLights.size() * sizeof(CoreSpotLight));
-	//d3dUnmap(m_spotLightBuffer.Get());
-	//setShaderResource[static_cast<std::size_t>(ShaderStage::PS)](m_pD3DContext, SHADER::SHADER_SRV_SLOT_SPOTLIGHT, 1, m_spotLightSRV.GetAddressOf());
-}
 
 //----- 描画命令
 
@@ -413,13 +353,45 @@ void D3D11RenderContext::setMaterialResource(const D3D11Material& d3dMaterial, c
 		// テクスチャ更新
 		for (const auto& tex : d3dMat.m_textureData[stageIndex])
 		{
-			setTexture(tex.first, tex.second.id, stage);
+			setTextureResource(tex.first, tex.second.id, stage);
 		}
 
 		// サンプラ更新
 		for (const auto& sam : d3dMat.m_samplerData[stageIndex])
 		{
-			setSampler(sam.first, sam.second.state, stage);
+			setSamplerResource(sam.first, sam.second.state, stage);
 		}
 	}
+}
+
+void D3D11RenderContext::setTextureResource(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
+{
+	auto stageIndex = static_cast<std::size_t>(stage);
+	if (m_curTexture[stageIndex][slot] == textureID) return;
+
+
+	if (textureID == NONE_TEXTURE_ID)
+	{
+		ID3D11ShaderResourceView* nullView = nullptr;
+		setShaderResource[stageIndex](m_pD3DContext, slot, 1, &nullView);
+		m_curTexture[stageIndex][slot] = NONE_TEXTURE_ID;
+	}
+	else
+	{
+		D3D11Texture* pD3DTex = static_cast<D3D11Texture*>(m_pDevice->getTexture(textureID));
+		ID3D11ShaderResourceView* pTex = pD3DTex ? pD3DTex->m_srv.Get() : nullptr;
+		setShaderResource[stageIndex](m_pD3DContext, slot, 1, &pTex);
+		m_curTexture[stageIndex][slot] = textureID;
+	}
+}
+
+void D3D11RenderContext::setSamplerResource(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)
+{
+	auto stageIndex = static_cast<size_t>(stage);
+	if (m_curSamplerState[stageIndex][slot] == state) {
+		return;
+	}
+
+	setSamplers[stageIndex](m_pD3DContext, slot, 1, m_pDevice->m_samplerStates[static_cast<size_t>(state)].GetAddressOf());
+	m_curSamplerState[stageIndex][slot] = state;
 }

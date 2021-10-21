@@ -61,14 +61,14 @@ CoreMaterial::CoreMaterial(const MaterialID& id, const std::string& name, const 
 		}
 
 		//--- テクスチャ初期化
-		for (const auto& tex : shader.m_dynamicBindData[stageIndex][static_cast<size_t>(SHADER::BindType::TEXTURE)])
+		for (const auto& tex : shader.m_dynamicBindData[stageIndex][static_cast<size_t>(BindType::TEXTURE)])
 		{
 			m_textureData[stageIndex][tex.second.slot].name = tex.second.name;
 			m_textureData[stageIndex][tex.second.slot].id = NONE_TEXTURE_ID;
 		}
 
 		//--- サンプラ
-		for (const auto& smp : shader.m_dynamicBindData[stageIndex][static_cast<size_t>(SHADER::BindType::SAMPLER)])
+		for (const auto& smp : shader.m_dynamicBindData[stageIndex][static_cast<size_t>(BindType::SAMPLER)])
 		{
 			m_samplerData[stageIndex][smp.second.slot].name = smp.second.name;
 			m_samplerData[stageIndex][smp.second.slot].state = SamplerState::NONE;

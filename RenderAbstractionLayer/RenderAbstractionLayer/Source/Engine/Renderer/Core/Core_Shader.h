@@ -16,7 +16,7 @@
 #include <memory>
 #include <array>
 
-#include "Core_ShaderResource.h"
+#include "Core_CommonState.h"
 
 #ifdef min
 #undef min
@@ -200,7 +200,7 @@ namespace core
 		struct ShaderBindData
 		{
 			ShaderStage			stage;
-			SHADER::BindType		type;
+			BindType				type;
 			std::string			name;
 			std::uint32_t		slot;
 			std::uint32_t		space;
@@ -211,11 +211,11 @@ namespace core
 
 		/// @brief 動的バインド情報
 		std::unordered_map<std::string, ShaderBindData> m_dynamicBindData
-			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(BindType::MAX)];
 
 		/// @brief 静的バインド情報
 		std::unordered_map<std::string, ShaderBindData> m_staticBindData
-			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(SHADER::BindType::MAX)];
+			[static_cast<size_t>(ShaderStage::MAX)][static_cast<size_t>(BindType::MAX)];
 
 	public:
 		//------------------------------------------------------------------------------
@@ -230,6 +230,14 @@ namespace core
 
 		/// @brief シェーダータイプ
 		ShaderType m_type;
+
+	protected:
+		//------------------------------------------------------------------------------
+		// protected variables
+		//------------------------------------------------------------------------------
+
+		constexpr static std::uint32_t STATIC_BIND_SLOT_BORDER = 8;	///< このスロット移行は共通リソース
+
 	};
 }
 

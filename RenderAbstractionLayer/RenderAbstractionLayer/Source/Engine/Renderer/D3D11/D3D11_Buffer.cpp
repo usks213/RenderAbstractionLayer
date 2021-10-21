@@ -18,13 +18,19 @@ using namespace d3d11;
 D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const core::BufferDesc& desc, const core::BufferData* pData) :
 	core::CoreBuffer(id, desc)
 {
-	// コンスタントバッファの初期化
+	// バッファの初期化
 	D3D11_BUFFER_DESC d3dDesc = {};
 	d3dDesc.ByteWidth = desc.size * desc.count;//Max:D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT
 	d3dDesc.Usage = d3d11::getD3D11Usage(desc.usage);
 	d3dDesc.BindFlags = d3d11::getD3D11BindFlags(desc.bindFlags);
 	d3dDesc.CPUAccessFlags = d3d11::getD3D11CPUAccessFlags(desc.cpuAccessFlags);
 	d3dDesc.MiscFlags = d3d11::getD3D11MiscFlags(desc.miscFlags);
+
+	// コンスタントバッファ
+	if (desc.bindFlags & core::BindFlags::CONSTANT_BUFFER)
+	{
+		m_type = BufferType::CBV;
+	}
 
 	// 構造体バッファ
 	if (desc.miscFlags & core::MiscFlags::BUFFER_STRUCTURED)
@@ -52,6 +58,7 @@ D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const 
 	if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
 	{
 		// シェーダーリソースビュー
+		m_type = BufferType::SRV;
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
@@ -76,6 +83,7 @@ D3D11Buffer::D3D11Buffer(ID3D11Device1* device, const core::BufferID& id, const 
 	if (desc.bindFlags & core::BindFlags::UNORDERED_ACCESS)
 	{
 		// 順不同アクセスビュー
+		m_type = BufferType::UAV;
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;

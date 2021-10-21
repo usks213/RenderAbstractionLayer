@@ -82,8 +82,20 @@ namespace core
 		MAX,								///< プリミティブトポロジの数
 	};
 
+	//----- Bind -----
 
-	//----- CoreBuffer -----
+	/// @brief シェーダーバインド種別
+	enum class BindType : std::uint8_t
+	{
+		CBV,
+		SRV,
+		UAV,
+		TEXTURE,
+		SAMPLER,
+		MAX,
+	};
+
+	//----- Buffer -----
 
 	/// @enum Usage
 	/// @brief リソース使用識別

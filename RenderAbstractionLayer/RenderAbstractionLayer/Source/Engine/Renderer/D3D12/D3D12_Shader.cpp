@@ -7,7 +7,6 @@
  *********************************************************************/
 
 #include "D3D12_Shader.h"
-#include <Renderer/Core/Core_ShaderResource.h>
 #include <d3dcompiler.h>
 #include <fstream>
 #include <iostream>
@@ -15,6 +14,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
+using namespace core;
 using namespace d3d12;
 
 namespace {
@@ -279,6 +279,75 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 		// シェーダ情報取得
 		reflection->GetDesc(&shaderDesc);
 
+		// シェーダーリソースバインド情報
+		for (std::uint32_t i = 0; i < shaderDesc.BoundResources; ++i)
+		{
+			// バインド情報取得
+			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
+			reflection->GetResourceBindingDesc(i, &bindDesc);
+
+			BindType bindType = BindType::MAX;
+
+			// バインドタイプで分ける
+			switch (bindDesc.Type)
+			{
+				// b
+			case D3D_SIT_CBUFFER:
+				bindType = BindType::CBV;
+				break;
+				// u
+			case D3D_SIT_UAV_RWTYPED:
+			case D3D_SIT_UAV_RWSTRUCTURED:
+			case D3D_SIT_UAV_RWBYTEADDRESS:
+			case D3D_SIT_UAV_APPEND_STRUCTURED:
+			case D3D_SIT_UAV_CONSUME_STRUCTURED:
+			case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+				bindType = BindType::UAV;
+				break;
+				// t
+			case D3D_SIT_TBUFFER:
+			case D3D_SIT_STRUCTURED:
+			case D3D_SIT_BYTEADDRESS:
+				bindType = BindType::SRV;
+				break;
+				// t
+			case D3D_SIT_TEXTURE:
+				bindType = BindType::TEXTURE;
+				break;
+				// s
+			case D3D_SIT_SAMPLER:
+				bindType = BindType::SAMPLER;
+				break;
+			default:
+				break;
+			}
+
+			if (bindType == BindType::MAX) continue;
+			auto type = static_cast<std::size_t>(bindType);
+
+			// 指定スロット以降は静的
+			if (bindDesc.BindPoint < STATIC_BIND_SLOT_BORDER)
+			{
+				CoreShader::ShaderBindData data;
+				data.stage = stage;
+				data.name = bindDesc.Name;
+				data.slot = bindDesc.BindPoint;
+				data.space = bindDesc.Space;
+				data.type = bindType;
+				m_dynamicBindData[stageIndex][type][bindDesc.Name] = data;
+			}
+			else
+			{
+				CoreShader::ShaderBindData data;
+				data.stage = stage;
+				data.name = bindDesc.Name;
+				data.slot = bindDesc.BindPoint;
+				data.space = bindDesc.Space;
+				data.type = bindType;
+				m_staticBindData[stageIndex][type][bindDesc.Name] = data;
+			}
+		}
+
 		// リフレクションからコンスタントバッファ読み込み
 		std::uint32_t slotOffset = 0;
 		m_cbufferLayouts[stageIndex].reserve(shaderDesc.ConstantBuffers);
@@ -289,7 +358,10 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 
 			// 共通の定数バッファはスキップ
 			std::string cbName(shaderBufferDesc.Name);
-			if (core::SHADER::FindSlotData(core::SHADER::BindType::CBV, cbName) != nullptr)
+			auto type = static_cast<std::size_t>(BindType::CBV);
+			auto itr = m_staticBindData[stageIndex][type].find(cbName);
+			// 静的データならスキップ
+			if (m_staticBindData[stageIndex][type].end() != itr)
 			{
 				++slotOffset;
 				continue;
@@ -315,7 +387,7 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 				// デフォルト値がある場合
 				if (varDesc.DefaultValue != nullptr)
 				{
-					std::unique_ptr<std::byte[]> defaultValue = 
+					std::unique_ptr<std::byte[]> defaultValue =
 						std::make_unique<std::byte[]>(varDesc.Size);
 					std::memcpy(defaultValue.get(), varDesc.DefaultValue, varDesc.Size);
 					m_cbufferDefaults[varDesc.Name] = std::move(defaultValue);
@@ -323,138 +395,6 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 			}
 			// コンスタントバッファレイアウト格納
 			m_cbufferLayouts[stageIndex].emplace(cbIdx - slotOffset, cbLayout);
-		}
-
-		// シェーダーリソースバインド情報
-		for (std::uint32_t i = 0; i < shaderDesc.BoundResources; ++i)
-		{
-			// バインド情報取得
-			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
-			reflection->GetResourceBindingDesc(i, &bindDesc);
-
-			// バインドタイプで分ける
-			switch (bindDesc.Type)
-			{
-			// b
-			case D3D_SIT_CBUFFER:
-			{
-				auto type = static_cast<std::size_t>(core::SHADER::BindType::CBV);
-				if (!core::SHADER::HasSlotData(core::SHADER::BindType::CBV, bindDesc.BindPoint))
-				{
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::CBV;
-				}
-				else
-				{
-					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::CBV;
-				}
-				break;
-			}
-			// u
-			case D3D_SIT_UAV_RWTYPED:
-			case D3D_SIT_UAV_RWSTRUCTURED:
-			case D3D_SIT_UAV_RWBYTEADDRESS:
-			case D3D_SIT_UAV_APPEND_STRUCTURED:
-			case D3D_SIT_UAV_CONSUME_STRUCTURED:
-			case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-			{
-				auto type = static_cast<std::size_t>(core::SHADER::BindType::UAV);
-				if (!core::SHADER::HasSlotData(core::SHADER::BindType::UAV, bindDesc.BindPoint))
-				{
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::UAV;
-				}
-				else
-				{
-					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::UAV;
-				}
-				break;
-			}
-			// t
-			case D3D_SIT_TBUFFER:
-			case D3D_SIT_STRUCTURED:
-			case D3D_SIT_BYTEADDRESS:
-			{
-				auto type = static_cast<std::size_t>(core::SHADER::BindType::SRV);
-				if (!core::SHADER::HasSlotData(core::SHADER::BindType::SRV, bindDesc.BindPoint))
-				{
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SRV;
-				}
-				else
-				{
-					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SRV;
-				}
-				break;
-			}
-			// t
-			case D3D_SIT_TEXTURE:
-			{
-				auto type = static_cast<std::size_t>(core::SHADER::BindType::TEXTURE);
-				if (!core::SHADER::HasSlotData(core::SHADER::BindType::TEXTURE, bindDesc.BindPoint))
-				{
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::TEXTURE;
-				}
-				else
-				{
-					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::TEXTURE;
-				}
-				break;
-			}
-			// s
-			case D3D_SIT_SAMPLER:
-			{
-				auto type = static_cast<std::size_t>(core::SHADER::BindType::SAMPLER);
-				if (!core::SHADER::HasSlotData(core::SHADER::BindType::SAMPLER, bindDesc.BindPoint))
-				{
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_dynamicBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SAMPLER;
-				}
-				else
-				{
-					m_staticBindData[stageIndex][type][bindDesc.Name].stage = stage;
-					m_staticBindData[stageIndex][type][bindDesc.Name].name = bindDesc.Name;
-					m_staticBindData[stageIndex][type][bindDesc.Name].slot = bindDesc.BindPoint;
-					m_staticBindData[stageIndex][type][bindDesc.Name].space = bindDesc.Space;
-					m_staticBindData[stageIndex][type][bindDesc.Name].type = core::SHADER::BindType::SAMPLER;
-				}
-				break;
-			}
-			default:
-				break;
-			}
 		}
 	}
 
@@ -478,7 +418,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 	{
 		auto stageIndex = static_cast<size_t>(stage);
 
-		for (size_t type = 0; type < static_cast<size_t>(core::SHADER::BindType::MAX); ++type)
+		for (size_t type = 0; type < static_cast<size_t>(BindType::MAX); ++type)
 		{
 			// 動的
 			int cnt = 0;
@@ -491,7 +431,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 				switch (type)
 				{
 					// b
-					case static_cast<size_t>(core::SHADER::BindType::CBV) :
+					case static_cast<size_t>(BindType::CBV) :
 					{
 						if (cnt++ > 0) continue;
 						D3D12_DESCRIPTOR_RANGE range = {};
@@ -510,7 +450,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// t
-					case static_cast<size_t>(core::SHADER::BindType::TEXTURE) :
+					case static_cast<size_t>(BindType::TEXTURE) :
 					{
 						D3D12_DESCRIPTOR_RANGE range = {};
 						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -529,7 +469,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// s
-					case static_cast<size_t>(core::SHADER::BindType::SAMPLER) :
+					case static_cast<size_t>(BindType::SAMPLER) :
 					{
 						//D3D12_DESCRIPTOR_RANGE range = {};
 						//range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
@@ -550,7 +490,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// t
-					case static_cast<size_t>(core::SHADER::BindType::SRV) :
+					case static_cast<size_t>(BindType::SRV) :
 					{
 						D3D12_ROOT_PARAMETER param = {};
 						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
@@ -561,7 +501,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// u
-					case static_cast<size_t>(core::SHADER::BindType::UAV) :
+					case static_cast<size_t>(BindType::UAV) :
 					{
 						D3D12_ROOT_PARAMETER param = {};
 						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
@@ -579,7 +519,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 				switch (type)
 				{
 					// b
-					case static_cast<size_t>(core::SHADER::BindType::CBV) :
+					case static_cast<size_t>(BindType::CBV) :
 					{
 						D3D12_ROOT_PARAMETER param = {};
 						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -590,7 +530,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// t
-					case static_cast<size_t>(core::SHADER::BindType::TEXTURE) :
+					case static_cast<size_t>(BindType::TEXTURE) :
 					{
 						D3D12_DESCRIPTOR_RANGE range = {};
 						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -609,14 +549,14 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// s
-					case static_cast<size_t>(core::SHADER::BindType::SAMPLER) :
+					case static_cast<size_t>(BindType::SAMPLER) :
 					{
 						aSamplers.push_back(device->m_samplerStates[
 							static_cast<size_t>(core::SamplerState::LINEAR_WRAP)]);
 						break;
 					}
 					// t
-					case static_cast<size_t>(core::SHADER::BindType::SRV) :
+					case static_cast<size_t>(BindType::SRV) :
 					{
 						D3D12_ROOT_PARAMETER param = {};
 						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
@@ -627,7 +567,7 @@ void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
 						break;
 					}
 					// u
-					case static_cast<size_t>(core::SHADER::BindType::UAV) :
+					case static_cast<size_t>(BindType::UAV) :
 					{
 						D3D12_ROOT_PARAMETER param = {};
 						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;

@@ -41,6 +41,7 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Buffer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_DepthStencil.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Texture.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Texture.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Buffer.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_DepthStencil.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Texture.h" />

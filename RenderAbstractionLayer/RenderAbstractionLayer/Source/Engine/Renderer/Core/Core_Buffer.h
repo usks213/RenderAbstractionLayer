@@ -35,6 +35,7 @@ namespace core
 		std::size_t size = 0;
 	};
 
+	/// @brief UAVフラグ
 	enum class BufferUAVFlag : std::uint8_t
 	{
 		RAW,			///< バイトアドレス
@@ -69,7 +70,7 @@ namespace core
 		/// @param id バッファID
 		/// @param desc バッファDesc
 		CoreBuffer(const BufferID& id, const BufferDesc& desc) :
-			m_id(id), m_desc(desc)
+			m_id(id), m_desc(desc), m_type(BufferType::MAX)
 		{
 		}
 
@@ -81,8 +82,18 @@ namespace core
 		// public variables
 		//------------------------------------------------------------------------------
 
+		/// @brief バッファタイプ
+		enum class BufferType : std::uint8_t
+		{
+			CBV,
+			SRV,
+			UAV,
+			MAX,
+		};
+
 		BufferID		m_id;	///< バッファID
 		BufferDesc	m_desc;	///< バッファDesc
+		BufferType	m_type;	///< バッファタイプ
 
 	};
 }

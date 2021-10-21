@@ -83,6 +83,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 	if (desc.bindFlags & core::BindFlags::CONSTANT_BUFFER)
 	{
 		// 定数バッファビューの作成
+		m_type = BufferType::CBV;
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 		cbvDesc.BufferLocation = m_pBuffer->GetGPUVirtualAddress();
 		cbvDesc.SizeInBytes = d3dDesc.Width;
@@ -91,6 +92,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 	if (desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
 	{
 		// シェーダーリソースビューの作成
+		m_type = BufferType::SRV;
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -113,6 +115,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 	if (desc.bindFlags & core::BindFlags::UNORDERED_ACCESS)
 	{
 		// 順不同アクセスビューの作成
+		m_type = BufferType::UAV;
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;

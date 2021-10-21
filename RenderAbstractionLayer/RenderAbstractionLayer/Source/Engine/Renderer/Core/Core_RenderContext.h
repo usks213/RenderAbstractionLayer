@@ -52,11 +52,7 @@ namespace core
 
 		//----- ƒoƒCƒ“ƒh–½—ß -----
 
-		virtual void setCBV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
-
-		virtual void setSRV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
-
-		virtual void setUAV(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+		virtual void setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
 
 		virtual void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) = 0;
 
