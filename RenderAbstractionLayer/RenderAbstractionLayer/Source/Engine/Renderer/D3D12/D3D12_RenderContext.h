@@ -53,11 +53,11 @@ namespace d3d12
 
 		//----- ƒoƒCƒ“ƒh–½—ß -----
 
-		void setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
+		void bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		void setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
+		void bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
 
-		void setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
+		void bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
 
 		//----- •`‰æ–½—ß
 
