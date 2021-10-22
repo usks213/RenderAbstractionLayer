@@ -51,11 +51,11 @@ namespace d3d11
 
 		//----- ƒoƒCƒ“ƒh–½—ß -----
 
-		void setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
+		void setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
+		void setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
 
-		void setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
+		void setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
 
 		//----- •`‰æ–½—ß
 

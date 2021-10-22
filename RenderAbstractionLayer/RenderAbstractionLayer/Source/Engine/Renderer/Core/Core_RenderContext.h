@@ -52,11 +52,11 @@ namespace core
 
 		//----- ƒoƒCƒ“ƒh–½—ß -----
 
-		virtual void setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+		virtual void setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
 
-		virtual void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) = 0;
+		virtual void setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) = 0;
 
-		virtual void setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) = 0;
+		virtual void setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) = 0;
 
 
 		//----- •`‰æ–½—ß

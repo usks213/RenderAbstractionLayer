@@ -53,11 +53,11 @@ namespace d3d12
 
 		//----- バインド命令 -----
 
-		void setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
+		void setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
 
-		void setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
+		void setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
 
-		void setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
+		void setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
 
 		//----- 描画命令
 
@@ -82,7 +82,7 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		D3D12Renderer*						m_pRenderer;			///< レンダラー
-		D3D12RenderDevice*					m_pDevice;				///< デバイス
+		D3D12RenderDevice*					m_pDevice;			///< デバイス
 
 		// コマンドリスト
 		ID3D12GraphicsCommandList*			m_pCmdList;
@@ -91,15 +91,6 @@ namespace d3d12
 		// グラフィクスパイプラインステート
 		std::unordered_map<core::ShaderID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
 
-		//----- シェーダーバッファ
-		//ComPtr<ID3D12Buffer>				m_systemBuffer;
-		//ComPtr<ID3D12Buffer>				m_transformBuffer;
-		//ComPtr<ID3D12Buffer>				m_animationBuffer;
-
-		//ComPtr<ID3D12Buffer>				m_pointLightBuffer;
-		//ComPtr<ID3D12Buffer>				m_spotLightBuffer;
-		//ComPtr<ID3D12ShaderResourceView>	m_pointLightSRV;
-		//ComPtr<ID3D12ShaderResourceView>	m_spotLightSRV;
 	};
 }
 

@@ -132,7 +132,7 @@ void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 
 //----- ƒoƒCƒ“ƒh–½—ß -----
 
-void D3D12RenderContext::setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D12RenderContext::setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D12Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -205,7 +205,7 @@ void D3D12RenderContext::setBuffer(std::string_view bindName, const core::Shader
 	}
 }
 
-void D3D12RenderContext::setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D12RenderContext::setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
 	constexpr auto type = static_cast<std::size_t>(BindType::TEXTURE);
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
@@ -230,7 +230,7 @@ void D3D12RenderContext::setTexture(std::string_view bindName, const core::Shade
 	}
 }
 
-void D3D12RenderContext::setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D12RenderContext::setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
 	//constexpr auto type = static_cast<std::size_t>(SHADER::BindType::SAMPLER);
 	//auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));

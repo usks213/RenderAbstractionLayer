@@ -250,7 +250,7 @@ void D3D11RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 
 //----- ƒoƒCƒ“ƒh–½—ß -----
 
-void D3D11RenderContext::setBuffer(std::string_view bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D11RenderContext::setBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
 	auto pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D11Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -309,12 +309,12 @@ void D3D11RenderContext::setBuffer(std::string_view bindName, const core::Shader
 	}
 }
 
-void D3D11RenderContext::setTexture(std::string_view bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D11RenderContext::setTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
 
 }
 
-void D3D11RenderContext::setSampler(std::string_view bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D11RenderContext::setSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
 
 }

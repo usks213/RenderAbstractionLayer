@@ -361,5 +361,6 @@
     <None Include="Source\Shader\PBR.hlsli">
       <Filter>リソース ファイル\Shader</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
