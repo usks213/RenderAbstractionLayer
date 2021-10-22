@@ -15,7 +15,7 @@ using namespace d3d11;
 /// @brief コンストラクタ
 D3D11Renderer::D3D11Renderer() :
 	m_device(),
-	m_context(),
+	m_cmdList(),
 	m_d3dDevice(),
 	m_d3dAnnotation(),
 	m_d3dContext(),
@@ -33,17 +33,17 @@ HRESULT D3D11Renderer::initialize(HWND hWnd, UINT width, UINT height)
 {
 	HRESULT hr = S_OK;
 
-	// デバイスとコンテキストの作成
+	// デバイスとコマンドリストの作成
 	CHECK_FAILED(hr = createDiveceAndContext(hWnd));
 
 	// デバイスの初期化
 	CHECK_FAILED(hr = m_device.initialize(m_d3dDevice.Get(), 
 		m_dxgiFactory.Get(), hWnd, width, height));
 
-	// コンテキストの初期化
-	m_context.m_pD3DContext = m_d3dContext.Get();
-	m_context.m_pD3DDeffered = m_d3dDefferedContext.Get();
-	CHECK_FAILED(hr = m_context.initialize(this, &m_device));
+	// コマンドリストの初期化
+	m_cmdList.m_pD3DContext = m_d3dContext.Get();
+	m_cmdList.m_pD3DDeffered = m_d3dDefferedContext.Get();
+	CHECK_FAILED(hr = m_cmdList.initialize(this, &m_device));
 
 	return hr;
 }
@@ -92,7 +92,7 @@ void D3D11Renderer::present()
 // private methods
 //------------------------------------------------------------------------------
 
-/// @brief デバイスとコンテキストの生成
+/// @brief デバイスとコマンドリストの生成
 /// @return HRESULT
 HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 {
@@ -138,10 +138,10 @@ HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 
 	//--- デバイスの生成 ---
 	ComPtr<ID3D11Device>		device;
-	ComPtr<ID3D11DeviceContext> context;
+	ComPtr<ID3D11DeviceContext> cmdList;
 	ComPtr<ID3D11DeviceContext> defferedContext;
 
-	// デバイス。コンテキストの生成
+	// デバイス。コマンドリストの生成
 	hr = D3D11CreateDevice(
 		aiAdapter.back(),
 		aiAdapter.back() ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
@@ -152,13 +152,13 @@ HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 		D3D11_SDK_VERSION,
 		device.GetAddressOf(),
 		NULL,
-		context.GetAddressOf());
+		cmdList.GetAddressOf());
 	if (FAILED(hr)) {
 		MessageBoxW(hWnd, L"D3D11CreateDevice", L"Err", MB_ICONSTOP);
 		return hr;
 	}
 
-	// 遅延コンテキスト作成
+	// 遅延コマンドリスト作成
 	hr = device->CreateDeferredContext(0, defferedContext.GetAddressOf());
 	if (FAILED(hr)) {
 		MessageBoxW(hWnd, L"CreateDeferredContext", L"Err", MB_ICONSTOP);
@@ -167,8 +167,8 @@ HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 
 	// 格納
 	hr = device.As(&m_d3dDevice);
-	hr = context.As(&m_d3dContext);
-	hr = context.As(&m_d3dAnnotation);
+	hr = cmdList.As(&m_d3dContext);
+	hr = cmdList.As(&m_d3dAnnotation);
 	hr = defferedContext.As(&m_d3dDefferedContext);
 
 	return S_OK;

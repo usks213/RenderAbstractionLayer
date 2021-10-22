@@ -234,10 +234,8 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 	scissorrect.bottom = scissorrect.top + height;//切り抜き下座標
 	m_scissorrect = scissorrect;
 
-	// デバイス・コンテキスト
+	// デバイスの生成
 	m_device.initialize(m_pD3DDevice.Get(), m_pDXGIFactory.Get(), hWnd, width, height);
-	m_context.initialize(this, &m_device);
-	m_context.m_pCmdList = m_pCmdList.Get();
 
 	return hr;
 }
@@ -252,8 +250,14 @@ void D3D12Renderer::finalize()
 void D3D12Renderer::clear()
 {
 	// コマンドアロケーターとコマンドリストをリセット
-	m_pCmdAllocator->Reset();
-	m_pCmdList->Reset(m_pCmdAllocator.Get(), nullptr);
+	CHECK_FAILED(m_pCmdAllocator->Reset());
+	CHECK_FAILED(m_pCmdList->Reset(m_pCmdAllocator.Get(), nullptr));
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		CHECK_FAILED(m_cmdLists[i]->m_pCmdAllocator->Reset());
+		CHECK_FAILED(m_cmdLists[i]->m_pCmdList->Reset(m_cmdLists[i]->m_pCmdAllocator.Get(), nullptr));
+	}
+	m_useCmdListCnt = 0;
 
 	// レンダーターゲットハンドルの取得
 	auto handlRTV = m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
@@ -310,10 +314,21 @@ void D3D12Renderer::present()
 	// コマンドの記録終了
 	hr = m_pCmdList->Close();
 	CHECK_FAILED(hr);
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		CHECK_FAILED(m_cmdLists[i]->m_pCmdList->Close());
+	}
+
+	// コマンドリストを格納
+	std::vector<ID3D12CommandList*> ppCmdList;
+	ppCmdList.push_back(m_pCmdList.Get());
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		//ppCmdList.push_back(m_cmdLists[i]->m_pCmdList.Get());
+	}
 
 	// コマンドの実行
-	ID3D12CommandList* ppCmdList[] = { m_pCmdList.Get() };
-	m_pCmdQueue->ExecuteCommandLists(_countof(ppCmdList), ppCmdList);
+	m_pCmdQueue->ExecuteCommandLists(ppCmdList.size(), ppCmdList.data());
 
 	// コマンド完了待ち
 	hr = m_pCmdQueue->Signal(m_pFence.Get(), ++m_nFenceVal);

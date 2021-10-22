@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   D3D12_RenderContext.h
- * \brief  DiectX12レンダーコンテキスト
+ * \file   D3D12_CommandList.h
+ * \brief  DiectX12レンダーコマンドリスト
  * 
  * \author USAMI KOSHI
  * \date   2021/10/13
@@ -9,7 +9,7 @@
 #ifndef _D3D12_RENDER_CONTEXT_
 #define _D3D12_RENDER_CONTEXT_
 
-#include <Renderer/Core/Core_RenderContext.h>
+#include <Renderer/Core/Core_CommandList.h>
 #include "D3D12_Shader.h"
 #include "D3D12_Material.h"
 
@@ -20,11 +20,11 @@ namespace d3d12
 {
 	// 前定義
 	class D3D12Renderer;
-	class D3D12RenderDevice;
+	class D3D12Device;
 
-	/// @class D3D12RenderContext
-	/// @brief DirectX11レンダーコンテキスト
-	class D3D12RenderContext final : public core::CoreRenderContext
+	/// @class D3D12CommandList
+	/// @brief DirectX11レンダーコマンドリスト
+	class D3D12CommandList final : public core::CoreCommandList
 	{
 		friend class D3D12Renderer;
 	public:
@@ -33,16 +33,16 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit D3D12RenderContext();
+		explicit D3D12CommandList();
 
 		/// @brief デストラクタ(デフォルト)
-		~D3D12RenderContext() noexcept = default;
+		~D3D12CommandList() noexcept = default;
 
 		/// @brief 初期化処理
 		/// @param pRenderer D3D12レンダラーポインタ
 		/// @param pDevice D3D12デバイスポインタ
 		/// @return 初期化: 成功 true | 失敗 false
-		HRESULT initialize(D3D12Renderer* pRenderer, D3D12RenderDevice* pDevice);
+		HRESULT initialize(D3D12Renderer* pRenderer, D3D12Device* pDevice);
 
 
 		//----- リソース指定命令 -----
@@ -68,8 +68,6 @@ namespace d3d12
 		// private methods 
 		//------------------------------------------------------------------------------
 
-		void setPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat);
-
 		void setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID);
 
 		void setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID);
@@ -81,15 +79,11 @@ namespace d3d12
 		// private variables 
 		//------------------------------------------------------------------------------
 
-		D3D12Renderer*						m_pRenderer;			///< レンダラー
-		D3D12RenderDevice*					m_pDevice;			///< デバイス
+		D3D12Renderer*					m_pRenderer;			///< レンダラー
+		D3D12Device*						m_pDevice;			///< デバイス
 
-		// コマンドリスト
-		ID3D12GraphicsCommandList*			m_pCmdList;
-		// コマンドアロケーター
-
-		// グラフィクスパイプラインステート
-		std::unordered_map<core::ShaderID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
+		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;		///< コマンドアロケーター
+		ComPtr<ID3D12GraphicsCommandList>	m_pCmdList;			///< コマンドリスト
 
 	};
 }

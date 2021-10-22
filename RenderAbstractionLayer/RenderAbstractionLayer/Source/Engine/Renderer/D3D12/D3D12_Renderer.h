@@ -9,8 +9,8 @@
 #define _D3D12_RENDERER_
 
 #include <Renderer\Core\Core_Renderer.h>
-#include "D3D12_RenderDevice.h"
-#include "D3D12_RenderContext.h"
+#include "D3D12_Device.h"
+#include "D3D12_CommandList.h"
 
 namespace d3d12
 {
@@ -43,16 +43,26 @@ namespace d3d12
 
 		/// @brief デバイスの取得
 		/// @return デバイスのポインタ
-		core::CoreRenderDevice* getDevice() override
+		core::CoreDevice* getDevice() override
 		{
 			return &m_device;
 		}
 
-		/// @brief コンテキストの取得
-		/// @return コンテキストのポインタ 
-		core::CoreRenderContext* getContext() override
+		/// @brief コマンドリストの取得
+		/// @return コマンドリストのポインタ 
+		core::CoreCommandList* getContext() override
 		{
-			return &m_context;
+			if (m_useCmdListCnt >= m_cmdLists.size())
+			{
+				auto up = std::make_unique<D3D12CommandList>();
+				auto* ptr = up.get();
+				ptr->initialize(this, &m_device);
+				m_cmdLists.push_back(std::move(up));
+				++m_useCmdListCnt;
+				return ptr;
+			}
+
+			return m_cmdLists[m_useCmdListCnt++].get();
 		}
 
 		/// @brief コピーコンストラクタ削除
@@ -71,25 +81,28 @@ namespace d3d12
 		// private variables
 		//------------------------------------------------------------------------------
 
-		D3D12RenderDevice					m_device;				///< デバイスクラス
-		D3D12RenderContext					m_context;				///< コンテストクラス
+		D3D12Device						m_device;				///< デバイスクラス
+		// コマンドキュー
+
+		std::vector<std::unique_ptr<D3D12CommandList>>	m_cmdLists;		///< コマンドリスト配列
+		std::uint32_t								m_useCmdListCnt;	///< 使用されているコマンドリスト数
 
 		// d3d12 system param
 		ComPtr<ID3D12Device>				m_pD3DDevice;
 		ComPtr<IDXGIFactory6>				m_pDXGIFactory;
-		ComPtr<IDXGISwapChain4>				m_pSwapChain;
+		ComPtr<IDXGISwapChain4>			m_pSwapChain;
 
-		D3D12_VIEWPORT						m_viewport;
-		D3D12_RECT							m_scissorrect;
+		D3D12_VIEWPORT					m_viewport;
+		D3D12_RECT						m_scissorrect;
 
 		// d3d12 fence param
-		ComPtr<ID3D12Fence>					m_pFence;
-		UINT64								m_nFenceVal;
+		ComPtr<ID3D12Fence>				m_pFence;
+		UINT64							m_nFenceVal;
 
 		// d3d12 command param
-		ComPtr<ID3D12CommandQueue>			m_pCmdQueue;
-		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;
-		ComPtr<ID3D12GraphicsCommandList>	m_pCmdList;
+		ComPtr<ID3D12CommandQueue>		m_pCmdQueue;
+		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;		///< コマンドアロケーター
+		ComPtr<ID3D12GraphicsCommandList>	m_pCmdList;			///< コマンドリスト
 
 		// d3d12 rtv param
 		static constexpr UINT				BACK_BUFFER_COUNT = 2;

@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   D3D12_RenderDevice.h
- * \brief  DirectX12レンダーデバイス
+ * \file   D3D12_Device.h
+ * \brief  DirectX12デバイス
  * 
  * \author USAMI KOSHI
  * \date   2021/10/13
@@ -9,7 +9,7 @@
 #ifndef _D3D12_RENDER_DEVICE_
 #define _D3D12_RENDER_DEVICE_
 
-#include <Renderer/Core/Core_RenderDevice.h>
+#include <Renderer/Core/Core_Device.h>
 #include "D3D12_CommonState.h"
 
 namespace d3d12
@@ -17,14 +17,15 @@ namespace d3d12
 	// 前定義
 	class D3D12Renderer;
 	class D3D12Shader;
+	class D3D12Material;
 	class D3D12Texture;
 
-	/// @class D3D12RenderDevice
-	/// @brief D3D12レンダーデバイス
-	class D3D12RenderDevice final : public core::CoreRenderDevice
+	/// @class D3D12Device
+	/// @brief D3D12デバイス
+	class D3D12Device final : public core::CoreDevice
 	{
 		friend class D3D12Renderer;
-		friend class D3D12RenderContext;
+		friend class D3D12CommandList;
 		friend class D3D12Shader;
 	public:
 		//------------------------------------------------------------------------------
@@ -32,10 +33,10 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit D3D12RenderDevice();
+		explicit D3D12Device();
 
 		/// @brief デストラクタ
-		~D3D12RenderDevice() noexcept = default;
+		~D3D12Device() noexcept = default;
 
 		/// @brief 初期化処理
 		/// @param pDevice D3D12デバイスポインタ
@@ -73,6 +74,11 @@ namespace d3d12
 		/// @return D3D12テクスチャポインタ
 		D3D12Texture* createD3D12Texture(core::TextureDesc& desc, D3D12_CLEAR_VALUE* pClear);
 
+		/// @brief パイプラインステート生成
+		/// @param d3d12Shader シェーダー
+		/// @param d3d12Mat マテリアル
+		/// @return パイプラインステート
+		ID3D12PipelineState* createPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat);
 
 	private:
 		//------------------------------------------------------------------------------
@@ -103,6 +109,8 @@ namespace d3d12
 		D3D12_BLEND_DESC                   	m_blendStates[(size_t)core::BlendState::MAX];				///< ブレンドステート
 		D3D12_DEPTH_STENCIL_DESC           	m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
 
+		// グラフィクスパイプラインステート
+		std::unordered_map<core::MaterialID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
 	};
 }
 

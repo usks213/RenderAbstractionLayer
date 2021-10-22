@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   Core_RenderDevice.h
- * \brief  レンダーデバイスクラス
+ * \file   Core_Device.h
+ * \brief  デバイスクラス
  * 
  * \author USAMI KOSHI
  * \date   2021/10/04
@@ -20,22 +20,22 @@
 
 namespace core
 {
-	/// @class CoreRenderDevice
-	/// @brief レンダーデバイス
-	class CoreRenderDevice
+	/// @class CoreDevice
+	/// @brief デバイス
+	class CoreDevice
 	{
 		friend class CoreRenderer;
-		friend class CoreRenderContext;
+		friend class CoreCommandList;
 	public:
 		//------------------------------------------------------------------------------
 		// public methods
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit CoreRenderDevice();
+		explicit CoreDevice();
 
 		/// @brief デストラクタ
-		virtual ~CoreRenderDevice() noexcept = default;
+		virtual ~CoreDevice() noexcept = default;
 
 		//----- リソース生成 -----
 

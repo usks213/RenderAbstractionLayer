@@ -59,12 +59,6 @@
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Renderer.h">
       <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderDevice.h">
-      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderContext.h">
-      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Core_Engine.h">
       <Filter>ソース ファイル\Engine</Filter>
     </ClInclude>
@@ -75,12 +69,6 @@
       <Filter>ソース ファイル\Engine\Util</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.h">
-      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.h">
-      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Defines.h">
@@ -179,12 +167,6 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.h">
-      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.h">
-      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Texture.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
@@ -195,6 +177,24 @@
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Buffer.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_CommandList.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_CommandList.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_CommandList.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Device.h">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Device.h">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Device.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
   </ItemGroup>
@@ -217,13 +217,7 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.cpp">
-      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommonState.cpp">
-      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Material.cpp">
@@ -252,9 +246,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Texture.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\Core\Core_RenderDevice.cpp">
-      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
     </ClCompile>
     <ClCompile Include="Source\App\TestScene.cpp">
       <Filter>ソース ファイル\App</Filter>
@@ -286,12 +277,6 @@
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_CommonState.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.cpp">
-      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.cpp">
-      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Texture.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
@@ -302,6 +287,21 @@
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Buffer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommandList.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_CommandList.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_Device.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Device.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Device.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
   </ItemGroup>

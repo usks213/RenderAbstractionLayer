@@ -1,12 +1,12 @@
 /*****************************************************************//**
- * \file   D3D11_RenderContext.h
- * \brief  DirectX11レンダーコンテキストクラス
+ * \file   D3D11_CommandList.h
+ * \brief  DirectX11レンダーコマンドリストクラス
  *
  * \author USAMI KOSHI
  * \date   2021/10/04
  *********************************************************************/
 
-#include "D3D11_RenderContext.h"
+#include "D3D11_CommandList.h"
 #include "D3D11_Renderer.h"
 
 #include "D3D11_Buffer.h"
@@ -61,7 +61,7 @@ namespace {
 //------------------------------------------------------------------------------
 
 /// @brief コンストラクタ
-D3D11RenderContext::D3D11RenderContext() :
+D3D11CommandList::D3D11CommandList() :
 	m_pRenderer(nullptr),
 	m_pDevice(nullptr),
 	m_pD3DContext(nullptr),
@@ -95,7 +95,7 @@ D3D11RenderContext::D3D11RenderContext() :
 /// @param pRenderer D3D11レンダラーポインタ
 /// @param pDevice D3D11デバイスポインタ
 /// @return 初期化: 成功 true | 失敗 false
-HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevice* pDevice)
+HRESULT D3D11CommandList::initialize(D3D11Renderer* pRenderer, D3D11Device* pDevice)
 {
 	//--- 初期化
 	m_pRenderer = pRenderer;
@@ -161,7 +161,7 @@ HRESULT D3D11RenderContext::initialize(D3D11Renderer* pRenderer, D3D11RenderDevi
 
 //----- リソース指定命令 -----
 
-void D3D11RenderContext::setMaterial(const core::MaterialID& materialID)
+void D3D11CommandList::setMaterial(const core::MaterialID& materialID)
 {
 	// マテリアルの取得
 	auto* d3dMat = static_cast<D3D11Material*>(m_pDevice->getMaterial(materialID));
@@ -225,9 +225,9 @@ void D3D11RenderContext::setMaterial(const core::MaterialID& materialID)
 	setMaterialResource(*d3dMat, *d3dShader);
 }
 
-void D3D11RenderContext::setRenderBuffer(const core::RenderBufferID& renderBufferID)
+void D3D11CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferID)
 {
-	auto* context = m_pD3DContext;
+	auto* cmdList = m_pD3DContext;
 
 	// データの取得
 	auto* renderBuffer = static_cast<D3D11RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
@@ -235,10 +235,10 @@ void D3D11RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 	// 頂点バッファをセット
 	UINT stride = static_cast<UINT>(renderBuffer->m_vertexData.size);
 	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, renderBuffer->m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	cmdList->IASetVertexBuffers(0, 1, renderBuffer->m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	// インデックスバッファをセット
 	if (renderBuffer->m_indexData.count > 0) {
-		context->IASetIndexBuffer(renderBuffer->m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		cmdList->IASetIndexBuffer(renderBuffer->m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	// プリミティブ指定
@@ -250,7 +250,7 @@ void D3D11RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 
 //----- バインド命令 -----
 
-void D3D11RenderContext::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D11CommandList::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
 	auto pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D11Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -309,12 +309,12 @@ void D3D11RenderContext::bindBuffer(const std::string& bindName, const core::Sha
 	}
 }
 
-void D3D11RenderContext::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D11CommandList::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
 
 }
 
-void D3D11RenderContext::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D11CommandList::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
 
 }
@@ -322,9 +322,9 @@ void D3D11RenderContext::bindSampler(const std::string& bindName, const core::Sh
 
 //----- 描画命令
 
-void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
+void D3D11CommandList::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
 {
-	auto* context = m_pD3DContext;
+	auto* cmdList = m_pD3DContext;
 
 	// データの取得
 	auto* renderBuffer = static_cast<D3D11RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
@@ -332,11 +332,11 @@ void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID, std:
 	// ポリゴンの描画
 	if (renderBuffer->m_indexData.count > 0)
 	{
-		context->DrawIndexedInstanced(renderBuffer->m_indexData.count, instanceCount, 0, 0, 0);
+		cmdList->DrawIndexedInstanced(renderBuffer->m_indexData.count, instanceCount, 0, 0, 0);
 	}
 	else
 	{
-		context->DrawInstanced(renderBuffer->m_vertexData.count, instanceCount, 0, 0);
+		cmdList->DrawInstanced(renderBuffer->m_vertexData.count, instanceCount, 0, 0);
 	}
 }
 
@@ -345,7 +345,7 @@ void D3D11RenderContext::render(const core::RenderBufferID& renderBufferID, std:
 // private methods 
 //------------------------------------------------------------------------------
 
-void D3D11RenderContext::setMaterialResource(const D3D11Material& d3dMaterial, const D3D11Shader& d3dShader)
+void D3D11CommandList::setMaterialResource(const D3D11Material& d3dMaterial, const D3D11Shader& d3dShader)
 {
 	auto& d3dMat = const_cast<D3D11Material&>(d3dMaterial);
 
@@ -384,7 +384,7 @@ void D3D11RenderContext::setMaterialResource(const D3D11Material& d3dMaterial, c
 	}
 }
 
-void D3D11RenderContext::setTextureResource(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
+void D3D11CommandList::setTextureResource(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
 {
 	auto stageIndex = static_cast<std::size_t>(stage);
 	if (m_curTexture[stageIndex][slot] == textureID) return;
@@ -405,7 +405,7 @@ void D3D11RenderContext::setTextureResource(std::uint32_t slot, const core::Text
 	}
 }
 
-void D3D11RenderContext::setSamplerResource(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)
+void D3D11CommandList::setSamplerResource(std::uint32_t slot, core::SamplerState state, core::ShaderStage stage)
 {
 	auto stageIndex = static_cast<size_t>(stage);
 	if (m_curSamplerState[stageIndex][slot] == state) {

@@ -1,12 +1,12 @@
 /*****************************************************************//**
- * \file   D3D12_RenderDevice.h
- * \brief  DirectX12レンダーデバイス
+ * \file   D3D12_Device.h
+ * \brief  DirectX12デバイス
  *
  * \author USAMI KOSHI
  * \date   2021/10/13
  *********************************************************************/
 
-#include "D3D12_RenderDevice.h"
+#include "D3D12_Device.h"
 #include <Engine/Utility/Util_Hash.h>
 
 #include <Renderer/D3D12/D3D12_Buffer.h>
@@ -25,7 +25,7 @@ using namespace d3d12;
  //------------------------------------------------------------------------------
 
 /// @brief コンストラクタ
-D3D12RenderDevice::D3D12RenderDevice() :
+D3D12Device::D3D12Device() :
 	m_pD3DDevice(nullptr),
 	//m_backBufferRT(nullptr),
 	//m_backBufferRTV(nullptr),
@@ -48,7 +48,7 @@ D3D12RenderDevice::D3D12RenderDevice() :
 /// @param width ウィンドウの幅
 /// @param height ウィンドウの高さ
 /// @return 初期化: 成功 true | 失敗 false
-HRESULT D3D12RenderDevice::initialize(ID3D12Device* pDevice, IDXGIFactory2* pFactory2,
+HRESULT D3D12Device::initialize(ID3D12Device* pDevice, IDXGIFactory2* pFactory2,
 	HWND hWnd, UINT width, UINT height)
 {
 	// 初期化
@@ -65,7 +65,7 @@ HRESULT D3D12RenderDevice::initialize(ID3D12Device* pDevice, IDXGIFactory2* pFac
 
 //----- リソース生成 -----
 
-core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
+core::BufferID D3D12Device::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
 {
 	// IDの取得
 	BufferID id = static_cast<BufferID>(hash::stringHash(desc.name));
@@ -79,7 +79,7 @@ core::BufferID D3D12RenderDevice::createBuffer(core::BufferDesc& desc, const cor
 
 	return id;
 }
-core::DepthStencilID D3D12RenderDevice::createDepthStencil(core::TextureDesc& desc)
+core::DepthStencilID D3D12Device::createDepthStencil(core::TextureDesc& desc)
 {
 	// IDの取得
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -101,7 +101,7 @@ core::DepthStencilID D3D12RenderDevice::createDepthStencil(core::TextureDesc& de
 
 	return id;
 }
-core::MaterialID D3D12RenderDevice::createMaterial(std::string name, core::ShaderID& shaderID)
+core::MaterialID D3D12Device::createMaterial(std::string name, core::ShaderID& shaderID)
 {
 	// IDの取得
 	MaterialID id = static_cast<MaterialID>(hash::stringHash(name));
@@ -120,7 +120,7 @@ core::MaterialID D3D12RenderDevice::createMaterial(std::string name, core::Shade
 
 	return id;
 }
-core::MeshID D3D12RenderDevice::createMesh(std::string name)
+core::MeshID D3D12Device::createMesh(std::string name)
 {
 	// IDの取得
 	MeshID id = static_cast<MeshID>(hash::stringHash(name));
@@ -134,7 +134,7 @@ core::MeshID D3D12RenderDevice::createMesh(std::string name)
 
 	return id;
 }
-core::RenderBufferID D3D12RenderDevice::createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID)
+core::RenderBufferID D3D12Device::createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID)
 {
 	// シェーダー取得
 	auto* shader = getShader(shaderID);
@@ -157,7 +157,7 @@ core::RenderBufferID D3D12RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D12RenderDevice::createRenderTarget(core::TextureDesc& desc)
+core::RenderTargetID D3D12Device::createRenderTarget(core::TextureDesc& desc)
 {
 	// IDの取得
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
@@ -179,7 +179,7 @@ core::RenderTargetID D3D12RenderDevice::createRenderTarget(core::TextureDesc& de
 
 	return id;
 }
-core::ShaderID D3D12RenderDevice::createShader(core::ShaderDesc& desc)
+core::ShaderID D3D12Device::createShader(core::ShaderDesc& desc)
 {
 	// IDの取得
 	ShaderID id = static_cast<ShaderID>(hash::stringHash(desc.m_name));
@@ -193,7 +193,7 @@ core::ShaderID D3D12RenderDevice::createShader(core::ShaderDesc& desc)
 
 	return id;
 }
-core::TextureID D3D12RenderDevice::createTexture(std::string filePath)
+core::TextureID D3D12Device::createTexture(std::string filePath)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(filePath));
@@ -207,7 +207,7 @@ core::TextureID D3D12RenderDevice::createTexture(std::string filePath)
 
 	return id;
 }
-core::TextureID D3D12RenderDevice::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
+core::TextureID D3D12Device::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));
@@ -230,7 +230,7 @@ core::TextureID D3D12RenderDevice::createTexture(core::TextureDesc& desc, const 
 
 /// @brief 共通ステートの生成
 /// @return HRESULT
-HRESULT D3D12RenderDevice::createCommonState()
+HRESULT D3D12Device::createCommonState()
 {
 	// ラスタライザステート作成
 	{
@@ -396,7 +396,7 @@ HRESULT D3D12RenderDevice::createCommonState()
 	return S_OK;
 }
 
-D3D12Texture* D3D12RenderDevice::createD3D12Texture(core::TextureDesc& desc, D3D12_CLEAR_VALUE* pClear)
+D3D12Texture* D3D12Device::createD3D12Texture(core::TextureDesc& desc, D3D12_CLEAR_VALUE* pClear)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));
@@ -412,4 +412,66 @@ D3D12Texture* D3D12RenderDevice::createD3D12Texture(core::TextureDesc& desc, D3D
 	m_texturePool[id] = std::move(pD3D12Tex);
 
 	return pTex;
+}
+
+ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat)
+{
+	// グラフィクスパイプラインを検索
+	auto pipelineID = d3d12Mat.m_id;
+	auto itr = m_pPipelineState.find(pipelineID);
+
+	// パイプラインステートを新規作成
+	if (m_pPipelineState.end() == itr)
+	{
+		// グラフィクスパイプラインの作成
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
+		// シグネチャー
+		gpipeline.pRootSignature = d3d12Shader.m_pRootSignature.Get();
+		// 各シェーダー
+		gpipeline.VS.pShaderBytecode = d3d12Shader.m_pShaderBlob[0]->GetBufferPointer();
+		gpipeline.VS.BytecodeLength = d3d12Shader.m_pShaderBlob[0]->GetBufferSize();
+		gpipeline.PS.pShaderBytecode = d3d12Shader.m_pShaderBlob[4]->GetBufferPointer();
+		gpipeline.PS.BytecodeLength = d3d12Shader.m_pShaderBlob[4]->GetBufferSize();
+		// ストリームアウトプット
+		gpipeline.StreamOutput;
+		// ブレンドステイト
+		gpipeline.BlendState = m_blendStates[static_cast<std::size_t>(d3d12Mat.m_blendState)];
+		// サンプルマスク
+		gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		// ラスタライザーステート
+		gpipeline.RasterizerState = m_rasterizeStates[static_cast<std::size_t>(d3d12Mat.m_rasterizeState)];
+		// デプスステンシルステート
+		gpipeline.DepthStencilState = m_depthStencilStates[static_cast<std::size_t>(d3d12Mat.m_depthStencilState)];
+		// インプットレイアウト
+		gpipeline.InputLayout.pInputElementDescs = d3d12Shader.m_inputElementDesc.data();
+		gpipeline.InputLayout.NumElements = d3d12Shader.m_inputElementDesc.size();
+		// ストリップカット
+		gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+		// プリミティブトポロジータイプ
+		gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		// レンダーターゲット数
+		gpipeline.NumRenderTargets = 1;
+		// 各レンダーターゲットフォーマット
+		gpipeline.RTVFormats[0] = m_backBufferFormat;
+		// デプスステンシルフォーマット
+		gpipeline.DSVFormat = m_depthStencilFormat;
+		// サンプルDesc
+		gpipeline.SampleDesc.Count = m_sampleDesc.count;
+		gpipeline.SampleDesc.Quality = m_sampleDesc.quality;
+		// ノードマスク
+		gpipeline.NodeMask;
+		// キャッシュPSO
+		gpipeline.CachedPSO;
+		// パイプラインフラグ
+		gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		//gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
+
+		// パイプラインステート作成
+		ID3D12PipelineState* pPipelinestate = nullptr;
+		CHECK_FAILED(m_pD3DDevice->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pPipelinestate)));
+		if (pPipelinestate)
+			m_pPipelineState.emplace(pipelineID, pPipelinestate);
+	}
+
+	return m_pPipelineState[pipelineID].Get();
 }

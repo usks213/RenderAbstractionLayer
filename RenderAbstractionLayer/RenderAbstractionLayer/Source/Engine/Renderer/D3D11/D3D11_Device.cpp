@@ -1,12 +1,12 @@
 /*****************************************************************//**
- * \file   D3D11_RenderDevice.cpp
- * \brief  DirectX11レンダーデバイス
+ * \file   D3D11_Device.cpp
+ * \brief  DirectX11デバイス
  * 
  * \author USAMI KOSHI
  * \date   2021/10/04
  *********************************************************************/
 
-#include "D3D11_RenderDevice.h"
+#include "D3D11_Device.h"
 #include <Engine/Utility/Util_Hash.h>
 
 #include <Renderer/D3D11/D3D11_Buffer.h>
@@ -25,7 +25,7 @@ using namespace d3d11;
  //------------------------------------------------------------------------------
 
 /// @brief コンストラクタ
-D3D11RenderDevice::D3D11RenderDevice() :
+D3D11Device::D3D11Device() :
 	m_pD3DDevice(nullptr),
 	m_backBufferRT(nullptr),
 	m_backBufferRTV(nullptr),
@@ -48,7 +48,7 @@ D3D11RenderDevice::D3D11RenderDevice() :
 /// @param width ウィンドウの幅
 /// @param height ウィンドウの高さ
 /// @return 初期化: 成功 true | 失敗 false
-HRESULT D3D11RenderDevice::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2,
+HRESULT D3D11Device::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2,
 	HWND hWnd, UINT width, UINT height)
 {
 	// 初期化
@@ -68,7 +68,7 @@ HRESULT D3D11RenderDevice::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFa
 
 //----- リソース生成 -----
 
-core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
+core::BufferID D3D11Device::createBuffer(core::BufferDesc& desc, const core::BufferData* pData)
 {
 	// IDの取得
 	BufferID id = static_cast<BufferID>(hash::stringHash(desc.name));
@@ -82,7 +82,7 @@ core::BufferID D3D11RenderDevice::createBuffer(core::BufferDesc& desc, const cor
 
 	return id;
 }
-core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& desc)
+core::DepthStencilID D3D11Device::createDepthStencil(core::TextureDesc& desc)
 {
 	// IDの取得
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -100,7 +100,7 @@ core::DepthStencilID D3D11RenderDevice::createDepthStencil(core::TextureDesc& de
 
 	return id;
 }
-core::MaterialID D3D11RenderDevice::createMaterial(std::string name, core::ShaderID& shaderID)
+core::MaterialID D3D11Device::createMaterial(std::string name, core::ShaderID& shaderID)
 {
 	// IDの取得
 	MaterialID id = static_cast<MaterialID>(hash::stringHash(name));
@@ -119,7 +119,7 @@ core::MaterialID D3D11RenderDevice::createMaterial(std::string name, core::Shade
 
 	return id;
 }
-core::MeshID D3D11RenderDevice::createMesh(std::string name)
+core::MeshID D3D11Device::createMesh(std::string name)
 {
 	// IDの取得
 	MeshID id = static_cast<MeshID>(hash::stringHash(name));
@@ -133,7 +133,7 @@ core::MeshID D3D11RenderDevice::createMesh(std::string name)
 
 	return id;
 }
-core::RenderBufferID D3D11RenderDevice::createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID)
+core::RenderBufferID D3D11Device::createRenderBuffer(core::ShaderID& shaderID, core::MeshID& meshID)
 {
 	// シェーダー取得
 	auto* shader = getShader(shaderID);
@@ -156,7 +156,7 @@ core::RenderBufferID D3D11RenderDevice::createRenderBuffer(core::ShaderID& shade
 
 	return id;
 }
-core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& desc)
+core::RenderTargetID D3D11Device::createRenderTarget(core::TextureDesc& desc)
 {
 	// IDの取得
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
@@ -174,7 +174,7 @@ core::RenderTargetID D3D11RenderDevice::createRenderTarget(core::TextureDesc& de
 
 	return id;
 }
-core::ShaderID D3D11RenderDevice::createShader(core::ShaderDesc& desc)
+core::ShaderID D3D11Device::createShader(core::ShaderDesc& desc)
 {
 	// IDの取得
 	ShaderID id = static_cast<ShaderID>(hash::stringHash(desc.m_name));
@@ -188,7 +188,7 @@ core::ShaderID D3D11RenderDevice::createShader(core::ShaderDesc& desc)
 
 	return id;
 }
-core::TextureID D3D11RenderDevice::createTexture(std::string filePath)
+core::TextureID D3D11Device::createTexture(std::string filePath)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(filePath));
@@ -202,7 +202,7 @@ core::TextureID D3D11RenderDevice::createTexture(std::string filePath)
 
 	return id;
 }
-core::TextureID D3D11RenderDevice::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
+core::TextureID D3D11Device::createTexture(core::TextureDesc& desc, const core::TextureData* pData)
 {
 	// IDの取得
 	TextureID id = static_cast<TextureID>(hash::stringHash(desc.name));
@@ -224,7 +224,7 @@ core::TextureID D3D11RenderDevice::createTexture(core::TextureDesc& desc, const 
 
 /// @brief スワップチェーンとバッファの生成
 /// @return HRESULT
-HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
+HRESULT D3D11Device::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 {
 	HRESULT hr = S_OK;
 	HWND &hWnd = m_hWnd;
@@ -337,7 +337,7 @@ HRESULT D3D11RenderDevice::createSwapChainAndBuffer(IDXGIFactory2* pFactory2)
 
 /// @brief 共通ステートの生成
 /// @return HRESULT
-HRESULT D3D11RenderDevice::createCommonState()
+HRESULT D3D11Device::createCommonState()
 {
 	// ラスタライザステート作成
 	{

@@ -26,7 +26,7 @@
     <ClCompile Include="Source\Engine\Platform\Core\Core_Window.cpp" />
     <ClCompile Include="Source\Engine\Platform\Win\Win_Window.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Material.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\Core\Core_RenderDevice.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Core\Core_Device.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Core\Core_Shader.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Buffer.cpp" />
@@ -35,8 +35,8 @@
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_CommandList.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Device.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D11\D3D11_Shader.cpp" />
@@ -49,8 +49,8 @@
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Defines.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderBuffer.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_CommandList.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Device.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Shader.cpp" />
     <ClCompile Include="Source\Engine\Utility\Util_Mathf.cpp" />
@@ -69,8 +69,8 @@
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Material.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Mesh.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderBuffer.h" />
-    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderContext.h" />
-    <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderDevice.h" />
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_CommandList.h" />
+    <ClInclude Include="Source\Engine\Renderer\Core\Core_Device.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\Core\Core_Shader.h" />
@@ -83,8 +83,8 @@
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_DepthStencil.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Material.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderBuffer.h" />
-    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderContext.h" />
-    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderDevice.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_CommandList.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Device.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_RenderTarget.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D11\D3D11_Shader.h" />
@@ -97,8 +97,8 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Defines.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Material.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderBuffer.h" />
-    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderContext.h" />
-    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_RenderDevice.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_CommandList.h" />
+    <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Device.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Shader.h" />
     <ClInclude Include="Source\Engine\Scene\Core_Scene.h" />

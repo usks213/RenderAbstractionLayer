@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   Core_RenderContext.h
- * \brief  レンダーコンテキストクラス
+ * \file   Core_CommandList.h
+ * \brief  レンダーコマンドリストクラス
  *
  * \author USAMI KOSHI
  * \date   2021/10/04
@@ -19,9 +19,9 @@
 
 namespace core
 {
-	/// @class CoreRenderContext
-	/// @brief レンダーコンテキスト
-	class CoreRenderContext
+	/// @class CoreCommandList
+	/// @brief レンダーコマンドリスト
+	class CoreCommandList
 	{
 		friend class CoreRenderer;
 	public:
@@ -31,12 +31,12 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit CoreRenderContext()
+		explicit CoreCommandList()
 		{
 		}
 
 		/// @brief デストラクタ
-		virtual ~CoreRenderContext() noexcept = default;
+		virtual ~CoreCommandList() noexcept = default;
 
 
 		//----- リソース指定命令 -----

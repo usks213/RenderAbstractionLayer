@@ -10,8 +10,8 @@
 #define _D3D11_RENDERER_
 
 #include <Renderer/Core/Core_Renderer.h>
-#include <Renderer/D3D11/D3D11_RenderDevice.h>
-#include <Renderer/D3D11/D3D11_RenderContext.h>
+#include <Renderer/D3D11/D3D11_Device.h>
+#include <Renderer/D3D11/D3D11_CommandList.h>
 
 namespace d3d11
 {
@@ -46,16 +46,16 @@ namespace d3d11
 
 		/// @brief デバイスの取得
 		/// @return デバイスのポインタ
-		core::CoreRenderDevice* getDevice() override
+		core::CoreDevice* getDevice() override
 		{
 			return &m_device;
 		}
 
-		/// @brief コンテキストの取得
-		/// @return コンテキストのポインタ 
-		core::CoreRenderContext* getContext() override
+		/// @brief コマンドリストの取得
+		/// @return コマンドリストのポインタ 
+		core::CoreCommandList* getContext() override
 		{
-			return &m_context;
+			return &m_cmdList;
 		}
 
 		/// @brief コピーコンストラクタ削除
@@ -68,7 +68,7 @@ namespace d3d11
 		// private methods
 		//------------------------------------------------------------------------------
 
-		/// @brief デバイスとコンテキストの生成
+		/// @brief デバイスとコマンドリストの生成
 		/// @return HRESULT
 		HRESULT createDiveceAndContext(HWND hWnd);
 
@@ -77,13 +77,13 @@ namespace d3d11
 		// private variables
 		//------------------------------------------------------------------------------
 
-		D3D11RenderDevice					m_device;				///< デバイスクラス
-		D3D11RenderContext					m_context;				///< コンテストクラス
+		D3D11Device					m_device;				///< デバイスクラス
+		D3D11CommandList					m_cmdList;				///< コンテストクラス
 
 		ComPtr<ID3D11Device1>				m_d3dDevice;			///< デバイス
 		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;		///< アノテーション
-		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコンテキスト
-		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コンテキスト
+		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコマンドリスト
+		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コマンドリスト
 
 		ComPtr<IDXGIFactory2>				m_dxgiFactory;			///< ファクトリー
 

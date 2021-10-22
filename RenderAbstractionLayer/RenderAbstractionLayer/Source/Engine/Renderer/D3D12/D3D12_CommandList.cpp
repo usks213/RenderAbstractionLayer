@@ -1,14 +1,14 @@
 /*****************************************************************//**
- * \file   D3D12_RenderContext.h
- * \brief  DiectX12レンダーコンテキスト
+ * \file   D3D12_CommandList.h
+ * \brief  DiectX12レンダーコマンドリスト
  *
  * \author USAMI KOSHI
  * \date   2021/10/13
  *********************************************************************/
 
-#include "D3D12_RenderContext.h"
+#include "D3D12_CommandList.h"
 #include "D3D12_Renderer.h"
-#include "D3D12_RenderDevice.h"
+#include "D3D12_Device.h"
 
 #include "D3D12_Buffer.h"
 #include "D3D12_RenderBuffer.h"
@@ -29,7 +29,7 @@ using namespace d3d12;
 //------------------------------------------------------------------------------
 
 /// @brief コンストラクタ
-D3D12RenderContext::D3D12RenderContext() :
+D3D12CommandList::D3D12CommandList() :
 	m_pRenderer(nullptr),
 	m_pDevice(nullptr)
 {
@@ -39,18 +39,38 @@ D3D12RenderContext::D3D12RenderContext() :
 /// @param pRenderer D3D12レンダラーポインタ
 /// @param pDevice D3D12デバイスポインタ
 /// @return 初期化: 成功 true | 失敗 false
-HRESULT D3D12RenderContext::initialize(D3D12Renderer* pRenderer, D3D12RenderDevice* pDevice)
+HRESULT D3D12CommandList::initialize(D3D12Renderer* pRenderer, D3D12Device* pDevice)
 {
 	//--- 初期化
 	m_pRenderer = pRenderer;
 	m_pDevice = pDevice;
+
+	//----- コマンドキュー・コマンドアロケーター・コマンドリスト -----
+	HRESULT hr = S_OK;
+	D3D12_COMMAND_LIST_TYPE cmdType = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	UINT nodeMask = 0;
+
+	// コマンドアロケーターの生成
+	{
+		hr = pDevice->m_pD3DDevice->CreateCommandAllocator(cmdType,
+			IID_PPV_ARGS(m_pCmdAllocator.ReleaseAndGetAddressOf()));
+		CHECK_FAILED(hr);
+	}
+
+	// コマンドリストの生成
+	{
+		hr = pDevice->m_pD3DDevice->CreateCommandList(nodeMask, cmdType, m_pCmdAllocator.Get(),
+			nullptr, IID_PPV_ARGS(m_pCmdList.ReleaseAndGetAddressOf()));
+		CHECK_FAILED(hr);
+		m_pCmdList->Close();
+	}
 
 	return S_OK;
 }
 
 //----- リソース指定命令 -----
 
-void D3D12RenderContext::setMaterial(const core::MaterialID& materialID)
+void D3D12CommandList::setMaterial(const core::MaterialID& materialID)
 {
 	// マテリアルの取得
 	auto* d3dMat = static_cast<D3D12Material*>(m_pDevice->getMaterial(materialID));
@@ -61,7 +81,10 @@ void D3D12RenderContext::setMaterial(const core::MaterialID& materialID)
 	if (d3dShader == nullptr) return;
 
 	// パイプラインステートの指定
-	setPipelineState(*d3dShader, *d3dMat);
+	auto pipelineState = m_pDevice->createPipelineState(*d3dShader, *d3dMat);
+	m_pCmdList->SetPipelineState(pipelineState);
+	// ルートシグネチャーのセット
+	m_pCmdList->SetGraphicsRootSignature(d3dShader->m_pRootSignature.Get());
 
 	// ステージごと
 	UINT rootIndex = 0;
@@ -111,7 +134,7 @@ void D3D12RenderContext::setMaterial(const core::MaterialID& materialID)
 	}
 }
 
-void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBufferID)
+void D3D12CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferID)
 {
 	// データの取得
 	auto* renderBuffer = static_cast<D3D12RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
@@ -132,7 +155,7 @@ void D3D12RenderContext::setRenderBuffer(const core::RenderBufferID& renderBuffe
 
 //----- バインド命令 -----
 
-void D3D12RenderContext::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D12CommandList::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
 {
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D12Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -205,7 +228,7 @@ void D3D12RenderContext::bindBuffer(const std::string& bindName, const core::Sha
 	}
 }
 
-void D3D12RenderContext::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D12CommandList::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
 {
 	constexpr auto type = static_cast<std::size_t>(BindType::TEXTURE);
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
@@ -230,7 +253,7 @@ void D3D12RenderContext::bindTexture(const std::string& bindName, const core::Sh
 	}
 }
 
-void D3D12RenderContext::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D12CommandList::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
 {
 	//constexpr auto type = static_cast<std::size_t>(SHADER::BindType::SAMPLER);
 	//auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
@@ -257,7 +280,7 @@ void D3D12RenderContext::bindSampler(const std::string& bindName, const core::Sh
 
 //----- 描画命令
 
-void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
+void D3D12CommandList::render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount)
 {
 	// データの取得
 	auto* renderBuffer = static_cast<D3D12RenderBuffer*>(m_pDevice->getRenderBuffer(renderBufferID));
@@ -278,78 +301,12 @@ void D3D12RenderContext::render(const core::RenderBufferID& renderBufferID, std:
 // private methods 
 //------------------------------------------------------------------------------
 
-void D3D12RenderContext::setPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat)
-{
-	// グラフィクスパイプラインを検索
-	auto pipelineID = d3d12Shader.m_id;
-	auto itr = m_pPipelineState.find(pipelineID);
-
-	// パイプラインステートを新規作成
-	if (m_pPipelineState.end() == itr)
-	{
-		// グラフィクスパイプラインの作成
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
-		// シグネチャー
-		gpipeline.pRootSignature = d3d12Shader.m_pRootSignature.Get();
-		// 各シェーダー
-		gpipeline.VS.pShaderBytecode = d3d12Shader.m_pShaderBlob[0]->GetBufferPointer();
-		gpipeline.VS.BytecodeLength = d3d12Shader.m_pShaderBlob[0]->GetBufferSize();
-		gpipeline.PS.pShaderBytecode = d3d12Shader.m_pShaderBlob[4]->GetBufferPointer();
-		gpipeline.PS.BytecodeLength = d3d12Shader.m_pShaderBlob[4]->GetBufferSize();
-		// ストリームアウトプット
-		gpipeline.StreamOutput;
-		// ブレンドステイト
-		gpipeline.BlendState = m_pDevice->m_blendStates[static_cast<std::size_t>(d3d12Mat.m_blendState)];
-		// サンプルマスク
-		gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		// ラスタライザーステート
-		gpipeline.RasterizerState = m_pDevice->m_rasterizeStates[static_cast<std::size_t>(d3d12Mat.m_rasterizeState)];
-		// デプスステンシルステート
-		gpipeline.DepthStencilState = m_pDevice->m_depthStencilStates[static_cast<std::size_t>(d3d12Mat.m_depthStencilState)];
-		// インプットレイアウト
-		gpipeline.InputLayout.pInputElementDescs = d3d12Shader.m_inputElementDesc.data();
-		gpipeline.InputLayout.NumElements = d3d12Shader.m_inputElementDesc.size();
-		// ストリップカット
-		gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-		// プリミティブトポロジータイプ
-		gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		// レンダーターゲット数
-		gpipeline.NumRenderTargets = 1;
-		// 各レンダーターゲットフォーマット
-		gpipeline.RTVFormats[0] = m_pDevice->m_backBufferFormat;
-		// デプスステンシルフォーマット
-		gpipeline.DSVFormat = m_pDevice->m_depthStencilFormat;
-		// サンプルDesc
-		gpipeline.SampleDesc.Count = m_pDevice->m_sampleDesc.count;
-		gpipeline.SampleDesc.Quality = m_pDevice->m_sampleDesc.quality;
-		// ノードマスク
-		gpipeline.NodeMask;
-		// キャッシュPSO
-		gpipeline.CachedPSO;
-		// パイプラインフラグ
-		gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		//gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
-
-		// パイプラインステート作成
-		ID3D12PipelineState* pPipelinestate = nullptr;
-		CHECK_FAILED(m_pDevice->m_pD3DDevice->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pPipelinestate)));
-		if (pPipelinestate)
-			m_pPipelineState.emplace(pipelineID, pPipelinestate);
-	}
-
-	// パイプラインステートのセット
-	m_pCmdList->SetPipelineState(m_pPipelineState[pipelineID].Get());
-	// ルートシグネチャーのセット
-	m_pCmdList->SetGraphicsRootSignature(d3d12Shader.m_pRootSignature.Get());
-
-}
-
-void D3D12RenderContext::setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID)
+void D3D12CommandList::setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID)
 {
 
 }
 
-void D3D12RenderContext::setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID)
+void D3D12CommandList::setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID)
 {
 	D3D12Texture* pD3DTex = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
 
@@ -369,7 +326,7 @@ void D3D12RenderContext::setTextureResource(std::uint32_t rootIndex, const core:
 	}
 }
 
-void D3D12RenderContext::setSamplerResource(std::uint32_t slot, core::SamplerState state)
+void D3D12CommandList::setSamplerResource(std::uint32_t slot, core::SamplerState state)
 {
 
 }

@@ -47,7 +47,7 @@ namespace {
 /// @brief  コンストラクタ
 /// @param device デバイス
 /// @param desc シェーダ情報
-D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const core::ShaderID& id) :
+D3D12Shader::D3D12Shader(D3D12Device* device, core::ShaderDesc desc, const core::ShaderID& id) :
 	core::CoreShader(desc, id),
 	m_pShaderBlob(),
 	m_inputElementDesc()
@@ -405,7 +405,7 @@ D3D12Shader::D3D12Shader(D3D12RenderDevice* device, core::ShaderDesc desc, const
 
 
 /// @brief ルートシグネチャーの生成
-void D3D12Shader::CreateRootSignature(D3D12RenderDevice* device)
+void D3D12Shader::CreateRootSignature(D3D12Device* device)
 {
 	// 全ディスクリプタレンジ・パラメータ
 	std::vector<D3D12_DESCRIPTOR_RANGE>		aRanges;

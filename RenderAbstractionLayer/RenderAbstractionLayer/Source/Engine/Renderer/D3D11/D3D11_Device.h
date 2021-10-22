@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   D3D11_RenderDevice.h
- * \brief  DirectX11レンダーデバイスクラス
+ * \file   D3D11_Device.h
+ * \brief  DirectX11デバイスクラス
  * 
  * \author USAMI KOSHI
  * \date   2021/10/04
@@ -9,7 +9,7 @@
 #ifndef _D3D11_RENDER_DEVICE_
 #define _D3D11_RENDER_DEVICE_
 
-#include <Renderer/Core/Core_RenderDevice.h>
+#include <Renderer/Core/Core_Device.h>
 #include "D3D11_CommonState.h"
 
 namespace d3d11
@@ -17,22 +17,22 @@ namespace d3d11
 	// 前定義
 	class D3D11Renderer;
 
-	/// @class D3D11RenderDevice
-	/// @brief D3D11レンダーデバイス
-	class D3D11RenderDevice final : public core::CoreRenderDevice
+	/// @class D3D11Device
+	/// @brief D3D11デバイス
+	class D3D11Device final : public core::CoreDevice
 	{
 		friend class D3D11Renderer;
-		friend class D3D11RenderContext;
+		friend class D3D11CommandList;
 	public:
 		//------------------------------------------------------------------------------
 		// public methods
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit D3D11RenderDevice();
+		explicit D3D11Device();
 
 		/// @brief デストラクタ
-		~D3D11RenderDevice() noexcept = default;
+		~D3D11Device() noexcept = default;
 
 		/// @brief 初期化処理
 		/// @param pDevice D3D11デバイスポインタ

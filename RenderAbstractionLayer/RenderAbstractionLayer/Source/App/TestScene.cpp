@@ -10,8 +10,8 @@
 
 #include <Engine/Core_Engine.h>
 #include <Renderer/Core/Core_Renderer.h>
-#include <Renderer/Core/Core_RenderDevice.h>
-#include <Renderer/Core/Core_RenderContext.h>
+#include <Renderer/Core/Core_Device.h>
+#include <Renderer/Core/Core_CommandList.h>
 
 #include "Geometry.h"
 
@@ -28,7 +28,7 @@ void TestScene::Start()
 {
 	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	auto* device = renderer->getDevice();
-	auto* context = renderer->getContext();
+	auto* cmdList = renderer->getContext();
 
 	// テクスチャの生成
 	uint32_t texWidth = 256u;
@@ -107,7 +107,7 @@ void TestScene::Start()
 	pUnlitMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
 	g_shaderID = unlitShaderID;
 
-	//context->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
+	//cmdList->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
 	g_matID = unlitMatID;
 
 	// メッシュの生成
@@ -138,7 +138,7 @@ void TestScene::Update()
 {
 	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	//auto* device = renderer->getDevice();
-	//auto* context = renderer->getContext();
+	//auto* cmdList = renderer->getContext();
 
 }
 
@@ -147,7 +147,7 @@ void TestScene::Render()
 {
 	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	auto* device = renderer->getDevice();
-	auto* context = renderer->getContext();
+	auto* cmdList = renderer->getContext();
 
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
@@ -175,7 +175,7 @@ void TestScene::Render()
 	systemBuffer._mView = view.Transpose();
 	systemBuffer._mProj = proj.Transpose();
 
-	//context->sendSystemBuffer(systemBuffer);
+	//cmdList->sendSystemBuffer(systemBuffer);
 	static float angleY = 0;
 	angleY += 0.01f;
 	float y = -8;
@@ -196,25 +196,25 @@ void TestScene::Render()
 	}
 
 	pWorldBuffer->UpdateBuffer(aWorld.data(), sizeof(Matrix) * MAX_WORLD);
-	//context->sendTransformBuffer(world);
+	//cmdList->sendTransformBuffer(world);
 	//pUnlitMat->setMatrix("_mWorld", world);
 	pUnlitMat->setMatrix("_mView", view);
 	pUnlitMat->setMatrix("_mProj", proj);
 	//pUnlitMat->setTexture("_Texture", g_texID);
 
 	// マテリアルの指定
-	context->setMaterial(g_matID);
+	cmdList->setMaterial(g_matID);
 
 	// レンダーバッファの指定
-	context->setRenderBuffer(g_rdID);
+	cmdList->setRenderBuffer(g_rdID);
 
 	// バッファ指定
-	context->setBuffer("World", g_shaderID, g_worldID);
+	cmdList->bindBuffer("World", g_shaderID, g_worldID);
 
 	// 描画
 	//for (int i = 0; i < 100; ++i)
 	{
-		context->render(g_rdID, MAX_WORLD);
+		cmdList->render(g_rdID, MAX_WORLD);
 	}
 }
 

@@ -15,8 +15,8 @@ namespace core
 {
 	// 前宣言
 	class CoreEngine;
-	class CoreRenderDevice;
-	class CoreRenderContext;
+	class CoreDevice;
+	class CoreCommandList;
 
 	/// @brief レンダラーのベースクラス
 	/// @class CoreRenderer
@@ -28,7 +28,11 @@ namespace core
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit CoreRenderer() = default;
+		explicit CoreRenderer() :
+			m_pCoreEngine(nullptr)
+		{
+		}
+
 		/// @brief デストラクタ
 		virtual ~CoreRenderer() noexcept = default;
 
@@ -51,11 +55,11 @@ namespace core
 
 		/// @brief デバイスの取得
 		/// @return デバイスのポインタ
-		virtual CoreRenderDevice* getDevice() = 0;
+		virtual CoreDevice* getDevice() = 0;
 
-		/// @brief コンテキストの取得
-		/// @return コンテキストのポインタ
-		virtual CoreRenderContext* getContext() = 0;
+		/// @brief コマンドリストの取得
+		/// @return コマンドリストのポインタ
+		virtual CoreCommandList* getContext() = 0;
 
 		/// @brief コピーコンストラクタ削除
 		CoreRenderer(const CoreRenderer&) = delete;

@@ -1,6 +1,6 @@
 /*****************************************************************//**
- * \file   D3D11_RenderContext.h
- * \brief  DirectX11レンダーコンテキストクラス
+ * \file   D3D11_CommandList.h
+ * \brief  DirectX11レンダーコマンドリストクラス
  *
  * \author USAMI KOSHI
  * \date   2021/10/04
@@ -9,7 +9,7 @@
 #ifndef _D3D11_RENDER_CONTEXT_
 #define _D3D11_RENDER_CONTEXT_
 
-#include <Renderer/Core/Core_RenderContext.h>
+#include <Renderer/Core/Core_CommandList.h>
 #include <Renderer/D3D11/D3D11_Shader.h>
 #include <Renderer/D3D11/D3D11_Material.h>
 
@@ -18,11 +18,11 @@ namespace d3d11
 {
 	// 前定義
 	class D3D11Renderer;
-	class D3D11RenderDevice;
+	class D3D11Device;
 
-	/// @class D3D11RenderContext
-	/// @brief DirectX11レンダーコンテキスト
-	class D3D11RenderContext final : public core::CoreRenderContext
+	/// @class D3D11CommandList
+	/// @brief DirectX11レンダーコマンドリスト
+	class D3D11CommandList final : public core::CoreCommandList
 	{
 		friend class D3D11Renderer;
 	public:
@@ -31,16 +31,16 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 
 		/// @brief コンストラクタ
-		explicit D3D11RenderContext();
+		explicit D3D11CommandList();
 
 		/// @brief デストラクタ(デフォルト)
-		~D3D11RenderContext() noexcept = default;
+		~D3D11CommandList() noexcept = default;
 
 		/// @brief 初期化処理
 		/// @param pRenderer D3D11レンダラーポインタ
 		/// @param pDevice D3D11デバイスポインタ
 		/// @return 初期化: 成功 true | 失敗 false
-		HRESULT initialize(D3D11Renderer* pRenderer, D3D11RenderDevice* pDevice);
+		HRESULT initialize(D3D11Renderer* pRenderer, D3D11Device* pDevice);
 
 
 		//----- リソース指定命令 -----
@@ -78,10 +78,10 @@ namespace d3d11
 		//------------------------------------------------------------------------------
 
 		D3D11Renderer*						m_pRenderer;			///< レンダラー
-		D3D11RenderDevice*					m_pDevice;				///< デバイス
+		D3D11Device*					m_pDevice;				///< デバイス
 
-		ID3D11DeviceContext1*				m_pD3DContext;			///< デバイスコンテキスト
-		ID3D11DeviceContext1*				m_pD3DDeffered;			///< 遅延コンテキスト
+		ID3D11DeviceContext1*				m_pD3DContext;			///< デバイスコマンドリスト
+		ID3D11DeviceContext1*				m_pD3DDeffered;			///< 遅延コマンドリスト
 
 		//----- シェーダーバッファ
 		ComPtr<ID3D11Buffer>				m_systemBuffer;
