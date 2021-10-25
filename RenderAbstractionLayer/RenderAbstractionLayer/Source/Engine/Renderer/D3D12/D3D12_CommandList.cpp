@@ -155,7 +155,7 @@ void D3D12CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferI
 
 //----- バインド命令 -----
 
-void D3D12CommandList::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D12CommandList::bindGlobalBuffer(const core::ShaderID& shaderID, const std::string& bindName, const core::BufferID bufferID)
 {
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D12Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -228,7 +228,7 @@ void D3D12CommandList::bindBuffer(const std::string& bindName, const core::Shade
 	}
 }
 
-void D3D12CommandList::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D12CommandList::bindGlobalTexture(const core::ShaderID& shaderID, const std::string& bindName, const core::TextureID textureID)
 {
 	constexpr auto type = static_cast<std::size_t>(BindType::TEXTURE);
 	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
@@ -253,29 +253,29 @@ void D3D12CommandList::bindTexture(const std::string& bindName, const core::Shad
 	}
 }
 
-void D3D12CommandList::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D12CommandList::bindGlobalSampler(const core::ShaderID& shaderID, const std::string& bindName, const core::SamplerState sampler)
 {
-	//constexpr auto type = static_cast<std::size_t>(SHADER::BindType::SAMPLER);
-	//auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
-	//auto* pTexture = static_cast<D3D12Texture*>(m_pDevice->getTexture(textureID));
+	constexpr auto type = static_cast<std::size_t>(BindType::SAMPLER);
+	auto* pShader = static_cast<D3D12Shader*>(m_pDevice->getShader(shaderID));
+	const auto& samplerHandle = m_pDevice->m_dynamicSamplers[static_cast<size_t>(sampler)];
 
-	//for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	//{
-	//	if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
-	//	auto stageIndex = static_cast<std::size_t>(stage);
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
+		auto stageIndex = static_cast<std::size_t>(stage);
 
-	//	auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
-	//	if (pShader->m_staticBindData[stageIndex][type].end() != itr)
-	//	{
-	//		// ヒープ指定
-	//		m_pCmdList->SetDescriptorHeaps(1, pTexture->m_pTexHeap.GetAddressOf());
-	//		// Table
-	//		m_pCmdList->SetGraphicsRootDescriptorTable(
-	//			itr->second.rootIndex,
-	//			pTexture->m_pTexHeap->GetGPUDescriptorHandleForHeapStart());
-	//		break;
-	//	}
-	//}
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			// ヒープ指定
+			m_pCmdList->SetDescriptorHeaps(1, m_pDevice->m_pSamplerHeap.GetAddressOf());
+			// Table
+			m_pCmdList->SetGraphicsRootDescriptorTable(
+				itr->second.rootIndex,
+				samplerHandle);
+			break;
+		}
+	}
 }
 
 //----- 描画命令
@@ -303,7 +303,6 @@ void D3D12CommandList::render(const core::RenderBufferID& renderBufferID, std::u
 
 void D3D12CommandList::setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID)
 {
-
 }
 
 void D3D12CommandList::setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID)

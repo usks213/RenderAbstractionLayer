@@ -104,13 +104,19 @@ namespace d3d12
 		UINT									m_nOutputWidth;			///< 出力サイズ(幅)
 		UINT									m_nOutputHeight;		///< 出力サイズ(高さ)
 
+		// ステート
 		D3D12_RASTERIZER_DESC              	m_rasterizeStates[(size_t)core::RasterizeState::MAX];		///< ラスタライザステート
-		D3D12_STATIC_SAMPLER_DESC 			m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート
 		D3D12_BLEND_DESC                   	m_blendStates[(size_t)core::BlendState::MAX];				///< ブレンドステート
 		D3D12_DEPTH_STENCIL_DESC           	m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
 
+		// サンプラー
+		D3D12_STATIC_SAMPLER_DESC 			m_staticSamplers[(size_t)core::SamplerState::MAX];			///< 静的サンプラステート
+		D3D12_GPU_DESCRIPTOR_HANDLE			m_dynamicSamplers[(size_t)core::SamplerState::MAX];			///< ダイナックサンプラー
+		ComPtr<ID3D12DescriptorHeap>			m_pSamplerHeap;											///< サンプラーヒープ
+
 		// グラフィクスパイプラインステート
 		std::unordered_map<core::MaterialID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
+
 	};
 }
 

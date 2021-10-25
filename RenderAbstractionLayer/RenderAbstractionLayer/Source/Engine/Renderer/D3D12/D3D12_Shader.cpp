@@ -49,7 +49,7 @@ namespace {
 /// @param desc シェーダ情報
 D3D12Shader::D3D12Shader(D3D12Device* device, core::ShaderDesc desc, const core::ShaderID& id) :
 	core::CoreShader(desc, id),
-	m_pShaderBlob(),
+	m_pShaderBlob({nullptr,}),
 	m_inputElementDesc()
 {
 	// 初期化
@@ -471,22 +471,20 @@ void D3D12Shader::CreateRootSignature(D3D12Device* device)
 					// s
 					case static_cast<size_t>(BindType::SAMPLER) :
 					{
-						//D3D12_DESCRIPTOR_RANGE range = {};
-						//range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-						//range.NumDescriptors = bindData.second.slot;
-						//range.BaseShaderRegister = bindData.second.space;
-						//range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-						//aRanges.push_back(range);
+						D3D12_DESCRIPTOR_RANGE range = {};
+						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+						range.NumDescriptors = bindData.second.slot;
+						range.BaseShaderRegister = bindData.second.space;
+						range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+						aRanges.push_back(range);
 
-						//D3D12_ROOT_PARAMETER param = {};
-						//param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-						//param.DescriptorTable.pDescriptorRanges = &aRanges.back();
-						//param.DescriptorTable.NumDescriptorRanges = 1;
-						//param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
-						//aParameters.push_back(param);
+						D3D12_ROOT_PARAMETER param = {};
+						param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+						param.DescriptorTable.pDescriptorRanges = &aRanges.back();
+						param.DescriptorTable.NumDescriptorRanges = 1;
+						param.ShaderVisibility = SHADER_VISIBILITYS[stageIndex];
+						aParameters.push_back(param);
 
-						aSamplers.push_back(device->m_samplerStates[
-							static_cast<size_t>(core::SamplerState::LINEAR_WRAP)]);
 						break;
 					}
 					// t
@@ -563,7 +561,7 @@ void D3D12Shader::CreateRootSignature(D3D12Device* device)
 					// s
 					case static_cast<size_t>(BindType::SAMPLER) :
 					{
-						aSamplers.push_back(device->m_samplerStates[
+						aSamplers.push_back(device->m_staticSamplers[
 							static_cast<size_t>(core::SamplerState::LINEAR_WRAP)]);
 						break;
 					}

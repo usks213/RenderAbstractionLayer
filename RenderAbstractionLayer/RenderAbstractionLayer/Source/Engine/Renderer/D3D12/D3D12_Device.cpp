@@ -273,7 +273,7 @@ HRESULT D3D12Device::createCommonState()
 		m_rasterizeStates[(size_t)RasterizeState::SHADOW] = rasterizerDesc;
 	}
 
-	// サンプラステート作成
+	// 静的サンプラステート作成
 	{
 		D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
 
@@ -285,35 +285,38 @@ HRESULT D3D12Device::createCommonState()
 		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
 		samplerDesc.MaxAnisotropy = D3D12_MAX_MAXANISOTROPY;
 
+		// なし
+		m_staticSamplers[static_cast<size_t>(SamplerState::NONE)] = samplerDesc;
+
 		// リニアクランプ
 		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		m_samplerStates[static_cast<size_t>(SamplerState::LINEAR_CLAMP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::LINEAR_CLAMP)] = samplerDesc;
 
 		// ポイントクランプ
 		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		m_samplerStates[static_cast<size_t>(SamplerState::POINT_CLAMP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::POINT_CLAMP)] = samplerDesc;
 
 		// 異方性クランプ
 		samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
-		m_samplerStates[static_cast<size_t>(SamplerState::ANISOTROPIC_CLAMP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::ANISOTROPIC_CLAMP)] = samplerDesc;
 
 		// リニアラップ
 		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		m_samplerStates[static_cast<size_t>(SamplerState::LINEAR_WRAP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::LINEAR_WRAP)] = samplerDesc;
 
 		// ポイントラップ
 		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-		m_samplerStates[static_cast<size_t>(SamplerState::POINT_WRAP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::POINT_WRAP)] = samplerDesc;
 
 		// 異方性ラップ
 		samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
-		m_samplerStates[static_cast<size_t>(SamplerState::ANISOTROPIC_WRAP)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::ANISOTROPIC_WRAP)] = samplerDesc;
 
 		// シャドウ
 		samplerDesc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
@@ -324,7 +327,110 @@ HRESULT D3D12Device::createCommonState()
 		samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-		m_samplerStates[static_cast<size_t>(SamplerState::SHADOW)] = samplerDesc;
+		m_staticSamplers[static_cast<size_t>(SamplerState::SHADOW)] = samplerDesc;
+	}
+
+	// 動的サンプラーステート
+	{
+		UINT num = static_cast<UINT>(SamplerState::MAX);
+		// ヒープ作成
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+		heapDesc.NumDescriptors = num;
+		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		heapDesc.NodeMask = 0;
+		CHECK_FAILED(m_pD3DDevice->CreateDescriptorHeap(&heapDesc, 
+			IID_PPV_ARGS(m_pSamplerHeap.ReleaseAndGetAddressOf())));
+
+		// ハンドル
+		auto cpuHandle = m_pSamplerHeap->GetCPUDescriptorHandleForHeapStart();
+		auto gpuHandle = m_pSamplerHeap->GetGPUDescriptorHandleForHeapStart();
+		auto descSize = m_pD3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+		// サンプラーステート作成
+		D3D12_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		samplerDesc.BorderColor[0] = 0.0f;
+		samplerDesc.BorderColor[1] = 0.0f;
+		samplerDesc.BorderColor[2] = 0.0f;
+		samplerDesc.BorderColor[3] = 0.0f;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+		samplerDesc.MaxAnisotropy = D3D12_MAX_MAXANISOTROPY;
+
+		// なし
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::NONE)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// リニアクランプ
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::LINEAR_CLAMP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// ポイントクランプ
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::POINT_CLAMP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// 異方性クランプ
+		samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::ANISOTROPIC_CLAMP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// リニアラップ
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::LINEAR_WRAP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// ポイントラップ
+		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::POINT_WRAP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// 異方性ラップ
+		samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::ANISOTROPIC_WRAP)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
+		// シャドウ
+		samplerDesc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		samplerDesc.BorderColor[0] = 1.0f;
+		samplerDesc.BorderColor[1] = 1.0f;
+		samplerDesc.BorderColor[2] = 1.0f;
+		samplerDesc.BorderColor[3] = 1.0f;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
+		m_dynamicSamplers[static_cast<size_t>(SamplerState::SHADOW)] = gpuHandle;
+		cpuHandle.ptr += descSize;
+		gpuHandle.ptr += descSize;
+
 	}
 
 	// ブレンドステート作成
@@ -428,10 +534,16 @@ ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, 
 		// シグネチャー
 		gpipeline.pRootSignature = d3d12Shader.m_pRootSignature.Get();
 		// 各シェーダー
-		gpipeline.VS.pShaderBytecode = d3d12Shader.m_pShaderBlob[0]->GetBufferPointer();
-		gpipeline.VS.BytecodeLength = d3d12Shader.m_pShaderBlob[0]->GetBufferSize();
-		gpipeline.PS.pShaderBytecode = d3d12Shader.m_pShaderBlob[4]->GetBufferPointer();
-		gpipeline.PS.BytecodeLength = d3d12Shader.m_pShaderBlob[4]->GetBufferSize();
+		D3D12_SHADER_BYTECODE* shaderByteCode[5] = 
+		{ &gpipeline.VS, &gpipeline.HS, &gpipeline.DS, &gpipeline.GS, &gpipeline.PS };
+		for (int i = 0; i < static_cast<int>(ShaderStage::CS); ++i)
+		{
+			if (d3d12Shader.m_pShaderBlob[i])
+			{
+				shaderByteCode[i]->pShaderBytecode = d3d12Shader.m_pShaderBlob[i]->GetBufferPointer();
+				shaderByteCode[i]->BytecodeLength = d3d12Shader.m_pShaderBlob[i]->GetBufferSize();
+			}
+		}
 		// ストリームアウトプット
 		gpipeline.StreamOutput;
 		// ブレンドステイト

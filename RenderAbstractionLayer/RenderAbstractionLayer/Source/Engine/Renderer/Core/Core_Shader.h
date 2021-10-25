@@ -78,12 +78,12 @@ namespace core
 	enum class ShaderStage : std::uint32_t
 	{
 		VS,		///< 頂点シェーダー
-		GS,		///< ジオメトリシェーダー
-		DS,		///< ドメインシェーダー
 		HS,		///< ハルシェーダー
+		DS,		///< ドメインシェーダー
+		GS,		///< ジオメトリシェーダー
 		PS,		///< ピクセルシェーダー
 		CS,		///< コンピュートシェーダー
-		MAX,	///< シェーダーステージ数
+		MAX,		///< シェーダーステージ数
 	};
 
 	/// @enum ShaderStageFlags
@@ -92,9 +92,9 @@ namespace core
 	{
 		NONE = 0,
 		VS = 1 << 1,
-		GS = 1 << 2,
+		HS = 1 << 2,
 		DS = 1 << 3,
-		HS = 1 << 4,
+		GS = 1 << 4,
 		PS = 1 << 5,
 		CS = 1 << 6,
 		MAX = std::numeric_limits<std::uint32_t>::max(),

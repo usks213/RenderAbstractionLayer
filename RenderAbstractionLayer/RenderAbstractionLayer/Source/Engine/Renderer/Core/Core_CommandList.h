@@ -50,20 +50,51 @@ namespace core
 		virtual void setRenderBuffer(const RenderBufferID& renderBufferID) = 0;
 
 
+		//----- セット命令 -----
+
+		virtual void setGraphicsPipelineState(const ShaderID& shaderID, const BlendState& bs,
+			const RasterizeState& rs, const DepthStencilState& ds) = 0;
+
+		virtual void setRenderTarget(const RenderTargetID& rtID) = 0;
+		virtual void setRenderTarget(const RenderTargetID rtIDs[]) = 0;
+		virtual void setRenderTarget(const RenderTargetID& rtID, const DepthStencilID& dsID) = 0;
+		virtual void setRenderTarget(const RenderTargetID rtIDs[], const DepthStencilID& dsID) = 0;
+
+		virtual void setViewport(const Rect& rect) = 0;
+		virtual void setViewport(const Viewport& viewport) = 0;
+
+		//----- ゲット命令 -----
+
+
 		//----- バインド命令 -----
 
-		virtual void bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) = 0;
+		virtual void bindGlobalBuffer(const core::ShaderID& shaderID, const std::string& bindName, const core::BufferID& bufferID) = 0;
 
-		virtual void bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) = 0;
+		virtual void bindGlobalTexture(const core::ShaderID& shaderID, const std::string& bindName, const core::TextureID& textureID) = 0;
 
-		virtual void bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) = 0;
+		virtual void bindGlobalSampler(const core::ShaderID& shaderID, const std::string& bindName, const core::SamplerState& sampler) = 0;
 
 
-		//----- 描画命令
+		//----- 描画命令 -----
 
-		/// @brief 即時描画命令
+		/// @brief 描画命令
 		/// @param renderBufferID レンダーバッファID
-		virtual void render(const RenderBufferID& renderBufferID, std::uint32_t instanceCount = 1) = 0;
+		virtual void render(const RenderBufferID& renderBufferID, const std::uint32_t instanceCount = 1) = 0;
+
+		/// @brief 
+		/// @param destID 対象のレンダーターゲット
+		/// @param sourceID 
+		/// @param matID 
+		virtual void blit(const RenderBufferID& destID, const TextureID& sourceID, const MaterialID& matID) = 0;
+
+
+		//----- その他 -----
+
+		virtual void clearCommand() = 0;		///< コマンドのクリア
+
+		virtual void clearRederTarget(const RenderTargetID& rtID, const Color& color) = 0;
+
+		virtual void clearDepthStencil(const DepthStencilID& dsID, float depth, std::uint8_t stencil) = 0;
 
 	protected:
 		//------------------------------------------------------------------------------

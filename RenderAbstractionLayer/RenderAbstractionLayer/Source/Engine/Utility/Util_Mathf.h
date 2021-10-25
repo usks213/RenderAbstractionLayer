@@ -891,6 +891,63 @@ struct VectorUint4
 	int x, y, z, w;
 };
 
+class Color : public Vector4
+{
+public:
+	Color() : Vector4()
+	{}
+
+	explicit Color(float r, float g, float b, float a) :
+		Vector4(r, g, b, a)
+	{}
+
+	Color(const Color&) = default;
+	Color& operator=(const Color&) = default;
+
+	Color(Color&&) = default;
+	Color& operator=(Color&&) = default;
+
+	void Set(float r, float g, float b, float a)
+	{
+		x = r;
+		y = g;
+		z = b;
+		w = a;
+	}
+};
+
+class Rect
+{
+public:
+	Rect() :
+		left(0.0f), top(0.0f),
+		right(0.0f), bottom(0.0f)
+	{}
+
+	Rect(float left, float top, float right, float bottom) :
+		left(left), top(top), right(right), bottom(bottom)
+	{}
+
+public:
+
+	float left, top;
+	float right, bottom;
+};
+
+class Viewport : public Rect
+{
+public:
+	Viewport() :
+		Rect(), near(0.0f), far(1.0f)
+	{}
+
+	Viewport(float left, float top, float right, float bottom, float near, float far) :
+		Rect(left, top, right, bottom), near(near), far(far)
+	{}
+
+public:
+	float near, far;
+};
 
 class AABB {
 	public:
