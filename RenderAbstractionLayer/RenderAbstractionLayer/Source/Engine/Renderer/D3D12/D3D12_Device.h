@@ -11,6 +11,8 @@
 
 #include <Renderer/Core/Core_Device.h>
 #include "D3D12_CommonState.h"
+#include <tuple>
+#include <map>
 
 namespace d3d12
 {
@@ -78,7 +80,8 @@ namespace d3d12
 		/// @param d3d12Shader シェーダー
 		/// @param d3d12Mat マテリアル
 		/// @return パイプラインステート
-		ID3D12PipelineState* createPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat);
+		ID3D12PipelineState* createGraphicsPipelineState(D3D12Shader& d3d12Shader, const core::BlendState& bs,
+			const core::RasterizeState& rs, const core::DepthStencilState& ds);
 
 	private:
 		//------------------------------------------------------------------------------
@@ -115,7 +118,8 @@ namespace d3d12
 		ComPtr<ID3D12DescriptorHeap>			m_pSamplerHeap;											///< サンプラーヒープ
 
 		// グラフィクスパイプラインステート
-		std::unordered_map<core::MaterialID, ComPtr<ID3D12PipelineState>>	m_pPipelineState;
+		using GraphicsPipelineStateID = std::tuple<core::ShaderID, core::BlendState, core::RasterizeState, core::DepthStencilState>;
+		std::map<GraphicsPipelineStateID, ComPtr<ID3D12PipelineState>>	m_pGraphicsPipelineState;
 
 	};
 }

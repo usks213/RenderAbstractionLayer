@@ -282,10 +282,20 @@ void D3D12Renderer::clear()
 	// レンダーターゲットのクリア
 	static float a = 0;
 	//a += 0.1f;
-	FLOAT clearColor[] = { sinf(a)+ 0.13f , 0.2f, 0.2f, 1.0f };
+	FLOAT clearColor[] = { sinf(a) + 0.13f , 0.2f, 0.2f, 1.0f };
 	m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
 	// デプスステンシルのクリア
 	m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	//// レンダーターゲットのバリア指定
+	//barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+	//barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+	//barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	//barrierDesc.Transition.Subresource = 										// サブリソースの数
+	//	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+	//barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
+	//barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
+	//m_pCmdList->ResourceBarrier(1, &barrierDesc);
 
 	// ビューポートのセット
 	m_pCmdList->RSSetViewports(1, &m_viewport);
@@ -299,8 +309,9 @@ void D3D12Renderer::present()
 {
 	HRESULT hr = S_OK;
 
-	// レンダーターゲットのバリア指定
+	// レンダーターゲットハンドルの取得
 	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+	// レンダーターゲットのバリア指定
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
 	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
 	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
@@ -316,6 +327,7 @@ void D3D12Renderer::present()
 	CHECK_FAILED(hr);
 	for (int i = 0; i < m_useCmdListCnt; ++i)
 	{
+		m_cmdLists[i]->m_pCmdList->ResourceBarrier(1, &barrierDesc);
 		CHECK_FAILED(m_cmdLists[i]->m_pCmdList->Close());
 	}
 
@@ -324,7 +336,7 @@ void D3D12Renderer::present()
 	ppCmdList.push_back(m_pCmdList.Get());
 	for (int i = 0; i < m_useCmdListCnt; ++i)
 	{
-		//ppCmdList.push_back(m_cmdLists[i]->m_pCmdList.Get());
+		ppCmdList.push_back(m_cmdLists[i]->m_pCmdList.Get());
 	}
 
 	// コマンドの実行

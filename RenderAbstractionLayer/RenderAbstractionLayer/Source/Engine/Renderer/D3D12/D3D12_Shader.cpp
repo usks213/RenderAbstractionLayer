@@ -473,8 +473,9 @@ void D3D12Shader::CreateRootSignature(D3D12Device* device)
 					{
 						D3D12_DESCRIPTOR_RANGE range = {};
 						range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-						range.NumDescriptors = bindData.second.slot;
-						range.BaseShaderRegister = bindData.second.space;
+						range.NumDescriptors = 1;
+						range.BaseShaderRegister = bindData.second.slot;
+						range.RegisterSpace = bindData.second.space;
 						range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 						aRanges.push_back(range);
 
@@ -602,7 +603,7 @@ void D3D12Shader::CreateRootSignature(D3D12Device* device)
 
 	ID3DBlob* rootSigBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
-	CHECK_FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob));
+	(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob));
 	std::string errstr;
 	if (rootSigBlob)
 	{

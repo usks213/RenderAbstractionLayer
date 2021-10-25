@@ -52,13 +52,15 @@ namespace core
 
 		//----- ƒZƒbƒg–½—ß -----
 
+		virtual void setBackBuffer() = 0;
+
 		virtual void setGraphicsPipelineState(const ShaderID& shaderID, const BlendState& bs,
 			const RasterizeState& rs, const DepthStencilState& ds) = 0;
 
 		virtual void setRenderTarget(const RenderTargetID& rtID) = 0;
-		virtual void setRenderTarget(const RenderTargetID rtIDs[]) = 0;
+		virtual void setRenderTarget(const std::uint32_t num, const RenderTargetID rtIDs[]) = 0;
 		virtual void setRenderTarget(const RenderTargetID& rtID, const DepthStencilID& dsID) = 0;
-		virtual void setRenderTarget(const RenderTargetID rtIDs[], const DepthStencilID& dsID) = 0;
+		virtual void setRenderTarget(const std::uint32_t num, const RenderTargetID rtIDs[], const DepthStencilID& dsID) = 0;
 
 		virtual void setViewport(const Rect& rect) = 0;
 		virtual void setViewport(const Viewport& viewport) = 0;

@@ -86,7 +86,8 @@ D3D11CommandList::D3D11CommandList() :
 	m_curShader(NONE_SHADER_ID),
 	m_curMaterial(NONE_MATERIAL_ID),
 	m_curRenderBuffer(NONE_RENDERBUFFER_ID),
-	m_curRenderTarget(NONE_RENDER_TARGET_ID),
+	m_curRenderTargets{ NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, 
+		NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, NONE_RENDER_TARGET_ID, },
 	m_curDepthStencil(NONE_DEPTH_STENCIL_ID)
 {
 }
@@ -163,66 +164,50 @@ HRESULT D3D11CommandList::initialize(D3D11Renderer* pRenderer, D3D11Device* pDev
 
 void D3D11CommandList::setMaterial(const core::MaterialID& materialID)
 {
+	// 同じマテリアル
+	if (m_curMaterial == materialID) return;
+	m_curMaterial = materialID;
+
 	// マテリアルの取得
 	auto* d3dMat = static_cast<D3D11Material*>(m_pDevice->getMaterial(materialID));
 	if (d3dMat == nullptr) return;
 
-	// マテリアルが同じ
-	//if (m_curMaterial == materialID) return;
-	//m_curMaterial = materialID;
-
-	// シェーダーの取得
-	auto* d3dShader = static_cast<D3D11Shader*>(m_pDevice->getShader(d3dMat->m_shaderID));
-	if (d3dShader == nullptr) return;
-
-	// シェーダーの指定
-	if (m_curShader != d3dMat->m_shaderID)
-	{
-		if (d3dShader->vs) m_pD3DContext->VSSetShader(d3dShader->vs, nullptr, 0);
-		if (d3dShader->gs) m_pD3DContext->GSSetShader(d3dShader->gs, nullptr, 0);
-		if (d3dShader->ds) m_pD3DContext->DSSetShader(d3dShader->ds, nullptr, 0);
-		if (d3dShader->hs) m_pD3DContext->HSSetShader(d3dShader->hs, nullptr, 0);
-		if (d3dShader->ps) m_pD3DContext->PSSetShader(d3dShader->ps, nullptr, 0);
-		if (d3dShader->cs) m_pD3DContext->CSSetShader(d3dShader->cs, nullptr, 0);
-		// 入力レイアウト指定
-		m_pD3DContext->IASetInputLayout(d3dShader->m_inputLayout.Get());
-		m_curShader = d3dMat->m_shaderID;
-	}
-
-	// ブレンドステート
-	if (m_curBlendState != d3dMat->m_blendState)
-	{
-		constexpr float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		m_pD3DContext->OMSetBlendState(m_pDevice->m_blendStates[
-			static_cast<std::size_t>(d3dMat->m_blendState)].Get(), blendFactor, 0xffffffff);
-		m_curBlendState = d3dMat->m_blendState;
-	}
-	// ラスタライザステート
-	if (m_curRasterizeState != d3dMat->m_rasterizeState)
-	{
-		m_pD3DContext->RSSetState(m_pDevice->m_rasterizeStates[
-			static_cast<std::size_t>(d3dMat->m_rasterizeState)].Get());
-		m_curRasterizeState = d3dMat->m_rasterizeState;
-	}
-	// 深度ステンシルステート
-	if (m_curDepthStencilState != d3dMat->m_depthStencilState)
-	{
-		if (d3dMat->m_isTransparent)
-		{
-			m_pD3DContext->OMSetDepthStencilState(m_pDevice->m_depthStencilStates[
-				static_cast<std::size_t>(DepthStencilState::ENABLE_TEST_AND_DISABLE_WRITE)].Get(), 0);
-			m_curDepthStencilState = DepthStencilState::ENABLE_TEST_AND_DISABLE_WRITE;
-		}
-		else
-		{
-			m_pD3DContext->OMSetDepthStencilState(m_pDevice->m_depthStencilStates[
-				static_cast<std::size_t>(d3dMat->m_depthStencilState)].Get(), 0);
-			m_curDepthStencilState = d3dMat->m_depthStencilState;
-		}
-	}
+	// パイプラインステートの設定
+	setGraphicsPipelineState(d3dMat->m_shaderID, d3dMat->m_blendState, 
+		d3dMat->m_rasterizeState, d3dMat->m_depthStencilState);
 
 	// マテリアルリソース指定・更新
-	setMaterialResource(*d3dMat, *d3dShader);
+		// ステージごと
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		auto stageIndex = static_cast<std::size_t>(stage);
+
+		// コンスタントバッファ
+		for (const auto& cbuffer : d3dMat->m_d3dCbuffer[stageIndex])
+		{
+			// 更新
+			if (d3dMat->m_cbufferData[stageIndex][cbuffer.first].isUpdate)
+			{
+				m_pD3DContext->UpdateSubresource(cbuffer.second.Get(), 0, nullptr,
+					d3dMat->m_cbufferData[stageIndex][cbuffer.first].data.get(), 0, 0);
+				d3dMat->m_cbufferData[stageIndex][cbuffer.first].isUpdate = false;
+			}
+			// 指定
+			setCBuffer[stageIndex](m_pD3DContext, cbuffer.first, 1, cbuffer.second.GetAddressOf());
+		}
+
+		// テクスチャ更新
+		for (const auto& tex : d3dMat->m_textureData[stageIndex])
+		{
+			setTextureResource(tex.first, tex.second.id, stage);
+		}
+
+		// サンプラ更新
+		for (const auto& sam : d3dMat->m_samplerData[stageIndex])
+		{
+			setSamplerResource(sam.first, sam.second.state, stage);
+		}
+	}
 }
 
 void D3D11CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferID)
@@ -248,9 +233,145 @@ void D3D11CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferI
 
 }
 
+//----- セット命令 -----
+
+void D3D11CommandList::setBackBuffer()
+{
+	m_pD3DContext->OMSetRenderTargets(1, m_pDevice->m_backBufferRTV.GetAddressOf(),
+		m_pDevice->m_depthStencilView.Get());
+}
+
+void D3D11CommandList::setGraphicsPipelineState(const ShaderID& shaderID, const BlendState& bs,
+	const RasterizeState& rs, const DepthStencilState& ds)
+{
+	// シェーダーの指定
+	if (m_curShader != shaderID)
+	{
+		m_curShader = shaderID;
+		// シェーダーの取得
+		auto* d3dShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
+		if (d3dShader)
+		{
+			// シェーダーデータ指定
+			if (d3dShader->vs) m_pD3DContext->VSSetShader(d3dShader->vs, nullptr, 0);
+			if (d3dShader->gs) m_pD3DContext->GSSetShader(d3dShader->gs, nullptr, 0);
+			if (d3dShader->ds) m_pD3DContext->DSSetShader(d3dShader->ds, nullptr, 0);
+			if (d3dShader->hs) m_pD3DContext->HSSetShader(d3dShader->hs, nullptr, 0);
+			if (d3dShader->ps) m_pD3DContext->PSSetShader(d3dShader->ps, nullptr, 0);
+			if (d3dShader->cs) m_pD3DContext->CSSetShader(d3dShader->cs, nullptr, 0);
+			// 入力レイアウト指定
+			m_pD3DContext->IASetInputLayout(d3dShader->m_inputLayout.Get());
+		}
+	}
+
+	// ブレンドステート
+	if (m_curBlendState != bs)
+	{
+		constexpr float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		m_pD3DContext->OMSetBlendState(m_pDevice->m_blendStates[
+			static_cast<std::size_t>(bs)].Get(), blendFactor, 0xffffffff);
+		m_curBlendState = bs;
+	}
+	// ラスタライザステート
+	if (m_curRasterizeState != rs)
+	{
+		m_pD3DContext->RSSetState(m_pDevice->m_rasterizeStates[
+			static_cast<std::size_t>(rs)].Get());
+		m_curRasterizeState = rs;
+	}
+	// 深度ステンシルステート
+	if (m_curDepthStencilState != ds)
+	{
+		m_pD3DContext->OMSetDepthStencilState(m_pDevice->m_depthStencilStates[
+			static_cast<std::size_t>(ds)].Get(), 0);
+		m_curDepthStencilState = ds;
+	}
+}
+
+void D3D11CommandList::setRenderTarget(const RenderTargetID& rtID)
+{
+	RenderTargetID rtIDs[] = { rtID };
+	setRenderTarget(1, rtIDs);
+}
+
+void D3D11CommandList::setRenderTarget(const std::uint32_t num, const RenderTargetID rtIDs[])
+{
+	// 安全処理
+	if (num >= MAX_RENDER_TARGET || num <= 0) return;
+
+	// レンダーターゲット取得
+	std::vector<ID3D11RenderTargetView*> rtvs(num);
+	for (int i = 0; i < num; ++i)
+	{
+		auto* pRT = static_cast<D3D11RenderTarget*>(m_pDevice->getRenderTarget(rtIDs[i]));
+		if (pRT) rtvs.push_back(pRT->m_rtv.Get());
+		else rtvs.push_back(nullptr);
+		m_curRenderTargets[i] = rtIDs[i];
+	}
+
+	// 現在のデプスステンシル取得
+	ID3D11DepthStencilView* pDSV = nullptr;
+	auto* pDS = static_cast<D3D11DepthStencil*>(m_pDevice->getDepthStencil(m_curDepthStencil));
+	if (pDS) pDSV = pDS->m_dsv.Get();
+
+	// レンダーターゲット指定
+	m_pD3DContext->OMSetRenderTargets(num, rtvs.data(), pDSV);
+
+}
+
+void D3D11CommandList::setRenderTarget(const RenderTargetID& rtID, const DepthStencilID& dsID)
+{
+	RenderTargetID rtIDs[] = { rtID };
+;	setRenderTarget(1, rtIDs, dsID);
+}
+
+void D3D11CommandList::setRenderTarget(std::uint32_t num, const RenderTargetID rtIDs[], const DepthStencilID& dsID)
+{
+	// 安全処理
+	if (num >= MAX_RENDER_TARGET || num <= 0) return;
+
+	// レンダーターゲット取得
+	std::vector<ID3D11RenderTargetView*> rtvs(num);
+	for (int i = 0; i < num; ++i)
+	{
+		auto* pRT = static_cast<D3D11RenderTarget*>(m_pDevice->getRenderTarget(rtIDs[i]));
+		if (pRT) rtvs.push_back(pRT->m_rtv.Get());
+		else rtvs.push_back(nullptr);
+		m_curRenderTargets[i] = rtIDs[i];
+	}
+
+	// 現在のデプスステンシル取得
+	ID3D11DepthStencilView* pDSV = nullptr;
+	auto* pDS = static_cast<D3D11DepthStencil*>(m_pDevice->getDepthStencil(dsID));
+	if (pDS) pDSV = pDS->m_dsv.Get();
+	m_curDepthStencil = dsID;
+
+	// レンダーターゲット指定
+	m_pD3DContext->OMSetRenderTargets(num, rtvs.data(), pDSV);
+}
+
+void D3D11CommandList::setViewport(const Rect& rect)
+{
+	D3D11_VIEWPORT d3d11View = {
+		rect.left, rect.top, rect.right, rect.bottom, 0.0f, 1.0f
+	};
+	m_pD3DContext->RSSetViewports(1, &d3d11View);
+}
+
+void D3D11CommandList::setViewport(const Viewport& viewport)
+{
+	D3D11_VIEWPORT d3d11View = { viewport.left, viewport.top, 
+		viewport.right, viewport.bottom, viewport.minDepth, viewport.maxDepth 
+	};
+	m_pD3DContext->RSSetViewports(1, &d3d11View);
+}
+
+//----- ゲット命令 -----
+
+
 //----- バインド命令 -----
 
-void D3D11CommandList::bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID)
+void D3D11CommandList::bindGlobalBuffer(const core::ShaderID& shaderID, const std::string& bindName, const core::BufferID& bufferID)
 {
 	auto pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
 	auto* pBuffer = static_cast<D3D11Buffer*>(m_pDevice->getBuffer(bufferID));
@@ -309,14 +430,44 @@ void D3D11CommandList::bindBuffer(const std::string& bindName, const core::Shade
 	}
 }
 
-void D3D11CommandList::bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID)
+void D3D11CommandList::bindGlobalTexture(const core::ShaderID& shaderID, const std::string& bindName, const core::TextureID& textureID)
 {
+	constexpr auto type = static_cast<std::size_t>(BindType::TEXTURE);
+	auto* pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
+	auto* pTexture = static_cast<D3D11Texture*>(m_pDevice->getTexture(textureID));
 
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
+		auto stageIndex = static_cast<std::size_t>(stage);
+
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			setTextureResource(itr->second.slot, textureID, stage);
+			break;
+		}
+	}
 }
 
-void D3D11CommandList::bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler)
+void D3D11CommandList::bindGlobalSampler(const core::ShaderID& shaderID, const std::string& bindName, const core::SamplerState& sampler)
 {
+	constexpr auto type = static_cast<std::size_t>(BindType::SAMPLER);
+	auto* pShader = static_cast<D3D11Shader*>(m_pDevice->getShader(shaderID));
+	const auto& samplerState = m_pDevice->m_samplerStates[static_cast<size_t>(sampler)];
 
+	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
+	{
+		if (!hasStaderStage(pShader->m_desc.m_stages, stage)) continue;
+		auto stageIndex = static_cast<std::size_t>(stage);
+
+		auto itr = pShader->m_staticBindData[stageIndex][type].find(bindName.data());
+		if (pShader->m_staticBindData[stageIndex][type].end() != itr)
+		{
+			setSamplerResource(itr->second.slot, sampler, stage);
+			break;
+		}
+	}
 }
 
 
@@ -340,48 +491,53 @@ void D3D11CommandList::render(const core::RenderBufferID& renderBufferID, std::u
 	}
 }
 
+/// @brief 
+/// @param destID 対象のレンダーターゲット
+/// @param sourceID 
+/// @param matID 
+void D3D11CommandList::blit(const RenderBufferID& destID, const TextureID& sourceID, const MaterialID& matID)
+{
+
+}
+
+//----- その他 -----
+
+void D3D11CommandList::clearCommand()
+{
+	// コマンドのクリア
+}
+
+void D3D11CommandList::clearRederTarget(const RenderTargetID& rtID, const Color& color)
+{
+	// レンダーターゲット取得
+	auto* pRT = static_cast<D3D11RenderTarget*>(m_pDevice->getRenderTarget(rtID));
+	if (pRT == nullptr) return;
+
+	FLOAT ColorRGBA[4];
+	std::memcpy(ColorRGBA, &color, sizeof(Color));
+
+	// クリアコマンド
+	m_pD3DContext->ClearRenderTargetView(pRT->m_rtv.Get(), ColorRGBA);
+}
+
+void D3D11CommandList::clearDepthStencil(const DepthStencilID& dsID, float depth, std::uint8_t stencil)
+{
+	// 現在のデプスステンシル取得
+	auto* pDS = static_cast<D3D11DepthStencil*>(m_pDevice->getDepthStencil(dsID));
+	if (pDS == nullptr) return;
+
+	// クリアコマンド
+	m_pD3DContext->ClearDepthStencilView(pDS->m_dsv.Get(), 
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+}
 
 //------------------------------------------------------------------------------
 // private methods 
 //------------------------------------------------------------------------------
 
-void D3D11CommandList::setMaterialResource(const D3D11Material& d3dMaterial, const D3D11Shader& d3dShader)
+void D3D11CommandList::setCBufferResource(std::uint32_t slot, const core::BufferID& bufferID, core::ShaderStage stage)
 {
-	auto& d3dMat = const_cast<D3D11Material&>(d3dMaterial);
 
-	// ステージごと
-	for (auto stage = ShaderStage::VS; stage < ShaderStage::MAX; ++stage)
-	{
-		if (!hasStaderStage(d3dShader.m_desc.m_stages, stage)) continue;
-
-		auto stageIndex = static_cast<std::size_t>(stage);
-
-		// コンスタントバッファ
-		for (const auto& cbuffer : d3dMaterial.m_d3dCbuffer[stageIndex])
-		{
-			// 指定
-			setCBuffer[stageIndex](m_pD3DContext, cbuffer.first, 1, cbuffer.second.GetAddressOf());
-			// 更新
-			if (d3dMat.m_cbufferData[stageIndex][cbuffer.first].isUpdate)
-			{
-				m_pD3DContext->UpdateSubresource(cbuffer.second.Get(), 0, nullptr,
-					d3dMat.m_cbufferData[stageIndex][cbuffer.first].data.get(), 0, 0);
-				d3dMat.m_cbufferData[stageIndex][cbuffer.first].isUpdate = false;
-			}
-		}
-
-		// テクスチャ更新
-		for (const auto& tex : d3dMat.m_textureData[stageIndex])
-		{
-			setTextureResource(tex.first, tex.second.id, stage);
-		}
-
-		// サンプラ更新
-		for (const auto& sam : d3dMat.m_samplerData[stageIndex])
-		{
-			setSamplerResource(sam.first, sam.second.state, stage);
-		}
-	}
 }
 
 void D3D11CommandList::setTextureResource(std::uint32_t slot, const core::TextureID& textureID, core::ShaderStage stage)
@@ -392,6 +548,7 @@ void D3D11CommandList::setTextureResource(std::uint32_t slot, const core::Textur
 
 	if (textureID == NONE_TEXTURE_ID)
 	{
+		// テクスチャなし
 		ID3D11ShaderResourceView* nullView = nullptr;
 		setShaderResource[stageIndex](m_pD3DContext, slot, 1, &nullView);
 		m_curTexture[stageIndex][slot] = NONE_TEXTURE_ID;

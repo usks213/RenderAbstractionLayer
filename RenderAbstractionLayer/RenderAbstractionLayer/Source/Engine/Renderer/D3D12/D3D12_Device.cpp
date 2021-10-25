@@ -359,6 +359,9 @@ HRESULT D3D12Device::createCommonState()
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
 		samplerDesc.MaxAnisotropy = D3D12_MAX_MAXANISOTROPY;
+		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 
 		// なし
 		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
@@ -520,14 +523,15 @@ D3D12Texture* D3D12Device::createD3D12Texture(core::TextureDesc& desc, D3D12_CLE
 	return pTex;
 }
 
-ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, D3D12Material& d3d12Mat)
+ID3D12PipelineState* D3D12Device::createGraphicsPipelineState(D3D12Shader& d3d12Shader, const core::BlendState& bs,
+	const core::RasterizeState& rs, const core::DepthStencilState& ds)
 {
 	// グラフィクスパイプラインを検索
-	auto pipelineID = d3d12Mat.m_id;
-	auto itr = m_pPipelineState.find(pipelineID);
+	auto pipelineID = std::make_tuple(d3d12Shader.m_id, bs, rs, ds);
+	auto itr = m_pGraphicsPipelineState.find(pipelineID);
 
 	// パイプラインステートを新規作成
-	if (m_pPipelineState.end() == itr)
+	if (m_pGraphicsPipelineState.end() == itr)
 	{
 		// グラフィクスパイプラインの作成
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
@@ -538,7 +542,7 @@ ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, 
 		{ &gpipeline.VS, &gpipeline.HS, &gpipeline.DS, &gpipeline.GS, &gpipeline.PS };
 		for (int i = 0; i < static_cast<int>(ShaderStage::CS); ++i)
 		{
-			if (d3d12Shader.m_pShaderBlob[i])
+			if (d3d12Shader.m_pShaderBlob[i] != nullptr)
 			{
 				shaderByteCode[i]->pShaderBytecode = d3d12Shader.m_pShaderBlob[i]->GetBufferPointer();
 				shaderByteCode[i]->BytecodeLength = d3d12Shader.m_pShaderBlob[i]->GetBufferSize();
@@ -547,13 +551,13 @@ ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, 
 		// ストリームアウトプット
 		gpipeline.StreamOutput;
 		// ブレンドステイト
-		gpipeline.BlendState = m_blendStates[static_cast<std::size_t>(d3d12Mat.m_blendState)];
+		gpipeline.BlendState = m_blendStates[static_cast<std::size_t>(bs)];
 		// サンプルマスク
 		gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		// ラスタライザーステート
-		gpipeline.RasterizerState = m_rasterizeStates[static_cast<std::size_t>(d3d12Mat.m_rasterizeState)];
+		gpipeline.RasterizerState = m_rasterizeStates[static_cast<std::size_t>(rs)];
 		// デプスステンシルステート
-		gpipeline.DepthStencilState = m_depthStencilStates[static_cast<std::size_t>(d3d12Mat.m_depthStencilState)];
+		gpipeline.DepthStencilState = m_depthStencilStates[static_cast<std::size_t>(ds)];
 		// インプットレイアウト
 		gpipeline.InputLayout.pInputElementDescs = d3d12Shader.m_inputElementDesc.data();
 		gpipeline.InputLayout.NumElements = d3d12Shader.m_inputElementDesc.size();
@@ -582,8 +586,8 @@ ID3D12PipelineState* D3D12Device::createPipelineState(D3D12Shader& d3d12Shader, 
 		ID3D12PipelineState* pPipelinestate = nullptr;
 		CHECK_FAILED(m_pD3DDevice->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pPipelinestate)));
 		if (pPipelinestate)
-			m_pPipelineState.emplace(pipelineID, pPipelinestate);
+			m_pGraphicsPipelineState.emplace(pipelineID, pPipelinestate);
 	}
 
-	return m_pPipelineState[pipelineID].Get();
+	return m_pGraphicsPipelineState[pipelineID].Get();
 }

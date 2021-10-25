@@ -51,17 +51,49 @@ namespace d3d12
 
 		void setRenderBuffer(const core::RenderBufferID& renderBufferID)  override;
 
+		//----- セット命令 -----
+
+		void setBackBuffer() override;
+
+		void setGraphicsPipelineState(const core::ShaderID& shaderID, const core::BlendState& bs,
+			const core::RasterizeState& rs, const core::DepthStencilState& ds) override;
+
+		void setRenderTarget(const core::RenderTargetID& rtID) override;
+		void setRenderTarget(const std::uint32_t num, const core::RenderTargetID rtIDs[]) override;
+		void setRenderTarget(const core::RenderTargetID& rtID, const core::DepthStencilID& dsID) override;
+		void setRenderTarget(const std::uint32_t num, const core::RenderTargetID rtIDs[], const core::DepthStencilID& dsID) override;
+
+		void setViewport(const Rect& rect) override;
+		void setViewport(const Viewport& viewport) override;
+
+		//----- ゲット命令 -----
+
 		//----- バインド命令 -----
 
-		void bindBuffer(const std::string& bindName, const core::ShaderID& shaderID, const core::BufferID bufferID) override;
+		void bindGlobalBuffer(const core::ShaderID& shaderID, const std::string& bindName, const core::BufferID& bufferID) override;
 
-		void bindTexture(const std::string& bindName, const core::ShaderID& shaderID, const core::TextureID textureID) override;
+		void bindGlobalTexture(const core::ShaderID& shaderID, const std::string& bindName, const core::TextureID& textureID) override;
 
-		void bindSampler(const std::string& bindName, const core::ShaderID& shaderID, const core::SamplerState sampler) override;
+		void bindGlobalSampler(const core::ShaderID& shaderID, const std::string& bindName, const core::SamplerState& sampler) override;
 
 		//----- 描画命令
 
 		void render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount = 1)  override;
+
+		/// @brief 
+		/// @param destID 対象のレンダーターゲット
+		/// @param sourceID 
+		/// @param matID 
+		void blit(const core::RenderBufferID& destID, const core::TextureID& sourceID, const core::MaterialID& matID) override;
+
+
+		//----- その他 -----
+
+		void clearCommand() override;		///< コマンドのクリア
+
+		void clearRederTarget(const core::RenderTargetID& rtID, const Color& color) override;
+
+		void clearDepthStencil(const core::DepthStencilID& dsID, float depth, std::uint8_t stencil) override;
 
 	private:
 		//------------------------------------------------------------------------------
@@ -85,6 +117,9 @@ namespace d3d12
 		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;		///< コマンドアロケーター
 		ComPtr<ID3D12GraphicsCommandList>	m_pCmdList;			///< コマンドリスト
 
+		core::DepthStencilID				m_curDepthStencilID;	///< 現在のデプスステンシル
+
+		static constexpr std::uint32_t MAX_RENDER_TARGET = 8;	///< レンダーターゲットの最大数
 	};
 }
 

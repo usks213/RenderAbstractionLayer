@@ -28,7 +28,6 @@ void TestScene::Start()
 {
 	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	auto* device = renderer->getDevice();
-	auto* cmdList = renderer->getContext();
 
 	// テクスチャの生成
 	uint32_t texWidth = 256u;
@@ -202,6 +201,12 @@ void TestScene::Render()
 	pUnlitMat->setMatrix("_mProj", proj);
 	//pUnlitMat->setTexture("_Texture", g_texID);
 
+
+	//----- 描画
+
+	// レンダーターゲット指定
+	cmdList->setBackBuffer();
+
 	// マテリアルの指定
 	cmdList->setMaterial(g_matID);
 
@@ -209,7 +214,7 @@ void TestScene::Render()
 	cmdList->setRenderBuffer(g_rdID);
 
 	// バッファ指定
-	cmdList->bindBuffer("World", g_shaderID, g_worldID);
+	cmdList->bindGlobalBuffer(g_shaderID, "World", g_worldID);
 
 	// 描画
 	//for (int i = 0; i < 100; ++i)

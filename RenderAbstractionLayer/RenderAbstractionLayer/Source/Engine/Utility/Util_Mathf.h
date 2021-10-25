@@ -938,15 +938,15 @@ class Viewport : public Rect
 {
 public:
 	Viewport() :
-		Rect(), near(0.0f), far(1.0f)
+		Rect(), minDepth(0.0f), maxDepth(1.0f)
 	{}
 
-	Viewport(float left, float top, float right, float bottom, float near, float far) :
-		Rect(left, top, right, bottom), near(near), far(far)
+	Viewport(float left, float top, float right, float bottom, float minDepth = 0.0f, float maxDepth = 1.0f) :
+		Rect(left, top, right, bottom), minDepth(minDepth), maxDepth(maxDepth)
 	{}
 
 public:
-	float near, far;
+	float minDepth, maxDepth;
 };
 
 class AABB {
