@@ -413,6 +413,16 @@ void D3D11CommandList::clearCommand()
 	// コマンドのクリア
 }
 
+void D3D11CommandList::clearBackBuffer(const Color& color)
+{
+	// バッファのクリア
+	float ClearColor[4] = {0,0,0,0};
+	std::memcpy(ClearColor, &color, sizeof(Color));
+	m_pDeferredContext->ClearRenderTargetView(m_pDevice->m_backBufferRTV.Get(), ClearColor);
+	m_pDeferredContext->ClearDepthStencilView(m_pDevice->m_depthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
 void D3D11CommandList::clearRederTarget(const RenderTargetID& rtID, const Color& color)
 {
 	// レンダーターゲット取得

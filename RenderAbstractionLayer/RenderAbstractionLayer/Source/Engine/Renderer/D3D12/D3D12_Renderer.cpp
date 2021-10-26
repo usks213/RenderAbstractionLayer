@@ -57,7 +57,7 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 	CHECK_FAILED(hr);
 
 
-	//----- コマンドキュー・コマンドアロケーター・コマンドリスト -----
+	//----- コマンドキュー -----
 	D3D12_COMMAND_LIST_TYPE cmdType = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	UINT nodeMask = 0;
 
@@ -72,22 +72,6 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		hr = m_pD3DDevice->CreateCommandQueue(&desc, IID_PPV_ARGS(m_pCmdQueue.ReleaseAndGetAddressOf()));
 		CHECK_FAILED(hr);
 	}
-
-	// コマンドアロケーターの生成
-	{
-		hr = m_pD3DDevice->CreateCommandAllocator(cmdType, 
-			IID_PPV_ARGS(m_pCmdAllocator.ReleaseAndGetAddressOf()));
-		CHECK_FAILED(hr);
-	}
-
-	// コマンドリストの生成
-	{
-		hr = m_pD3DDevice->CreateCommandList(nodeMask, cmdType, m_pCmdAllocator.Get(),
-			nullptr, IID_PPV_ARGS(m_pCmdList.ReleaseAndGetAddressOf()));
-		CHECK_FAILED(hr);
-		m_pCmdList->Close();
-	}
-
 
 	//----- スワップチェイン・フェンス・レンダーターゲット -----
 
@@ -217,22 +201,6 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 			m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
-	// ビューポート
-	D3D12_VIEWPORT viewport = {};
-	viewport.Width = width;//出力先の幅(ピクセル数)
-	viewport.Height = height;//出力先の高さ(ピクセル数)
-	viewport.TopLeftX = 0;//出力先の左上座標X
-	viewport.TopLeftY = 0;//出力先の左上座標Y
-	viewport.MaxDepth = 1.0f;//深度最大値
-	viewport.MinDepth = 0.0f;//深度最小値
-	m_viewport = viewport;
-	// シザー
-	D3D12_RECT scissorrect = {};
-	scissorrect.top = 0;//切り抜き上座標
-	scissorrect.left = 0;//切り抜き左座標
-	scissorrect.right = scissorrect.left + width;//切り抜き右座標
-	scissorrect.bottom = scissorrect.top + height;//切り抜き下座標
-	m_scissorrect = scissorrect;
 
 	// デバイスの生成
 	m_device.initialize(m_pD3DDevice.Get(), m_pDXGIFactory.Get(), hWnd, width, height);
@@ -260,8 +228,6 @@ void D3D12Renderer::clear()
 
 
 	// コマンドアロケーターとコマンドリストをリセット
-	CHECK_FAILED(m_pCmdAllocator->Reset());
-	CHECK_FAILED(m_pCmdList->Reset(m_pCmdAllocator.Get(), nullptr));
 	for (int i = 0; i < m_useCmdListCnt; ++i)
 	{
 		CHECK_FAILED(m_cmdLists[i]->m_pCmdAllocator->Reset());
@@ -269,49 +235,6 @@ void D3D12Renderer::clear()
 	}
 	m_useCmdListCnt = 0;
 
-	// レンダーターゲットハンドルの取得
-	auto handlRTV = m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-	handlRTV.ptr += backBufferIndex * m_nBackBufferSize;
-	auto handlDSV = m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
-
-	// レンダーターゲットのバリア指定
-	D3D12_RESOURCE_BARRIER barrierDesc = {};
-	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
-	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
-	barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
-	barrierDesc.Transition.Subresource = 										// サブリソースの数
-		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;			// 遷移前のリソース状態
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;		// 遷移後のリソース状態
-	m_pCmdList->ResourceBarrier(1, &barrierDesc);
-
-	// レンダーターゲットのセット
-	m_pCmdList->OMSetRenderTargets(1, &handlRTV, FALSE, &handlDSV);
-
-	// レンダーターゲットのクリア
-	static float a = 0;
-	//a += 0.1f;
-	FLOAT clearColor[] = { sinf(a) + 0.13f , 0.2f, 0.2f, 1.0f };
-	m_pCmdList->ClearRenderTargetView(handlRTV, clearColor, 0, nullptr);
-	// デプスステンシルのクリア
-	m_pCmdList->ClearDepthStencilView(handlDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	//// レンダーターゲットのバリア指定
-	//barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
-	//barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
-	//barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
-	//barrierDesc.Transition.Subresource = 										// サブリソースの数
-	//	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
-	//barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
-	//barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
-	//m_pCmdList->ResourceBarrier(1, &barrierDesc);
-
-	// ビューポートのセット
-	m_pCmdList->RSSetViewports(1, &m_viewport);
-
-	// シザーのセット
-	m_pCmdList->RSSetScissorRects(1, &m_scissorrect);
 }
 
 /// @brief 画面更新
@@ -333,11 +256,8 @@ void D3D12Renderer::present()
 		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
-	m_pCmdList->ResourceBarrier(1, &barrierDesc);
 
 	// コマンドの記録終了
-	hr = m_pCmdList->Close();
-	CHECK_FAILED(hr);
 	for (int i = 0; i < m_useCmdListCnt; ++i)
 	{
 		m_cmdLists[i]->m_pCmdList->ResourceBarrier(1, &barrierDesc);
@@ -346,7 +266,6 @@ void D3D12Renderer::present()
 
 	// コマンドリストを格納
 	std::vector<ID3D12CommandList*> ppCmdList;
-	ppCmdList.push_back(m_pCmdList.Get());
 	for (int i = 0; i < m_useCmdListCnt; ++i)
 	{
 		ppCmdList.push_back(m_cmdLists[i]->m_pCmdList.Get());

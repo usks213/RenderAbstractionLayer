@@ -91,6 +91,8 @@ namespace d3d12
 
 		void clearCommand() override;		///< コマンドのクリア
 
+		void clearBackBuffer(const Color& color) override;
+
 		void clearRederTarget(const core::RenderTargetID& rtID, const Color& color) override;
 
 		void clearDepthStencil(const core::DepthStencilID& dsID, float depth, std::uint8_t stencil) override;

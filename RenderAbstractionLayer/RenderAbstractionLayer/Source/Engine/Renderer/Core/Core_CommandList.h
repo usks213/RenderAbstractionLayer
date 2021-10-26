@@ -94,6 +94,8 @@ namespace core
 
 		virtual void clearCommand() = 0;		///< コマンドのクリア
 
+		virtual void clearBackBuffer(const Color& color) = 0;
+
 		virtual void clearRederTarget(const RenderTargetID& rtID, const Color& color) = 0;
 
 		virtual void clearDepthStencil(const DepthStencilID& dsID, float depth, std::uint8_t stencil) = 0;

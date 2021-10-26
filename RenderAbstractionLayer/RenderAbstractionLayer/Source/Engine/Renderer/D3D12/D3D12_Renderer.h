@@ -91,17 +91,12 @@ namespace d3d12
 		ComPtr<IDXGIFactory6>				m_pDXGIFactory;
 		ComPtr<IDXGISwapChain4>			m_pSwapChain;
 
-		D3D12_VIEWPORT					m_viewport;
-		D3D12_RECT						m_scissorrect;
-
 		// d3d12 fence param
 		ComPtr<ID3D12Fence>				m_pFence;
 		UINT64							m_nFenceVal;
 
 		// d3d12 command param
 		ComPtr<ID3D12CommandQueue>		m_pCmdQueue;
-		ComPtr<ID3D12CommandAllocator>		m_pCmdAllocator;		///< コマンドアロケーター
-		ComPtr<ID3D12GraphicsCommandList>	m_pCmdList;			///< コマンドリスト
 
 		// d3d12 rtv param
 		static constexpr UINT				BACK_BUFFER_COUNT = 2;

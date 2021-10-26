@@ -57,22 +57,6 @@ void D3D11Renderer::clear()
 	}
 	m_useCmdListCnt = 0;
 
-	// イベント開始
-	//m_d3dAnnotation->BeginEvent(L"Clear");
-
-	// バッファのクリア
-	float ClearColor[4] = { 0.2f, 0.22f, 0.22f, 1.0f };
-	m_d3dContext->ClearRenderTargetView(m_device.m_backBufferRTV.Get(), ClearColor);
-	m_d3dContext->ClearDepthStencilView(m_device.m_depthStencilView.Get(), 
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(), 
-		m_device.m_depthStencilView.Get());
-
-	// ビューポート
-	m_d3dContext->RSSetViewports(1, &m_device.m_viewport);
-
-	// イベント終了
-	//m_d3dAnnotation->EndEvent();
 }
 
 /// @brief 画面更新

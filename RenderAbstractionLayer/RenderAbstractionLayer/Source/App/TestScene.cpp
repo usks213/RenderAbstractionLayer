@@ -209,6 +209,9 @@ void TestScene::Render()
 	// レンダーターゲット指定
 	cmdList->setBackBuffer();
 
+	// レンダーターゲットクリア
+	cmdList->clearBackBuffer(Color(0.2f, 0.2f, 0.2f, 1.0f));
+
 	// ビューポート指定
 	cmdList->setViewport(viewport);
 
