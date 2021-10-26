@@ -319,6 +319,9 @@ void D3D12Renderer::present()
 {
 	HRESULT hr = S_OK;
 
+	// リソース更新
+	m_device.ExecuteUpdateResurce();
+
 	// レンダーターゲットハンドルの取得
 	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	// レンダーターゲットのバリア指定

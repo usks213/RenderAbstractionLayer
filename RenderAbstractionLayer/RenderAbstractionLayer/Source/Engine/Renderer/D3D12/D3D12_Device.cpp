@@ -609,6 +609,7 @@ void D3D12Device::AddUpdateResource(ID3D12Resource* pResource, void* pData, std:
 /// @brief 更新リソースリストの実行
 void D3D12Device::ExecuteUpdateResurce()
 {
+	// リソース更新
 	for (auto& updateData : m_updateResourceList)
 	{
 		void* pData = nullptr;
@@ -616,4 +617,7 @@ void D3D12Device::ExecuteUpdateResurce()
 		std::memcpy(pData, updateData.data.data(), updateData.data.size());
 		updateData.pResource->Unmap(0, nullptr);
 	}
+	// リストクリア
+	m_updateResourceList.clear();
+	m_updateResourceList.shrink_to_fit();
 }

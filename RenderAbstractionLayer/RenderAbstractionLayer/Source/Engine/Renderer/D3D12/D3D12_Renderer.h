@@ -50,7 +50,7 @@ namespace d3d12
 
 		/// @brief コマンドリストの取得
 		/// @return コマンドリストのポインタ 
-		core::CoreCommandList* getContext() override
+		core::CoreCommandList* getCommandList() override
 		{
 			if (m_useCmdListCnt >= m_cmdLists.size())
 			{

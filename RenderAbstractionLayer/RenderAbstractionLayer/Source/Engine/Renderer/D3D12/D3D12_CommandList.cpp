@@ -95,11 +95,12 @@ void D3D12CommandList::setMaterial(const core::MaterialID& materialID)
 			auto& cbData = d3dMat->m_cbufferData[stageIndex][cb.first];
 			if (cbData.isUpdate)
 			{
-				void* pData = nullptr;
-				CHECK_FAILED(cb.second->Map(0, nullptr, &pData));
-				if (!pData) continue;
-				std::memcpy(pData, cbData.data.get(), cbData.size);
-				cb.second->Unmap(0, nullptr);
+				m_pDevice->AddUpdateResource(cb.second.Get(), cbData.data.get(), cbData.size);
+				//void* pData = nullptr;
+				//CHECK_FAILED(cb.second->Map(0, nullptr, &pData));
+				//if (!pData) continue;
+				//std::memcpy(pData, cbData.data.get(), cbData.size);
+				//cb.second->Unmap(0, nullptr);
 				cbData.isUpdate = false;
 			}
 		}
@@ -333,10 +334,12 @@ void D3D12CommandList::bindGlobalBuffer(const core::ShaderID& shaderID, const st
 			// GPUXV
 			if (pBuffer->m_isUpdate)
 			{
-				void* pData = nullptr;
-				pBuffer->m_pBuffer->Map(0, nullptr, &pData);
-				std::memcpy(pData, pBuffer->m_aData.data(), pBuffer->m_aData.size());
-				pBuffer->m_pBuffer->Unmap(0, nullptr);
+				m_pDevice->AddUpdateResource(pBuffer->m_pBuffer.Get(), 
+					pBuffer->m_aData.data(), pBuffer->m_aData.size());
+				//void* pData = nullptr;
+				//pBuffer->m_pBuffer->Map(0, nullptr, &pData);
+				//std::memcpy(pData, pBuffer->m_aData.data(), pBuffer->m_aData.size());
+				//pBuffer->m_pBuffer->Unmap(0, nullptr);
 				pBuffer->m_isUpdate = false;
 			}
 
