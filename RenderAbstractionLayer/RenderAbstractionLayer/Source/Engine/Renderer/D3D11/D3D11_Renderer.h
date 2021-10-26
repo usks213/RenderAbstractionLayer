@@ -53,20 +53,7 @@ namespace d3d11
 
 		/// @brief コマンドリストの取得
 		/// @return コマンドリストのポインタ 
-		core::CoreCommandList* getCommandList() override
-		{
-			if (m_useCmdListCnt >= m_cmdLists.size())
-			{
-				auto up = std::make_unique<D3D11CommandList>();
-				auto* ptr = up.get();
-				ptr->initialize(this, &m_device);
-				m_cmdLists.push_back(std::move(up));
-				++m_useCmdListCnt;
-				return ptr;
-			}
-
-			return m_cmdLists[m_useCmdListCnt++].get();
-		}
+		core::CoreCommandList* getCommandList() override;
 
 		/// @brief コピーコンストラクタ削除
 		D3D11Renderer(const D3D11Renderer&) = delete;
@@ -89,8 +76,11 @@ namespace d3d11
 
 		D3D11Device						m_device;					///< デバイスクラス
 		
-		std::vector<std::unique_ptr<D3D11CommandList>>	m_cmdLists;		///< コマンドリスト配列
-		std::uint32_t								m_useCmdListCnt;	///< 使用されているコマンドリスト数
+		static constexpr std::uint32_t BACK_BUFFER_COUNT = 2;
+		std::uint32_t m_curBackBufferIndex;
+
+		std::vector<std::unique_ptr<D3D11CommandList>>	m_cmdLists[BACK_BUFFER_COUNT];			///< コマンドリスト配列
+		std::uint32_t								m_useCmdListCnt[BACK_BUFFER_COUNT];	///< 使用されているコマンドリスト数
 
 		ComPtr<ID3D11Device1>				m_d3dDevice;					///< デバイス
 		ComPtr<ID3D11DeviceContext1>		m_d3dContext;				///< イミディエイトコンテキスト

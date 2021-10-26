@@ -49,13 +49,14 @@ D3D11Device::D3D11Device() :
 /// @param height ウィンドウの高さ
 /// @return 初期化: 成功 true | 失敗 false
 HRESULT D3D11Device::initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2,
-	HWND hWnd, UINT width, UINT height)
+	HWND hWnd, UINT width, UINT height, UINT backBufferCount)
 {
 	// 初期化
 	m_pD3DDevice = pDevice;
 	m_hWnd = hWnd;
 	m_nOutputWidth = width;
 	m_nOutputHeight = height;
+	m_backBufferCount = backBufferCount;
 
 	// スワップチェーンとバッファの初期化
 	CHECK_FAILED(createSwapChainAndBuffer(pFactory2));
@@ -513,4 +514,35 @@ HRESULT D3D11Device::createCommonState()
 	}
 
 	return S_OK;
+}
+
+/// @brief 更新リソースをリストに追加
+/// @param pResource D3D12リソースポインタ
+/// @param pData データポインタ
+/// @param size データサイズ
+void D3D11Device::AddUpdateResource(ID3D11Resource* pResource, void* pData, std::size_t size)
+{
+	UpdateResourceData updateData;
+	updateData.pResource = pResource;
+	updateData.data.resize(size);
+	std::memcpy(updateData.data.data(), pData, size);
+
+	m_updateResourceList.push_back(std::move(updateData));
+}
+
+/// @brief 更新リソースリストの実行
+void D3D11Device::ExecuteUpdateResurce(ID3D11DeviceContext1* pContext)
+{
+	// リソース更新
+	for (auto& updateData : m_updateResourceList)
+	{
+		D3D11_MAPPED_SUBRESOURCE subData = {};
+		CHECK_FAILED(pContext->Map(updateData.pResource, 0, 
+			D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &subData));
+		std::memcpy(subData.pData, updateData.data.data(), updateData.data.size());
+		pContext->Unmap(updateData.pResource, 0);
+	}
+	// リストクリア
+	m_updateResourceList.clear();
+	m_updateResourceList.shrink_to_fit();
 }

@@ -41,7 +41,7 @@ namespace d3d11
 		/// @param height ウィンドウの高さ
 		/// @return 初期化: 成功 true | 失敗 false
 		HRESULT initialize(ID3D11Device1* pDevice, IDXGIFactory2* pFactory2, 
-			HWND hWnd, UINT width, UINT height);
+			HWND hWnd, UINT width, UINT height, UINT backBufferCount);
 
 		//----- リソース生成 -----
 
@@ -67,6 +67,17 @@ namespace d3d11
 		/// @brief 共通ステートの生成
 		/// @return HRESULT
 		HRESULT createCommonState();
+
+		//--- 更新リソース ---
+
+		/// @brief 更新リソースをリストに追加
+		/// @param pResource D3D11リソースポインタ
+		/// @param pData データポインタ
+		/// @param size データサイズ
+		void AddUpdateResource(ID3D11Resource* pResource, void* pData, std::size_t size);
+
+		/// @brief 更新リソースリストの実行
+		void ExecuteUpdateResurce(ID3D11DeviceContext1* pContext);
 
 	private:
 		//------------------------------------------------------------------------------
@@ -96,6 +107,14 @@ namespace d3d11
 		ComPtr<ID3D11SamplerState>		m_samplerStates[(size_t)core::SamplerState::MAX];			///< サンプラステート
 		ComPtr<ID3D11BlendState>			m_blendStates[(size_t)core::BlendState::MAX];				///< ブレンドステート
 		ComPtr<ID3D11DepthStencilState>	m_depthStencilStates[(size_t)core::DepthStencilState::MAX];	///< 深度ステンシルステート
+
+		//--- 更新リソース ---
+		struct UpdateResourceData
+		{
+			ID3D11Resource* pResource = nullptr;
+			std::vector<std::byte>	data;
+		};
+		std::vector<UpdateResourceData>		m_updateResourceList;
 
 	};
 }

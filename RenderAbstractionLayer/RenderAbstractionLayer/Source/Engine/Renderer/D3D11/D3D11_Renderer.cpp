@@ -36,7 +36,7 @@ HRESULT D3D11Renderer::initialize(HWND hWnd, UINT width, UINT height)
 
 	// デバイスの初期化
 	CHECK_FAILED(hr = m_device.initialize(m_d3dDevice.Get(), 
-		m_dxgiFactory.Get(), hWnd, width, height));
+		m_dxgiFactory.Get(), hWnd, width, height, BACK_BUFFER_COUNT));
 
 	return hr;
 }
@@ -50,12 +50,25 @@ void D3D11Renderer::finalize()
 /// @brief 画面クリア
 void D3D11Renderer::clear()
 {
+	//--- 前フレームのコマンド完了を待つ
+
+
+	//--- リソースの更新
+	// GPU側のバッファ、テクスチャなど更新
+
+
+	//--- コマンド発行
+	// 前フレームで貯めたコマンドの発行
+
+
+	//--- 現フレームのコマンド準備
+
 	// コマンドリストのクリア
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		CHECK_FAILED(m_cmdLists[i]->m_pCmdList.Reset());
+		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.Reset());
 	}
-	m_useCmdListCnt = 0;
+	m_useCmdListCnt[m_curBackBufferIndex] = 0;
 
 }
 
@@ -63,25 +76,41 @@ void D3D11Renderer::clear()
 void D3D11Renderer::present()
 {
 	// コマンドの記録終了
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		m_cmdLists[i]->m_pDeferredContext->FinishCommandList(true,
-			m_cmdLists[i]->m_pCmdList.GetAddressOf());
+		m_cmdLists[m_curBackBufferIndex][i]->m_pDeferredContext->FinishCommandList(true,
+			m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.GetAddressOf());
 	}
 
 	// コマンドの実行
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		m_d3dContext->ExecuteCommandList(m_cmdLists[i]->m_pCmdList.Get(), false);
+		m_d3dContext->ExecuteCommandList(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.Get(), false);
 	}
 
-	//// バックバッファに戻す
-	//m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(),
-	//	m_device.m_depthStencilView.Get());
-
+	// スワップ
 	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
 	//m_swapChain->Present(0, 0);							// 非垂直同期描画
 	m_device.m_swapChain->Present(1, 0);					// 垂直同期描画
+
+
+}
+
+/// @brief コマンドリストの取得
+/// @return コマンドリストのポインタ 
+core::CoreCommandList* D3D11Renderer::getCommandList()
+{
+	if (m_useCmdListCnt[m_curBackBufferIndex] >= m_cmdLists[m_curBackBufferIndex].size())
+	{
+		auto up = std::make_unique<D3D11CommandList>();
+		auto* ptr = up.get();
+		ptr->initialize(this, &m_device);
+		m_cmdLists[m_curBackBufferIndex].push_back(std::move(up));
+		++m_useCmdListCnt[m_curBackBufferIndex];
+		return ptr;
+	}
+
+	return m_cmdLists[m_curBackBufferIndex][m_useCmdListCnt[m_curBackBufferIndex]++].get();
 }
 
 //------------------------------------------------------------------------------

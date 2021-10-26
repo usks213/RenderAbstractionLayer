@@ -299,8 +299,8 @@ void D3D11CommandList::bindGlobalBuffer(const core::ShaderID& shaderID, const st
 					pBuffer->m_desc.usage == core::Usage::STAGING)
 				{
 					D3D11_MAPPED_SUBRESOURCE subData = {};
-					m_pDeferredContext->Map(pBuffer->m_pBuffer.Get(), 0,
-						D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &subData);
+					CHECK_FAILED(m_pDeferredContext->Map(pBuffer->m_pBuffer.Get(), 0,
+						D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &subData));
 					std::memcpy(subData.pData, pBuffer->m_aData.data(), pBuffer->m_aData.size());
 					m_pDeferredContext->Unmap(pBuffer->m_pBuffer.Get(), 0);
 				}
