@@ -14,6 +14,9 @@ using namespace d3d11;
 
 /// @brief コンストラクタ
 D3D11Renderer::D3D11Renderer() :
+	m_curBackBufferIndex(0),
+	m_cmdLists(),
+	m_useCmdListCnt{0,0},
 	m_device(),
 	m_d3dDevice(),
 	m_d3dAnnotation(),
@@ -52,16 +55,28 @@ void D3D11Renderer::clear()
 {
 	//--- 前フレームのコマンド完了を待つ
 
+	// スワップ
+	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
+	//m_swapChain->Present(0, 0);							// 非垂直同期描画
+	m_device.m_swapChain->Present(1, 0);					// 垂直同期描画
 
 	//--- リソースの更新
 	// GPU側のバッファ、テクスチャなど更新
-
+	// DirectX11はいらないかも
 
 	//--- コマンド発行
 	// 前フレームで貯めたコマンドの発行
 
+	// コマンドの実行
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
+	{
+		m_d3dContext->ExecuteCommandList(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.Get(), false);
+	}
 
 	//--- 現フレームのコマンド準備
+
+	// バッファインデックス切り替え
+	m_curBackBufferIndex = (m_curBackBufferIndex + 1) % BACK_BUFFER_COUNT;
 
 	// コマンドリストのクリア
 	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
@@ -81,19 +96,6 @@ void D3D11Renderer::present()
 		m_cmdLists[m_curBackBufferIndex][i]->m_pDeferredContext->FinishCommandList(true,
 			m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.GetAddressOf());
 	}
-
-	// コマンドの実行
-	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
-	{
-		m_d3dContext->ExecuteCommandList(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.Get(), false);
-	}
-
-	// スワップ
-	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
-	//m_swapChain->Present(0, 0);							// 非垂直同期描画
-	m_device.m_swapChain->Present(1, 0);					// 垂直同期描画
-
-
 }
 
 /// @brief コマンドリストの取得
