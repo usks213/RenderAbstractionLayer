@@ -124,7 +124,7 @@ void D3D12CommandList::setMaterial(const core::MaterialID& materialID)
 		// サンプラ更新
 		for (const auto& sam : d3dMat->m_samplerData[stageIndex])
 		{
-			setSamplerResource(sam.first, sam.second.state);
+			setSamplerResource(rootIndex++, sam.second.state);
 		}
 	}
 }
@@ -509,8 +509,13 @@ void D3D12CommandList::setTextureResource(std::uint32_t rootIndex, const core::T
 	}
 }
 
-void D3D12CommandList::setSamplerResource(std::uint32_t slot, core::SamplerState state)
+void D3D12CommandList::setSamplerResource(std::uint32_t rootIndex, core::SamplerState state)
 {
-
+	// ヒープ指定
+	ID3D12DescriptorHeap* pHeap[] = { m_pDevice->m_pSamplerHeap.Get() };
+	m_pCmdList->SetDescriptorHeaps(_countof(pHeap), pHeap);
+	// テーブル指定
+	m_pCmdList->SetGraphicsRootDescriptorTable(rootIndex,
+		m_pDevice->m_dynamicSamplers[static_cast<std::size_t>(state)]);
 }
 

@@ -20,7 +20,7 @@ SamplerState _Sampler : register(s0);	// ƒƒCƒ“ƒTƒ“ƒvƒ‰
 float4 PS(VS_OUTPUT input) : SV_Target0
 {
 	float4 Color = _Color;
-	Color *= _Texture.Sample(_Sampler, input.TexCoord);
+	//Color *= _Texture.Sample(_Sampler, input.TexCoord);
 	
 	return Color;
 }

@@ -431,8 +431,6 @@ HRESULT D3D12Device::createCommonState()
 		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
 		m_pD3DDevice->CreateSampler(&samplerDesc, cpuHandle);
 		m_dynamicSamplers[static_cast<size_t>(SamplerState::SHADOW)] = gpuHandle;
-		cpuHandle.ptr += descSize;
-		gpuHandle.ptr += descSize;
 
 	}
 
