@@ -71,7 +71,7 @@ void CoreEngine::tick()
 		m_ExecLastTime = m_CurrentTime;
 
 		// レンダラーのクリア
-		m_pRenderer->clear();
+		m_pRenderer->beginFrame();
 
 
 		// Update
@@ -81,8 +81,8 @@ void CoreEngine::tick()
 		m_pSceneManager->Render();
 		
 
-		// 画面更新
-		m_pRenderer->present();
+		// フレーム終了
+		m_pRenderer->endFrame();
 
 		// フレームカウンタ更新
 		m_nFrameCount++;

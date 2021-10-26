@@ -234,8 +234,8 @@ void D3D12Renderer::finalize()
 	m_pSwapChain->Present(1, 0);
 }
 
-/// @brief 画面クリア
-void D3D12Renderer::clear()
+/// @brief フレーム開始
+void D3D12Renderer::beginFrame()
 {
 	HRESULT hr = S_OK;
 
@@ -299,8 +299,8 @@ void D3D12Renderer::clear()
 
 }
 
-/// @brief 画面更新
-void D3D12Renderer::present()
+/// @brief フレーム終了
+void D3D12Renderer::endFrame()
 {
 	HRESULT hr = S_OK;
 

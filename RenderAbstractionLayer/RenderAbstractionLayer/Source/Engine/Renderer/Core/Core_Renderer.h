@@ -39,10 +39,10 @@ namespace core
 		/// @brief 終了処理
 		virtual void finalize() = 0;
 
-		/// @brief 画面クリア
-		virtual void clear() = 0;
-		/// @brief 画面更新
-		virtual void present() = 0;
+		/// @brief フレーム開始
+		virtual void beginFrame() = 0;
+		/// @brief フレーム終了
+		virtual void endFrame() = 0;
 
 
 		/// @brief エンジンの取得

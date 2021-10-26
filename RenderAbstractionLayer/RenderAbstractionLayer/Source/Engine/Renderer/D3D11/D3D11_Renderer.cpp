@@ -50,8 +50,8 @@ void D3D11Renderer::finalize()
 
 }
 
-/// @brief 画面クリア
-void D3D11Renderer::clear()
+/// @brief フレーム開始
+void D3D11Renderer::beginFrame()
 {
 	//--- 前フレームのコマンド完了を待つ
 
@@ -87,8 +87,8 @@ void D3D11Renderer::clear()
 
 }
 
-/// @brief 画面更新
-void D3D11Renderer::present()
+/// @brief フレーム終了
+void D3D11Renderer::endFrame()
 {
 	// コマンドの記録終了
 	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)

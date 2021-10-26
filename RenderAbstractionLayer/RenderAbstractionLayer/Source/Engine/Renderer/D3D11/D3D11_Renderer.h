@@ -39,10 +39,10 @@ namespace d3d11
 		/// @brief 終了処理
 		void finalize() override;
 
-		/// @brief 画面クリア
-		void clear() override;
-		/// @brief 画面更新
-		void present() override;
+		/// @brief フレーム開始
+		void beginFrame() override;
+		/// @brief フレーム終了
+		void endFrame() override;
 
 		/// @brief デバイスの取得
 		/// @return デバイスのポインタ
