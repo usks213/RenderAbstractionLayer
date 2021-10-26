@@ -93,7 +93,7 @@ void CoreEngine::tick()
 void CoreEngine::finalize()
 {
 	// レンダラーマネージャーのの終了処理
-	//m_rendererManager->finalize();
+	m_pRenderer->finalize();
 	// ウィンドウマネージャーの終了処理
 	m_pWindow->finalize();
 }
