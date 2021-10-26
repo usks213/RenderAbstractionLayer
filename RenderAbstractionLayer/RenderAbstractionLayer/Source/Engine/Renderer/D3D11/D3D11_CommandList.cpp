@@ -416,7 +416,7 @@ void D3D11CommandList::clearCommand()
 void D3D11CommandList::clearBackBuffer(const Color& color)
 {
 	// バッファのクリア
-	float ClearColor[4] = {0,0,0,0};
+	float ClearColor[4] = {};
 	std::memcpy(ClearColor, &color, sizeof(Color));
 	m_pDeferredContext->ClearRenderTargetView(m_pDevice->m_backBufferRTV.Get(), ClearColor);
 	m_pDeferredContext->ClearDepthStencilView(m_pDevice->m_depthStencilView.Get(),

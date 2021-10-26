@@ -29,7 +29,7 @@ D3D12Device::D3D12Device() :
 	m_pD3DDevice(nullptr),
 	//m_backBufferRT(nullptr),
 	//m_backBufferRTV(nullptr),
-	m_backBufferFormat(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM_SRGB),
+	m_backBufferFormat(DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM),
 	//m_depthStencilTexture(nullptr),
 	//m_depthStencilView(nullptr),
 	m_depthStencilFormat(DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT),

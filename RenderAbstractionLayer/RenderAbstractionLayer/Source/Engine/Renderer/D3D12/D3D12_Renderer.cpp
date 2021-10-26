@@ -135,7 +135,7 @@ HRESULT D3D12Renderer::initialize(HWND hWnd, UINT width, UINT height)
 		m_nBackBufferSize = m_pD3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;	// MSAA off
 
 		// バックバッファからレンダーターゲットを生成

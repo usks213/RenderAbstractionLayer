@@ -75,9 +75,9 @@ void D3D11Renderer::present()
 		m_d3dContext->ExecuteCommandList(m_cmdLists[i]->m_pCmdList.Get(), false);
 	}
 
-	// バックバッファに戻す
-	m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(),
-		m_device.m_depthStencilView.Get());
+	//// バックバッファに戻す
+	//m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(),
+	//	m_device.m_depthStencilView.Get());
 
 	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
 	//m_swapChain->Present(0, 0);							// 非垂直同期描画
