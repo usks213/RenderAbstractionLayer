@@ -59,7 +59,7 @@ namespace core
 
 		/// @brief コマンドリストの取得
 		/// @return コマンドリストのポインタ
-		virtual CoreCommandList* getContext() = 0;
+		virtual CoreCommandList* getCommandList() = 0;
 
 		/// @brief コピーコンストラクタ削除
 		CoreRenderer(const CoreRenderer&) = delete;

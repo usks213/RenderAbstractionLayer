@@ -249,6 +249,16 @@ void D3D12Renderer::finalize()
 /// @brief 画面クリア
 void D3D12Renderer::clear()
 {
+	//--- 前フレームのコマンド完了を待つ
+	// フェンス
+
+	//--- リソースの更新
+	// GPU側のバッファ、テクスチャなど更新
+
+	//--- コマンド発行
+	// 前フレームで貯めたコマンドの発行
+
+
 	// コマンドアロケーターとコマンドリストをリセット
 	CHECK_FAILED(m_pCmdAllocator->Reset());
 	CHECK_FAILED(m_pCmdList->Reset(m_pCmdAllocator.Get(), nullptr));

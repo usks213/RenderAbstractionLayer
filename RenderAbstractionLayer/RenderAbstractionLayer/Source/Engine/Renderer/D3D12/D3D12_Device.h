@@ -83,6 +83,18 @@ namespace d3d12
 		ID3D12PipelineState* createGraphicsPipelineState(D3D12Shader& d3d12Shader, const core::BlendState& bs,
 			const core::RasterizeState& rs, const core::DepthStencilState& ds);
 
+
+		//--- 更新リソース ---
+		
+		/// @brief 更新リソースをリストに追加
+		/// @param pResource D3D12リソースポインタ
+		/// @param pData データポインタ
+		/// @param size データサイズ
+		void AddUpdateResource(ID3D12Resource* pResource, void* pData, std::size_t size);
+
+		/// @brief 更新リソースリストの実行
+		void ExecuteUpdateResurce();
+
 	private:
 		//------------------------------------------------------------------------------
 		// private variables 
@@ -120,6 +132,14 @@ namespace d3d12
 		// グラフィクスパイプラインステート
 		using GraphicsPipelineStateID = std::tuple<core::ShaderID, core::BlendState, core::RasterizeState, core::DepthStencilState>;
 		std::map<GraphicsPipelineStateID, ComPtr<ID3D12PipelineState>>	m_pGraphicsPipelineState;
+
+		//--- 更新リソース ---
+		struct UpdateResourceData
+		{
+			ID3D12Resource*			pResource = nullptr;
+			std::vector<std::byte>	data;
+		};
+		std::vector<UpdateResourceData>		m_updateResourceList;
 
 	};
 }

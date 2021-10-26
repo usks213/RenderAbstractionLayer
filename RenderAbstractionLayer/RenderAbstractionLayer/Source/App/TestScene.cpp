@@ -137,7 +137,7 @@ void TestScene::Update()
 {
 	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	//auto* device = renderer->getDevice();
-	//auto* cmdList = renderer->getContext();
+	//auto* cmdList = renderer->getCommandList();
 
 }
 
@@ -146,7 +146,7 @@ void TestScene::Render()
 {
 	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	auto* device = renderer->getDevice();
-	auto* cmdList = renderer->getContext();
+	auto* cmdList = renderer->getCommandList();
 
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());

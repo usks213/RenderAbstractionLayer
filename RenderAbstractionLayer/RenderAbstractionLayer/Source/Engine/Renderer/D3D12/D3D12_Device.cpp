@@ -589,3 +589,31 @@ ID3D12PipelineState* D3D12Device::createGraphicsPipelineState(D3D12Shader& d3d12
 
 	return m_pGraphicsPipelineState[pipelineID].Get();
 }
+
+//--- 更新リソース ---
+
+/// @brief 更新リソースをリストに追加
+/// @param pResource D3D12リソースポインタ
+/// @param pData データポインタ
+/// @param size データサイズ
+void D3D12Device::AddUpdateResource(ID3D12Resource* pResource, void* pData, std::size_t size)
+{
+	UpdateResourceData updateData;
+	updateData.pResource = pResource;
+	updateData.data.resize(size);
+	std::memcpy(updateData.data.data(), pData, size);
+
+	m_updateResourceList.push_back(std::move(updateData));
+}
+
+/// @brief 更新リソースリストの実行
+void D3D12Device::ExecuteUpdateResurce()
+{
+	for (auto& updateData : m_updateResourceList)
+	{
+		void* pData = nullptr;
+		CHECK_FAILED(updateData.pResource->Map(0, 0, &pData));
+		std::memcpy(pData, updateData.data.data(), updateData.data.size());
+		updateData.pResource->Unmap(0, nullptr);
+	}
+}
