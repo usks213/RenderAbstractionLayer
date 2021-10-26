@@ -79,6 +79,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			sprintf_s(fps, "FPS:%u", engine.getCurrentFPS());
 			SetWindowText(pWin->getWindowHandle(), (fps));
 
+			Sleep(0);
 		}
 	}
 

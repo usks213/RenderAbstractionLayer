@@ -110,43 +110,16 @@ namespace d3d11
 		// private variables 
 		//------------------------------------------------------------------------------
 
-		static constexpr std::uint32_t MAX_RENDER_TARGET = 8;
-
-	private:
-		//------------------------------------------------------------------------------
-		// private variables 
-		//------------------------------------------------------------------------------
-
 		D3D11Renderer*					m_pRenderer;				///< レンダラー
 		D3D11Device*						m_pDevice;				///< デバイス
 
-		ID3D11DeviceContext1*				m_pD3DContext;			///< デバイスコマンドリスト
-		ID3D11DeviceContext1*				m_pD3DDeffered;			///< 遅延コマンドリスト
+		ComPtr<ID3D11DeviceContext1>		m_pDeferredContext;		///< デファードコンテキスト
+		ComPtr<ID3D11CommandList>			m_pCmdList;				///< コマンドリスト
 
-		//----- シェーダーバッファ
-		ComPtr<ID3D11Buffer>				m_systemBuffer;
-		ComPtr<ID3D11Buffer>				m_transformBuffer;
-		ComPtr<ID3D11Buffer>				m_animationBuffer;
+		core::DepthStencilID				m_curDepthStencilID;	///< 現在のデプスステンシル
 
-		ComPtr<ID3D11Buffer>				m_pointLightBuffer;
-		ComPtr<ID3D11Buffer>				m_spotLightBuffer;
-		ComPtr<ID3D11ShaderResourceView>	m_pointLightSRV;
-		ComPtr<ID3D11ShaderResourceView>	m_spotLightSRV;
+		static constexpr std::uint32_t MAX_RENDER_TARGET = 8;	///< レンダーターゲットの最大数
 
-
-		core::BlendState			m_curBlendState;			///< 指定中のブレンドステイト
-		core::RasterizeState		m_curRasterizeState;		///< 指定中のラスタライザーステイト
-		core::DepthStencilState	m_curDepthStencilState;	///< 指定中のデプスステンシルステイト
-		core::PrimitiveTopology	m_curPrimitiveTopology;	///< 指定中のプリミティブトポロジー
-
-		core::SamplerState		m_curSamplerState[static_cast<size_t>(core::ShaderStage::MAX)][core::SHADER::MAX_SLOT_COUNT];
-		core::TextureID			m_curTexture[static_cast<size_t>(core::ShaderStage::MAX)][core::SHADER::MAX_SLOT_COUNT];
-
-		core::ShaderID			m_curShader;				///< 指定中のシェーダー
-		core::MaterialID			m_curMaterial;			///< 指定中のマテリアル
-		core::RenderBufferID		m_curRenderBuffer;		///< 指定中のレンダーバッファ
-		core::RenderTargetID		m_curRenderTargets[MAX_RENDER_TARGET];	///< 指定中のレンダーターゲット
-		core::DepthStencilID		m_curDepthStencil;		///< 指定中のデプスステンシル
 	};
 }
 

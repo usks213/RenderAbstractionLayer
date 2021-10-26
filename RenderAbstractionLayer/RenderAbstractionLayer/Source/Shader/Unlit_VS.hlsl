@@ -29,11 +29,11 @@ cbuffer World : register(b8)
 VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	//int n = input.instID % 512;
-	//float4x4 mWVP = mul(_mWorld[n], _mView);
-	//mWVP = mul(mWVP, _mProj);
-	//output.Position = mul(float4(input.Position, 1.0f), mWVP);
-	output.Position = float4(input.Position, 1.0f);
+	int n = input.instID % 512;
+	float4x4 mWVP = mul(_mWorld[n], _mView);
+	mWVP = mul(mWVP, _mProj);
+	output.Position = mul(float4(input.Position, 1.0f), mWVP);
+	//output.Position = mul(float4(input.Position, 1.0f), _mWorld);
 	//output.TexCoord = mul(float4(input.TexCoord, 0.0f, 1.0f), _mTex).xy;
 	output.TexCoord = input.TexCoord;
 	return output;

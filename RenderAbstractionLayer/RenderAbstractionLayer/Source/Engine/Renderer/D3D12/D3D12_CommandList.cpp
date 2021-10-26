@@ -280,18 +280,36 @@ void D3D12CommandList::setRenderTarget(std::uint32_t num, const RenderTargetID r
 
 void D3D12CommandList::setViewport(const Rect& rect)
 {
-	D3D12_VIEWPORT d3d11View = {
+	// ビューポートの指定
+	D3D12_VIEWPORT d3d12View = {
 		rect.left, rect.top, rect.right, rect.bottom, 0.0f, 1.0f
 	};
-	m_pCmdList->RSSetViewports(1, &d3d11View);
+	m_pCmdList->RSSetViewports(1, &d3d12View);
+
+	// シザーの指定
+	D3D12_RECT d3d12Rect = {};
+	d3d12Rect.top = rect.top;//切り抜き上座標
+	d3d12Rect.left = rect.left;//切り抜き左座標
+	d3d12Rect.right = rect.right;//切り抜き右座標
+	d3d12Rect.bottom = rect.bottom;//切り抜き下座標
+	m_pCmdList->RSSetScissorRects(1, &d3d12Rect);
 }
 
 void D3D12CommandList::setViewport(const Viewport& viewport)
 {
-	D3D12_VIEWPORT d3d11View = { viewport.left, viewport.top,
+	// ビューポートの指定
+	D3D12_VIEWPORT d3d12View = { viewport.left, viewport.top,
 		viewport.right, viewport.bottom, viewport.minDepth, viewport.maxDepth
 	};
-	m_pCmdList->RSSetViewports(1, &d3d11View);
+	m_pCmdList->RSSetViewports(1, &d3d12View);
+
+	// シザーの指定
+	D3D12_RECT d3d12Rect = {};
+	d3d12Rect.top = viewport.top;//切り抜き上座標
+	d3d12Rect.left = viewport.left;//切り抜き左座標
+	d3d12Rect.right = viewport.right;//切り抜き右座標
+	d3d12Rect.bottom = viewport.bottom;//切り抜き下座標
+	m_pCmdList->RSSetScissorRects(1, &d3d12Rect);
 }
 
 //----- ゲット命令 -----

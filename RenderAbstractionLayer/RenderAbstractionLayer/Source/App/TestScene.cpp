@@ -201,11 +201,16 @@ void TestScene::Render()
 	pUnlitMat->setMatrix("_mProj", proj);
 	//pUnlitMat->setTexture("_Texture", g_texID);
 
+	// ビューポート作成
+	Viewport viewport = Viewport(0, 0, width, height);
 
 	//----- 描画
 
 	// レンダーターゲット指定
 	cmdList->setBackBuffer();
+
+	// ビューポート指定
+	cmdList->setViewport(viewport);
 
 	// マテリアルの指定
 	cmdList->setMaterial(g_matID);

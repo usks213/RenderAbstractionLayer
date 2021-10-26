@@ -82,7 +82,6 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 		D3D12Device						m_device;				///< デバイスクラス
-		// コマンドキュー
 
 		std::vector<std::unique_ptr<D3D12CommandList>>	m_cmdLists;		///< コマンドリスト配列
 		std::uint32_t								m_useCmdListCnt;	///< 使用されているコマンドリスト数

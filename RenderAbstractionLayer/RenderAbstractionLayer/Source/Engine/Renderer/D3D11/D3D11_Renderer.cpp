@@ -15,11 +15,9 @@ using namespace d3d11;
 /// @brief コンストラクタ
 D3D11Renderer::D3D11Renderer() :
 	m_device(),
-	m_cmdList(),
 	m_d3dDevice(),
 	m_d3dAnnotation(),
 	m_d3dContext(),
-	m_d3dDefferedContext(),
 	m_dxgiFactory()
 {
 }
@@ -40,11 +38,6 @@ HRESULT D3D11Renderer::initialize(HWND hWnd, UINT width, UINT height)
 	CHECK_FAILED(hr = m_device.initialize(m_d3dDevice.Get(), 
 		m_dxgiFactory.Get(), hWnd, width, height));
 
-	// コマンドリストの初期化
-	m_cmdList.m_pD3DContext = m_d3dContext.Get();
-	m_cmdList.m_pD3DDeffered = m_d3dDefferedContext.Get();
-	CHECK_FAILED(hr = m_cmdList.initialize(this, &m_device));
-
 	return hr;
 }
 
@@ -57,9 +50,15 @@ void D3D11Renderer::finalize()
 /// @brief 画面クリア
 void D3D11Renderer::clear()
 {
+	// コマンドリストのクリア
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		CHECK_FAILED(m_cmdLists[i]->m_pCmdList.Reset());
+	}
+	m_useCmdListCnt = 0;
+
 	// イベント開始
-	m_d3dAnnotation->BeginEvent(L"Clear");
-	m_d3dContext->OMSetBlendState(nullptr, nullptr, std::numeric_limits<UINT>::max());
+	//m_d3dAnnotation->BeginEvent(L"Clear");
 
 	// バッファのクリア
 	float ClearColor[4] = { 0.2f, 0.22f, 0.22f, 1.0f };
@@ -73,12 +72,25 @@ void D3D11Renderer::clear()
 	m_d3dContext->RSSetViewports(1, &m_device.m_viewport);
 
 	// イベント終了
-	m_d3dAnnotation->EndEvent();
+	//m_d3dAnnotation->EndEvent();
 }
 
 /// @brief 画面更新
 void D3D11Renderer::present()
 {
+	// コマンドの記録終了
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		m_cmdLists[i]->m_pDeferredContext->FinishCommandList(true,
+			m_cmdLists[i]->m_pCmdList.GetAddressOf());
+	}
+
+	// コマンドの実行
+	for (int i = 0; i < m_useCmdListCnt; ++i)
+	{
+		m_d3dContext->ExecuteCommandList(m_cmdLists[i]->m_pCmdList.Get(), false);
+	}
+
 	// バックバッファに戻す
 	m_d3dContext->OMSetRenderTargets(1, m_device.m_backBufferRTV.GetAddressOf(),
 		m_device.m_depthStencilView.Get());
@@ -137,9 +149,8 @@ HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 
 
 	//--- デバイスの生成 ---
-	ComPtr<ID3D11Device>		device;
-	ComPtr<ID3D11DeviceContext> cmdList;
-	ComPtr<ID3D11DeviceContext> defferedContext;
+	ComPtr<ID3D11Device>				device;
+	ComPtr<ID3D11DeviceContext>		context;
 
 	// デバイス。コマンドリストの生成
 	hr = D3D11CreateDevice(
@@ -152,24 +163,15 @@ HRESULT D3D11Renderer::createDiveceAndContext(HWND hWnd)
 		D3D11_SDK_VERSION,
 		device.GetAddressOf(),
 		NULL,
-		cmdList.GetAddressOf());
+		context.GetAddressOf());
 	if (FAILED(hr)) {
 		MessageBoxW(hWnd, L"D3D11CreateDevice", L"Err", MB_ICONSTOP);
 		return hr;
 	}
 
-	// 遅延コマンドリスト作成
-	hr = device->CreateDeferredContext(0, defferedContext.GetAddressOf());
-	if (FAILED(hr)) {
-		MessageBoxW(hWnd, L"CreateDeferredContext", L"Err", MB_ICONSTOP);
-		return hr;
-	}
-
 	// 格納
 	hr = device.As(&m_d3dDevice);
-	hr = cmdList.As(&m_d3dContext);
-	hr = cmdList.As(&m_d3dAnnotation);
-	hr = defferedContext.As(&m_d3dDefferedContext);
+	hr = context.As(&m_d3dContext);
 
-	return S_OK;
+	return hr;
 }

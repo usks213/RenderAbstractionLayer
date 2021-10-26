@@ -55,7 +55,17 @@ namespace d3d11
 		/// @return コマンドリストのポインタ 
 		core::CoreCommandList* getContext() override
 		{
-			return &m_cmdList;
+			if (m_useCmdListCnt >= m_cmdLists.size())
+			{
+				auto up = std::make_unique<D3D11CommandList>();
+				auto* ptr = up.get();
+				ptr->initialize(this, &m_device);
+				m_cmdLists.push_back(std::move(up));
+				++m_useCmdListCnt;
+				return ptr;
+			}
+
+			return m_cmdLists[m_useCmdListCnt++].get();
 		}
 
 		/// @brief コピーコンストラクタ削除
@@ -77,15 +87,16 @@ namespace d3d11
 		// private variables
 		//------------------------------------------------------------------------------
 
-		D3D11Device					m_device;				///< デバイスクラス
-		D3D11CommandList					m_cmdList;				///< コンテストクラス
+		D3D11Device						m_device;					///< デバイスクラス
+		
+		std::vector<std::unique_ptr<D3D11CommandList>>	m_cmdLists;		///< コマンドリスト配列
+		std::uint32_t								m_useCmdListCnt;	///< 使用されているコマンドリスト数
 
-		ComPtr<ID3D11Device1>				m_d3dDevice;			///< デバイス
-		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;		///< アノテーション
-		ComPtr<ID3D11DeviceContext1>		m_d3dContext;			///< デバイスコマンドリスト
-		ComPtr<ID3D11DeviceContext1>		m_d3dDefferedContext;	///< 遅延コマンドリスト
+		ComPtr<ID3D11Device1>				m_d3dDevice;					///< デバイス
+		ComPtr<ID3D11DeviceContext1>		m_d3dContext;				///< イミディエイトコンテキスト
+		ComPtr<ID3DUserDefinedAnnotation>	m_d3dAnnotation;				///< アノテーション
 
-		ComPtr<IDXGIFactory2>				m_dxgiFactory;			///< ファクトリー
+		ComPtr<IDXGIFactory2>				m_dxgiFactory;				///< ファクトリー
 
 	};
 }
