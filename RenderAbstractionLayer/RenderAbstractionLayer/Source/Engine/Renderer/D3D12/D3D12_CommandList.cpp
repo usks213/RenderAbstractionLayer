@@ -155,8 +155,8 @@ void D3D12CommandList::setRenderBuffer(const core::RenderBufferID& renderBufferI
 void D3D12CommandList::setBackBuffer()
 {
 	// レンダーターゲットハンドルの取得
+	UINT backBufferIndex = m_pRenderer->m_curBackBufferIndex;
 	auto handlRTV = m_pRenderer->m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT backBufferIndex = m_pRenderer->m_pSwapChain->GetCurrentBackBufferIndex();
 	handlRTV.ptr += backBufferIndex * m_pRenderer->m_nBackBufferSize;
 	auto handlDSV = m_pRenderer->m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -472,8 +472,7 @@ void D3D12CommandList::clearBackBuffer(const Color& color)
 {
 	// レンダーターゲットハンドルの取得
 	auto handlRTV = m_pRenderer->m_pBackBufferHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT backBufferIndex = m_pRenderer->m_pSwapChain->GetCurrentBackBufferIndex();
-	handlRTV.ptr += backBufferIndex * m_pRenderer->m_nBackBufferSize;
+	handlRTV.ptr += m_pRenderer->m_curBackBufferIndex * m_pRenderer->m_nBackBufferSize;
 	auto handlDSV = m_pRenderer->m_pDepthStencilHeap->GetCPUDescriptorHandleForHeapStart();
 
 	FLOAT clearColor[4] = {};

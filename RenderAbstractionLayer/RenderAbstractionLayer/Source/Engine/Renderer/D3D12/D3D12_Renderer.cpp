@@ -217,6 +217,9 @@ void D3D12Renderer::finalize()
 /// @brief 画面クリア
 void D3D12Renderer::clear()
 {
+	// 現在のバックバッファインデックス
+	m_curBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
 	//--- 前フレームのコマンド完了を待つ
 	// フェンス
 
@@ -228,12 +231,13 @@ void D3D12Renderer::clear()
 
 
 	// コマンドアロケーターとコマンドリストをリセット
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		CHECK_FAILED(m_cmdLists[i]->m_pCmdAllocator->Reset());
-		CHECK_FAILED(m_cmdLists[i]->m_pCmdList->Reset(m_cmdLists[i]->m_pCmdAllocator.Get(), nullptr));
+		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdAllocator->Reset());
+		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->
+			Reset(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdAllocator.Get(), nullptr));
 	}
-	m_useCmdListCnt = 0;
+	m_useCmdListCnt[m_curBackBufferIndex] = 0;
 
 }
 
@@ -245,30 +249,28 @@ void D3D12Renderer::present()
 	// リソース更新
 	m_device.ExecuteUpdateResurce();
 
-	// レンダーターゲットハンドルの取得
-	UINT backBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	// レンダーターゲットのバリア指定
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
 	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
 	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
-	barrierDesc.Transition.pResource = m_pBackBuffer[backBufferIndex].Get();	// リソースポインタ
+	barrierDesc.Transition.pResource = m_pBackBuffer[m_curBackBufferIndex].Get();	// リソースポインタ
 	barrierDesc.Transition.Subresource = 										// サブリソースの数
 		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
 
 	// コマンドの記録終了
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		m_cmdLists[i]->m_pCmdList->ResourceBarrier(1, &barrierDesc);
-		CHECK_FAILED(m_cmdLists[i]->m_pCmdList->Close());
+		m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->ResourceBarrier(1, &barrierDesc);
+		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->Close());
 	}
 
 	// コマンドリストを格納
 	std::vector<ID3D12CommandList*> ppCmdList;
-	for (int i = 0; i < m_useCmdListCnt; ++i)
+	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		ppCmdList.push_back(m_cmdLists[i]->m_pCmdList.Get());
+		ppCmdList.push_back(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.Get());
 	}
 
 	// コマンドの実行
@@ -293,5 +295,22 @@ void D3D12Renderer::present()
 
 	// 表示
 	m_pSwapChain->Present(1, 0);
-	
+
+}
+
+/// @brief コマンドリストの取得
+/// @return コマンドリストのポインタ 
+core::CoreCommandList* D3D12Renderer::getCommandList()
+{
+	if (m_useCmdListCnt[m_curBackBufferIndex] >= m_cmdLists[m_curBackBufferIndex].size())
+	{
+		auto up = std::make_unique<D3D12CommandList>();
+		auto* ptr = up.get();
+		ptr->initialize(this, &m_device);
+		m_cmdLists[m_curBackBufferIndex].push_back(std::move(up));
+		++m_useCmdListCnt[m_curBackBufferIndex];
+		return ptr;
+	}
+
+	return m_cmdLists[m_curBackBufferIndex][m_useCmdListCnt[m_curBackBufferIndex]++].get();
 }
