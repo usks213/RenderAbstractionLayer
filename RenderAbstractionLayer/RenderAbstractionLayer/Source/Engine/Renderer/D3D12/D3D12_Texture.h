@@ -43,7 +43,7 @@ namespace d3d12
 
 		ComPtr<ID3D12DescriptorHeap>		m_pTexHeap;	///< ヒープ
 		ComPtr<ID3D12Resource>			m_pTex;		///< テクスチャ
-
+		D3D12_RESOURCE_STATES				m_eState;	///< リソースの状態
 	};
 }
 

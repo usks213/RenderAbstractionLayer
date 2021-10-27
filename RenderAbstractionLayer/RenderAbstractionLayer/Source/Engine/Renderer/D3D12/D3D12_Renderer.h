@@ -91,6 +91,7 @@ namespace d3d12
 		// d3d12 rtv param
 		ComPtr<ID3D12DescriptorHeap>		m_pBackBufferHeap;
 		ComPtr<ID3D12Resource>			m_pBackBuffer[BACK_BUFFER_COUNT];
+		D3D12_RESOURCE_STATES				m_eBackBufferSate[BACK_BUFFER_COUNT];
 		UINT								m_nBackBufferSize;
 
 		// d3d12 dsv param

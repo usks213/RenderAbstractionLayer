@@ -90,7 +90,7 @@ namespace core
 		virtual void blit(const RenderBufferID& destID, const TextureID& sourceID, const MaterialID& matID) = 0;
 
 
-		//----- その他 -----
+		//----- クリア -----
 
 		virtual void clearCommand() = 0;		///< コマンドのクリア
 
@@ -99,6 +99,13 @@ namespace core
 		virtual void clearRederTarget(const RenderTargetID& rtID, const Color& color) = 0;
 
 		virtual void clearDepthStencil(const DepthStencilID& dsID, float depth, std::uint8_t stencil) = 0;
+
+
+		//----- コピー -----
+
+		virtual void copyBackBuffer(const TextureID& sourceID) = 0;
+
+		virtual void copyTexture(const TextureID& destID, const TextureID& sourceID) = 0;
 
 	protected:
 		//------------------------------------------------------------------------------

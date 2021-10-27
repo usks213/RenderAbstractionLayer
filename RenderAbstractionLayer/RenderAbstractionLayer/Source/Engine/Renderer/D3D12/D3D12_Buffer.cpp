@@ -15,7 +15,10 @@ using namespace d3d12;
  /// @param desc バッファDesc
  /// @param data 初期化データ
 D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const core::BufferDesc& desc, const core::BufferData* pData) :
-	core::CoreBuffer(id, desc)
+	core::CoreBuffer(id, desc),
+	m_pHeap(nullptr),
+	m_pBuffer(nullptr),
+	m_eState(D3D12_RESOURCE_STATE_GENERIC_READ)
 {
 	// ヒープの作成
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
@@ -70,7 +73,7 @@ D3D12Buffer::D3D12Buffer(ID3D12Device* device, const core::BufferID& id, const c
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
 		&d3dDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
+		m_eState,
 		nullptr,
 		IID_PPV_ARGS(m_pBuffer.GetAddressOf())
 	));

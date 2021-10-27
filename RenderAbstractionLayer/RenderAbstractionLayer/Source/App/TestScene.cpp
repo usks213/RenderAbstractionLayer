@@ -21,6 +21,9 @@ core::RenderBufferID		g_rdID;
 core::TextureID			g_texID;
 core::BufferID			g_worldID;
 
+core::RenderTargetID		g_rtID;
+core::DepthStencilID		g_dsID;
+
 constexpr int MAX_WORLD = 512;
 
  /// @brief スタート
@@ -120,6 +123,21 @@ void TestScene::Start()
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
+	// レンダーターゲットの生成
+	core::TextureDesc rtDesc = {};
+	rtDesc.name = "レンダーターゲット";
+	rtDesc.width = width;
+	rtDesc.height = height;
+	rtDesc.bindFlags = 0 | core::BindFlags::RENDER_TARGET;
+	rtDesc.format = core::TextureFormat::R8G8B8A8_UNORM;
+	g_rtID = device->createRenderTarget(rtDesc);
+
+	// デプスステンシルの生成
+	rtDesc.name = "デプスステンシル";
+	rtDesc.bindFlags = 0 | core::BindFlags::DEPTH_STENCIL;
+	rtDesc.format = core::TextureFormat::D32_FLOAT;
+	g_dsID = device->createDepthStencil(rtDesc);
+
 	// ワールドマトリックスの作成
 	core::BufferDesc bufferDesc;
 	bufferDesc.name = "WorldMatrix";
@@ -151,6 +169,7 @@ void TestScene::Render()
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
+	auto* pRT = device->getRenderTarget(g_rtID);
 	auto* pUnlitMat = device->getMaterial(g_matID);
 	auto* pWorldBuffer = device->getBuffer(g_worldID);
 
@@ -207,10 +226,13 @@ void TestScene::Render()
 	//----- 描画
 
 	// レンダーターゲット指定
-	cmdList->setBackBuffer();
+	//cmdList->setBackBuffer();
+	cmdList->setRenderTarget(g_rtID, g_dsID);
 
 	// レンダーターゲットクリア
-	cmdList->clearBackBuffer(Color(0.2f, 0.2f, 0.2f, 1.0f));
+	//cmdList->clearBackBuffer(Color(0.2f, 0.2f, 0.2f, 1.0f));
+	cmdList->clearRederTarget(g_rtID, Color(0.2f, 0.2f, 0.2f, 1.0f));
+	cmdList->clearDepthStencil(g_dsID, 1.0f, 0);
 
 	// ビューポート指定
 	cmdList->setViewport(viewport);
@@ -229,6 +251,10 @@ void TestScene::Render()
 	{
 		cmdList->render(g_rdID, MAX_WORLD);
 	}
+
+	// バックバッファへコピー
+	cmdList->copyBackBuffer(pRT->m_texID);
+
 }
 
 /// @brief エンド

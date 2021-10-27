@@ -76,7 +76,7 @@ namespace d3d12
 
 		void bindGlobalSampler(const core::ShaderID& shaderID, const std::string& bindName, const core::SamplerState& sampler) override;
 
-		//----- 描画命令
+		//----- 描画命令 -----
 
 		void render(const core::RenderBufferID& renderBufferID, std::uint32_t instanceCount = 1)  override;
 
@@ -87,7 +87,7 @@ namespace d3d12
 		void blit(const core::RenderBufferID& destID, const core::TextureID& sourceID, const core::MaterialID& matID) override;
 
 
-		//----- その他 -----
+		//----- クリア -----
 
 		void clearCommand() override;		///< コマンドのクリア
 
@@ -97,16 +97,25 @@ namespace d3d12
 
 		void clearDepthStencil(const core::DepthStencilID& dsID, float depth, std::uint8_t stencil) override;
 
+
+		//----- コピー -----
+
+		void copyBackBuffer(const core::TextureID& sourceID) override;
+
+		void copyTexture(const core::TextureID& destID, const core::TextureID& sourceID) override;
+
+
 	private:
 		//------------------------------------------------------------------------------
 		// private methods 
 		//------------------------------------------------------------------------------
 
-		void setCBufferResource(std::uint32_t rootIndex, const core::BufferID& bufferID);
+		void setTextureResource(core::ShaderStage stage, std::uint32_t rootIndex, const core::TextureID& textureID);
 
-		void setTextureResource(std::uint32_t rootIndex, const core::TextureID& textureID);
+		void setSamplerResource(core::ShaderStage stage, std::uint32_t rootIndex, core::SamplerState state);
 
-		void setSamplerResource(std::uint32_t rootIndex, core::SamplerState state);
+		void setTrasitionResourceBarrier(ID3D12Resource* pResource, 
+			D3D12_RESOURCE_STATES& before, const D3D12_RESOURCE_STATES after);
 
 	private:
 		//------------------------------------------------------------------------------

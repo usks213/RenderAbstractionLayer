@@ -15,7 +15,8 @@ using namespace d3d12;
 //------------------------------------------------------------------------------
 
 /// @brief コンストラクタ
-D3D12Renderer::D3D12Renderer()
+D3D12Renderer::D3D12Renderer() :
+	m_eBackBufferSate{ D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_PRESENT }
 {
 
 }
@@ -304,20 +305,27 @@ void D3D12Renderer::endFrame()
 {
 	HRESULT hr = S_OK;
 
-	// レンダーターゲットのバリア指定
-	D3D12_RESOURCE_BARRIER barrierDesc = {};
-	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
-	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
-	barrierDesc.Transition.pResource = m_pBackBuffer[m_curBackBufferIndex].Get();	// リソースポインタ
-	barrierDesc.Transition.Subresource = 										// サブリソースの数
-		D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;	// 遷移前のリソース状態
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
+	if (m_eBackBufferSate[m_curBackBufferIndex] != D3D12_RESOURCE_STATE_PRESENT && 
+		m_cmdLists[m_curBackBufferIndex].size() > 0)
+	{
+		// レンダーターゲットのバリア指定
+		D3D12_RESOURCE_BARRIER barrierDesc = {};
+		barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;					// バリア種別(遷移)
+		barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;						// バリア分割用
+		barrierDesc.Transition.pResource = m_pBackBuffer[m_curBackBufferIndex].Get();	// リソースポインタ
+		barrierDesc.Transition.Subresource = 										// サブリソースの数
+			D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;								// リソース内のすべてのサブリソースを同時に移行
+		barrierDesc.Transition.StateBefore = m_eBackBufferSate[m_curBackBufferIndex];	// 遷移前のリソース状態
+		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;			// 遷移後のリソース状態
+
+		// 最後のコマンドにリソースバリア
+		m_cmdLists[m_curBackBufferIndex].back()->m_pCmdList->ResourceBarrier(1, &barrierDesc);
+		m_eBackBufferSate[m_curBackBufferIndex] = D3D12_RESOURCE_STATE_PRESENT;
+	}
 
 	// コマンドの記録終了
 	for (int i = 0; i < m_useCmdListCnt[m_curBackBufferIndex]; ++i)
 	{
-		m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->ResourceBarrier(1, &barrierDesc);
 		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->Close());
 	}
 

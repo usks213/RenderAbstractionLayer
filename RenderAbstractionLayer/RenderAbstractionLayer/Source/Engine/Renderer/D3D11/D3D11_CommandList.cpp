@@ -204,26 +204,7 @@ void D3D11CommandList::setRenderTarget(const RenderTargetID& rtID)
 
 void D3D11CommandList::setRenderTarget(const std::uint32_t num, const RenderTargetID rtIDs[])
 {
-	// 安全処理
-	if (num >= MAX_RENDER_TARGET || num <= 0) return;
-
-	// レンダーターゲット取得
-	std::vector<ID3D11RenderTargetView*> rtvs(num);
-	for (int i = 0; i < num; ++i)
-	{
-		auto* pRT = static_cast<D3D11RenderTarget*>(m_pDevice->getRenderTarget(rtIDs[i]));
-		if (pRT) rtvs.push_back(pRT->m_rtv.Get());
-		else rtvs.push_back(nullptr);
-	}
-
-	// 現在のデプスステンシル取得
-	ID3D11DepthStencilView* pDSV = nullptr;
-	auto* pDS = static_cast<D3D11DepthStencil*>(m_pDevice->getDepthStencil(m_curDepthStencilID));
-	if (pDS) pDSV = pDS->m_dsv.Get();
-
-	// レンダーターゲット指定
-	m_pDeferredContext->OMSetRenderTargets(num, rtvs.data(), pDSV);
-
+	setRenderTarget(num, rtIDs, m_curDepthStencilID);
 }
 
 void D3D11CommandList::setRenderTarget(const RenderTargetID& rtID, const DepthStencilID& dsID)
@@ -238,12 +219,13 @@ void D3D11CommandList::setRenderTarget(std::uint32_t num, const RenderTargetID r
 	if (num >= MAX_RENDER_TARGET || num <= 0) return;
 
 	// レンダーターゲット取得
-	std::vector<ID3D11RenderTargetView*> rtvs(num);
+	std::vector<ID3D11RenderTargetView*> rtvs;
+	rtvs.resize(num);
 	for (int i = 0; i < num; ++i)
 	{
 		auto* pRT = static_cast<D3D11RenderTarget*>(m_pDevice->getRenderTarget(rtIDs[i]));
-		if (pRT) rtvs.push_back(pRT->m_rtv.Get());
-		else rtvs.push_back(nullptr);
+		if (pRT) rtvs[i] = pRT->m_rtv.Get();
+		else rtvs[i] = nullptr;
 	}
 
 	// 現在のデプスステンシル取得
@@ -406,7 +388,7 @@ void D3D11CommandList::blit(const RenderBufferID& destID, const TextureID& sourc
 
 }
 
-//----- その他 -----
+//----- クリア -----
 
 void D3D11CommandList::clearCommand()
 {
@@ -445,6 +427,38 @@ void D3D11CommandList::clearDepthStencil(const DepthStencilID& dsID, float depth
 	// クリアコマンド
 	m_pDeferredContext->ClearDepthStencilView(pDS->m_dsv.Get(), 
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+}
+
+//----- コピー -----
+
+void D3D11CommandList::copyBackBuffer(const core::TextureID& sourceID)
+{
+	// テクスチャ取得
+	auto* pTex = static_cast<D3D11Texture*>(m_pDevice->getTexture(sourceID));
+	if (pTex == nullptr) return;
+
+	// リソース
+	auto* pDest = m_pDevice->m_backBufferRT.Get();
+	auto* pSource = pTex->m_tex.Get();
+
+	// リソースコピー
+	m_pDeferredContext->CopyResource(pDest, pSource);
+}
+
+void D3D11CommandList::copyTexture(const core::TextureID& destID, const core::TextureID& sourceID)
+{
+	// テクスチャ取得
+	auto* pTexA = static_cast<D3D11Texture*>(m_pDevice->getTexture(destID));
+	if (pTexA == nullptr) return;
+	auto* pTexB = static_cast<D3D11Texture*>(m_pDevice->getTexture(sourceID));
+	if (pTexB == nullptr) return;
+
+	// リソース
+	auto* pDest = pTexA->m_tex.Get();
+	auto* pSource = pTexB->m_tex.Get();
+
+	// リソースコピー
+	m_pDeferredContext->CopyResource(pDest, pSource);
 }
 
 //------------------------------------------------------------------------------

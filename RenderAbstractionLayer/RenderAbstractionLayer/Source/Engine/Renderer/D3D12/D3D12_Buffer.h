@@ -42,7 +42,8 @@ namespace d3d12
 		ComPtr<ID3D12DescriptorHeap>	m_pHeap;
 		/// @brief バッファリソース
 		ComPtr<ID3D12Resource>		m_pBuffer;
-
+		/// @brief リソースの状態
+		D3D12_RESOURCE_STATES			m_eState;
 	};
 }
 

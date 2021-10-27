@@ -50,7 +50,8 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
     core::TextureDesc& desc, const core::TextureData* pData, const D3D12_CLEAR_VALUE* pClear) :
 	core::CoreTexture(id, desc),
 	m_pTexHeap(nullptr),
-	m_pTex(nullptr)
+	m_pTex(nullptr),
+    m_eState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
 {
     DXGI_SAMPLE_DESC d3dSampleDesc = { desc.sampleDesc.count, desc.sampleDesc.quality };
 
@@ -65,6 +66,20 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
     resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resDesc.Flags = d3d12::getD3D12ResourceFlags(desc.bindFlags);
+
+    // リソースステート
+    if (resDesc.Flags == D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+    {
+        m_eState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+    }
+    else if (resDesc.Flags == D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)
+    {
+        m_eState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    }
+    else if (resDesc.Flags == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS)
+    {
+        m_eState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    }
 
     // 初期値なし
     if (pData == nullptr) 
@@ -91,7 +106,7 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
             &texHeapProp,
             D3D12_HEAP_FLAG_NONE,//特に指定なし
             &resDesc,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,//テクスチャ用(ピクセルシェーダから見る用)
+            m_eState,   // 初期のリソース状態
             pClear,
             IID_PPV_ARGS(m_pTex.ReleaseAndGetAddressOf())
         ));
@@ -111,7 +126,7 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id,
             &texHeapProp,
             D3D12_HEAP_FLAG_NONE,//特に指定なし
             &resDesc,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,//テクスチャ用(ピクセルシェーダから見る用)
+            m_eState,   // 初期のリソース状態
             pClear,
             IID_PPV_ARGS(m_pTex.ReleaseAndGetAddressOf())
         ));

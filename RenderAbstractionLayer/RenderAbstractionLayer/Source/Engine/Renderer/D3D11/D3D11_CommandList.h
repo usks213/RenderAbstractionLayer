@@ -86,7 +86,7 @@ namespace d3d11
 		void blit(const core::RenderBufferID& destID, const core::TextureID& sourceID, const core::MaterialID& matID) override;
 
 
-		//----- その他 -----
+		//----- クリア -----
 
 		void clearCommand() override;		///< コマンドのクリア
 
@@ -95,6 +95,13 @@ namespace d3d11
 		void clearRederTarget(const core::RenderTargetID& rtID, const Color& color) override;
 
 		void clearDepthStencil(const core::DepthStencilID& dsID, float depth, std::uint8_t stencil) override;
+
+
+		//----- コピー -----
+
+		void copyBackBuffer(const core::TextureID& sourceID) override;
+
+		void copyTexture(const core::TextureID& destID, const core::TextureID& sourceID) override;
 
 	private:
 		//------------------------------------------------------------------------------
