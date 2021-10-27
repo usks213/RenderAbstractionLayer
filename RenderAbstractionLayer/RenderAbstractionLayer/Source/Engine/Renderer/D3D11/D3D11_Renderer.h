@@ -15,10 +15,15 @@
 
 namespace d3d11
 {
+	class D3D11Device;
+	class D3D11CommandList;
+
 	/// @brief D3D11レンダラー
 	/// @class D3D11Renderer
 	class D3D11Renderer final : public core::CoreRenderer
 	{
+		friend class D3D11Device;
+		friend class D3D11CommandList;
 	public:
 		//------------------------------------------------------------------------------
 		// public methods
@@ -69,6 +74,13 @@ namespace d3d11
 		/// @return HRESULT
 		HRESULT createDiveceAndContext(HWND hWnd);
 
+
+	public:
+		//------------------------------------------------------------------------------
+		// public variables
+		//------------------------------------------------------------------------------
+		static constexpr std::uint32_t BACK_BUFFER_COUNT = 2;
+
 	private:
 		//------------------------------------------------------------------------------
 		// private variables
@@ -76,7 +88,6 @@ namespace d3d11
 
 		D3D11Device						m_device;					///< デバイスクラス
 		
-		static constexpr std::uint32_t BACK_BUFFER_COUNT = 2;
 		std::uint32_t m_curBackBufferIndex;
 
 		std::vector<std::unique_ptr<D3D11CommandList>>	m_cmdLists[BACK_BUFFER_COUNT];			///< コマンドリスト配列

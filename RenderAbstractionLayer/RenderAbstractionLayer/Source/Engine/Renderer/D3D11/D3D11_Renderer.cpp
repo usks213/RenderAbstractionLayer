@@ -14,7 +14,7 @@ using namespace d3d11;
 
 /// @brief コンストラクタ
 D3D11Renderer::D3D11Renderer() :
-	m_curBackBufferIndex(0),
+	m_curBackBufferIndex(1),
 	m_cmdLists(),
 	m_useCmdListCnt{0,0},
 	m_device(),

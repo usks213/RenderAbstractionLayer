@@ -14,8 +14,13 @@
 
 namespace d3d12
 {
+	class D3D12Device;
+	class D3D12CommandList;
+
 	class D3D12Renderer final : public core::CoreRenderer
 	{
+		friend class D3D12Device;
+		friend class D3D12CommandList;
 	public:
 		//------------------------------------------------------------------------------
 		// public methods
@@ -63,7 +68,6 @@ namespace d3d12
 		//------------------------------------------------------------------------------
 
 	private:
-	public:
 		//------------------------------------------------------------------------------
 		// private variables
 		//------------------------------------------------------------------------------

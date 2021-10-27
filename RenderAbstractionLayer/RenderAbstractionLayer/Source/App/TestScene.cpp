@@ -253,6 +253,7 @@ void TestScene::Render()
 	}
 
 	// バックバッファへコピー
+	cmdList->setBackBuffer();
 	cmdList->copyBackBuffer(pRT->m_texID);
 
 }
