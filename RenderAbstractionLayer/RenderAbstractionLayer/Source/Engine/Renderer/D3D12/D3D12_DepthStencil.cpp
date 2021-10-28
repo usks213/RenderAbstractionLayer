@@ -22,7 +22,7 @@ D3D12DepthStencil::D3D12DepthStencil(ID3D12Device* device, const core::DepthSten
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};//深度に使うよという事がわかればいい
 	dsvHeapDesc.NumDescriptors = 1;//深度ビュー1つのみ
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;//デプスステンシルビューとして使う
-	dsvHeapDesc.Flags = d3d12::getD3D12HeapFlags(d3dTex.m_desc.bindFlags);
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_pHeapDSV.ReleaseAndGetAddressOf()));
 
 	//深度ビュー作成

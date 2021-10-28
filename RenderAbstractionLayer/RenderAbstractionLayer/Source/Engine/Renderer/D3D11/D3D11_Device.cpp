@@ -83,7 +83,7 @@ core::BufferID D3D11Device::createBuffer(core::BufferDesc& desc, const core::Buf
 
 	return id;
 }
-core::DepthStencilID D3D11Device::createDepthStencil(core::TextureDesc& desc)
+core::DepthStencilID D3D11Device::createDepthStencil(core::TextureDesc& desc, float depth, std::uint8_t stencil)
 {
 	// ID�̎擾
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -157,7 +157,7 @@ core::RenderBufferID D3D11Device::createRenderBuffer(core::ShaderID& shaderID, c
 
 	return id;
 }
-core::RenderTargetID D3D11Device::createRenderTarget(core::TextureDesc& desc)
+core::RenderTargetID D3D11Device::createRenderTarget(core::TextureDesc& desc, const Color& color)
 {
 	// ID�̎擾
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));

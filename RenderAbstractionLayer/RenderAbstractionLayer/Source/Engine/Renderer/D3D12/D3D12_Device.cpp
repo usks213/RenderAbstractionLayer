@@ -79,7 +79,7 @@ core::BufferID D3D12Device::createBuffer(core::BufferDesc& desc, const core::Buf
 
 	return id;
 }
-core::DepthStencilID D3D12Device::createDepthStencil(core::TextureDesc& desc)
+core::DepthStencilID D3D12Device::createDepthStencil(core::TextureDesc& desc, float depth, std::uint8_t stencil)
 {
 	// IDの取得
 	DepthStencilID id = static_cast<DepthStencilID>(hash::stringHash(desc.name));
@@ -90,7 +90,8 @@ core::DepthStencilID D3D12Device::createDepthStencil(core::TextureDesc& desc)
 
 	// クリアデータ
 	D3D12_CLEAR_VALUE depthClearValue = {};
-	depthClearValue.DepthStencil.Depth = 1.0f;
+	depthClearValue.DepthStencil.Depth = depth;
+	depthClearValue.DepthStencil.Stencil = stencil;
 	depthClearValue.Format = d3d12::getTypeLessToDSVFormat(desc.format);
 
 	// テクスチャ生成
@@ -157,7 +158,7 @@ core::RenderBufferID D3D12Device::createRenderBuffer(core::ShaderID& shaderID, c
 
 	return id;
 }
-core::RenderTargetID D3D12Device::createRenderTarget(core::TextureDesc& desc)
+core::RenderTargetID D3D12Device::createRenderTarget(core::TextureDesc& desc, const Color& color)
 {
 	// IDの取得
 	RenderTargetID id = static_cast<RenderTargetID>(hash::stringHash(desc.name));
@@ -168,8 +169,8 @@ core::RenderTargetID D3D12Device::createRenderTarget(core::TextureDesc& desc)
 
 	// クリアデータ
 	D3D12_CLEAR_VALUE rtvClearValue = {};
-	std::memset(rtvClearValue.Color, 0, sizeof(FLOAT) * 4);
-	rtvClearValue.Format = d3d12::getTypeLessToDSVFormat(desc.format);
+	std::memcpy(rtvClearValue.Color, &color, sizeof(Color));
+	rtvClearValue.Format = d3d12::getDXGIFormat(desc.format);
 
 	// テクスチャ生成
 	auto pTex = createD3D12Texture(desc, &rtvClearValue);

@@ -21,7 +21,7 @@ D3D12RenderTarget::D3D12RenderTarget(ID3D12Device* device, const core::RenderTar
 	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;		// ピープタイプ
 	desc.NumDescriptors = 1;		// バッファ数
-	desc.Flags = d3d12::getD3D12HeapFlags(d3dTex.m_desc.bindFlags);	// シェーダーリソースか
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;	// シェーダーリソースか
 	desc.NodeMask = 0;
 
 	CHECK_FAILED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pHeapRTV.ReleaseAndGetAddressOf())));

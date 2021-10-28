@@ -156,7 +156,7 @@ DXGI_FORMAT d3d12::getDXGIFormat(core::TextureFormat format) {
 /// @return DSVフォーマット or そのまま
 DXGI_FORMAT d3d12::getTypeLessToDSVFormat(core::TextureFormat format)
 {
-	auto f = static_cast<size_t>(format);
+	auto f = getDXGIFormat(format);
 	if (f == DXGI_FORMAT_R32_TYPELESS)
 	{
 		return DXGI_FORMAT_D32_FLOAT;
@@ -180,7 +180,7 @@ DXGI_FORMAT d3d12::getTypeLessToDSVFormat(core::TextureFormat format)
 /// @return SRVフォーマット or そのまま
 DXGI_FORMAT d3d12::getTypeLessToSRVFormat(core::TextureFormat format)
 {
-	auto f = static_cast<size_t>(format);
+	auto f = getDXGIFormat(format);
 	if (f == DXGI_FORMAT_R32_TYPELESS)
 	{
 		return DXGI_FORMAT_R32_FLOAT;

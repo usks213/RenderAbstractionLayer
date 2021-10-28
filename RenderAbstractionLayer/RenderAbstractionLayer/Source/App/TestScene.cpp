@@ -23,6 +23,7 @@ core::BufferID			g_worldID;
 
 core::RenderTargetID		g_rtID;
 core::DepthStencilID		g_dsID;
+Color					g_clearColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
 constexpr int MAX_WORLD = 512;
 
@@ -31,6 +32,9 @@ void TestScene::Start()
 {
 	auto* renderer = m_pSceneManager->getEngine()->getRenderer();
 	auto* device = renderer->getDevice();
+
+	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
+	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
 
 	// テクスチャの生成
 	uint32_t texWidth = 256u;
@@ -108,8 +112,6 @@ void TestScene::Start()
 	pUnlitMat->setTexture("_Texture", texID);
 	pUnlitMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
 	g_shaderID = unlitShaderID;
-
-	//cmdList->setTexture(core::SHADER::SHADER_SRV_SLOT_MAINTEX, texID, core::ShaderStage::PS);
 	g_matID = unlitMatID;
 
 	// メッシュの生成
@@ -120,22 +122,19 @@ void TestScene::Start()
 	// レンダーバッファの作成
 	g_rdID = device->createRenderBuffer(unlitShaderID, cubeMehID);
 
-	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
-	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
-
 	// レンダーターゲットの生成
 	core::TextureDesc rtDesc = {};
 	rtDesc.name = "レンダーターゲット";
 	rtDesc.width = width;
 	rtDesc.height = height;
-	rtDesc.bindFlags = 0 | core::BindFlags::RENDER_TARGET;
+	rtDesc.bindFlags = 0 | core::BindFlags::RENDER_TARGET | core::BindFlags::SHADER_RESOURCE;
 	rtDesc.format = core::TextureFormat::R8G8B8A8_UNORM;
-	g_rtID = device->createRenderTarget(rtDesc);
+	g_rtID = device->createRenderTarget(rtDesc, g_clearColor);
 
 	// デプスステンシルの生成
 	rtDesc.name = "デプスステンシル";
-	rtDesc.bindFlags = 0 | core::BindFlags::DEPTH_STENCIL;
-	rtDesc.format = core::TextureFormat::D32_FLOAT;
+	rtDesc.bindFlags = 0 | core::BindFlags::DEPTH_STENCIL | core::BindFlags::SHADER_RESOURCE;
+	rtDesc.format = core::TextureFormat::R32_TYPELESS;
 	g_dsID = device->createDepthStencil(rtDesc);
 
 	// ワールドマトリックスの作成
@@ -153,9 +152,6 @@ void TestScene::Start()
 /// @brief システムの更新
 void TestScene::Update()
 {
-	//auto* renderer = m_pSceneManager->getEngine()->getRenderer();
-	//auto* device = renderer->getDevice();
-	//auto* cmdList = renderer->getCommandList();
 
 }
 
@@ -173,7 +169,7 @@ void TestScene::Render()
 	auto* pUnlitMat = device->getMaterial(g_matID);
 	auto* pWorldBuffer = device->getBuffer(g_worldID);
 
-	// システムバッファ送信
+	// カメラ
 	Vector3 eyepos = Vector3(0, 0, -15);
 	Vector3 eyedir = Vector3(0, 0, 0);
 	Vector3 up = Vector3(0, 1, 0);
@@ -188,16 +184,14 @@ void TestScene::Render()
 	);
 	view = view.Transpose();
 	proj = proj.Transpose();
+	pUnlitMat->setMatrix("_mView", view);
+	pUnlitMat->setMatrix("_mProj", proj);
 
-	core::SHADER::SystemBuffer systemBuffer;
-	systemBuffer._mView = view.Transpose();
-	systemBuffer._mProj = proj.Transpose();
 
-	//cmdList->sendSystemBuffer(systemBuffer);
+	// ワールドマトリックス
 	static float angleY = 0;
 	angleY += 0.01f;
 	float y = -8;
-	// トランスフォームバッファ送信
 	std::vector<Matrix> aWorld(MAX_WORLD);
 	for (int i = 0; i < MAX_WORLD; ++i)
 	{
@@ -212,13 +206,7 @@ void TestScene::Render()
 		world *= Matrix::CreateTranslation(pos);
 		world = world.Transpose();
 	}
-
 	pWorldBuffer->UpdateBuffer(aWorld.data(), sizeof(Matrix) * MAX_WORLD);
-	//cmdList->sendTransformBuffer(world);
-	//pUnlitMat->setMatrix("_mWorld", world);
-	pUnlitMat->setMatrix("_mView", view);
-	pUnlitMat->setMatrix("_mProj", proj);
-	//pUnlitMat->setTexture("_Texture", g_texID);
 
 	// ビューポート作成
 	Viewport viewport = Viewport(0, 0, width, height);
@@ -226,12 +214,10 @@ void TestScene::Render()
 	//----- 描画
 
 	// レンダーターゲット指定
-	//cmdList->setBackBuffer();
 	cmdList->setRenderTarget(g_rtID, g_dsID);
 
 	// レンダーターゲットクリア
-	//cmdList->clearBackBuffer(Color(0.2f, 0.2f, 0.2f, 1.0f));
-	cmdList->clearRederTarget(g_rtID, Color(0.2f, 0.2f, 0.2f, 1.0f));
+	cmdList->clearRederTarget(g_rtID, g_clearColor);
 	cmdList->clearDepthStencil(g_dsID, 1.0f, 0);
 
 	// ビューポート指定
