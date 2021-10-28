@@ -41,7 +41,7 @@ core::ShaderID			g_postShaderID;
 core::MaterialID			g_postMatID;
 core::RenderBufferID		g_postRdID;
 
-constexpr int MAX_WORLD = 512;
+constexpr int MAX_WORLD = 1000;
 
  /// @brief スタート
 void TestScene::Start()
@@ -278,14 +278,30 @@ void TestScene::Render()
 	angleY += 0.01f;
 	float y = -8;
 	std::vector<Matrix> aWorld(MAX_WORLD);
-	for (int i = 0; i < MAX_WORLD; ++i)
+	int boxNum = 31;
+	for (int y = 0; y < boxNum; ++y)
 	{
-		if (i % 40 == 0)
-			y += 1.0f;
+		for (int x = 0; x < boxNum; ++x)
+		{
+			auto& world = aWorld[y * boxNum + x];
+			float s = 0.1f;
+			float t = s * 4;
+			float o = -boxNum / 2.0f + t;
+			Vector3 pos = Vector3(o * t + x * t, -0.4f, o * t + y * t);
+			Vector3 rot = Vector3(0, angleY, 0);
+			//Vector3 sca = Vector3(0.3f, 0.3f, 0.3f);
+			Vector3 sca = Vector3(s,s,s);
+			world = Matrix::CreateScale(sca);
+			world *= Matrix::CreateRotationZXY(rot);
+			world *= Matrix::CreateTranslation(pos);
+			world = world.Transpose();
+		}
+	}
+	for (int i = boxNum; i < boxNum + 1; ++i)
+	{
 		auto& world = aWorld[i];
-		Vector3 pos;// = Vector3(-10 + i % 40 * 0.5f, y, 0);
+		Vector3 pos = Vector3();
 		Vector3 rot = Vector3(0, angleY, 0);
-		//Vector3 sca = Vector3(0.3f, 0.3f, 0.3f);
 		Vector3 sca = Vector3(1.0f, 1.0f, 1.0f);
 		world = Matrix::CreateScale(sca);
 		world *= Matrix::CreateRotationZXY(rot);
@@ -355,7 +371,7 @@ void TestScene::Render()
 		//for (int i = 0; i < 100; ++i)
 		{
 			//cmdList->render(g_rdID, 1);
-			cmdList->render(g_litRdID, 1);
+			cmdList->render(g_litRdID, boxNum * boxNum);
 		}
 
 		// 床の描画
@@ -423,7 +439,7 @@ void TestScene::Render()
 	cmdList->setMaterial(g_postMatID);
 
 	// バックバッファへコピー
-	//cmdList->copyBackBuffer(pRT->m_texID);
+	cmdList->copyBackBuffer(pRT->m_texID);
 
 }
 

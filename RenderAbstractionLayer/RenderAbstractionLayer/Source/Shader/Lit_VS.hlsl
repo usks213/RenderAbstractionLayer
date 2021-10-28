@@ -25,14 +25,14 @@ cbuffer ViewProj : register(b0)
 
 cbuffer World : register(b8)
 {
-	float4x4 _mWorld[512];
+	float4x4 _mWorld[1000];
 }
 
 
 VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	int n = input.instID % 512;
+	int n = input.instID % 1000;
 	float4x4 mWVP = mul(_mWorld[n], _mView);
 	mWVP = mul(mWVP, _mProj);
 	
