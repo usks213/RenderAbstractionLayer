@@ -5,10 +5,10 @@
 // パラメータ
 struct VS_OUTPUT
 {
-	float4 Position	: SV_Position;
-	float2 TexCoord	: TEXCOORD0;
-	float3 WorldPos	: TEXCOORD1;
-	float3 Normal	: TEXCOORD2;
+	float4 Position : SV_Position;
+	float2 TexCoord : TEXCOORD0;
+	float3 WorldPos : POSITION0;
+	float3 Normal : NORMAL0;
 };
 
 // マテリアル
@@ -54,5 +54,5 @@ float4 PS(VS_OUTPUT input) : SV_Target0
 	}
 	
 	
-	return float4(1,1,1,1);
+	return float4(Result.rgb, Color.w);
 }

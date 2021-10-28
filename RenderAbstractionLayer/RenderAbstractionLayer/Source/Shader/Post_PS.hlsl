@@ -23,7 +23,7 @@ float4 PS(VS_OUTPUT input) : SV_Target0
 	Color *= _RT.Sample(_Sampler, input.TexCoord).rgb;
 	
 	// ポストエフェクト
-	Color.r *= saturate(sin(_Time));
+	//Color.r *= saturate(sin(_Time));
 	
 	return float4(Color, 1.0f);
 }

@@ -19,20 +19,22 @@ core::ShaderID			g_shaderID;
 core::MaterialID			g_matID;
 core::RenderBufferID		g_rdID;
 core::TextureID			g_texID;
-core::BufferID			g_worldID;
+
+constexpr std::uint32_t MAX_WORLD_BUFFER = 2;
+core::BufferID			g_worldID[MAX_WORLD_BUFFER];
 
 core::RenderTargetID		g_rtID;
 core::DepthStencilID		g_dsID;
 Color					g_clearColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
 // ライティング
-constexpr std::uint32_t	MAX_POINT_LIGHT = 3;
+constexpr std::uint32_t	MAX_POINT_LIGHT = 6;
 core::CorePointLight		g_pointLights[MAX_POINT_LIGHT];
 core::BufferID			g_pointLightBufferID;
 core::ShaderID			g_lightShaderID;
 core::MaterialID			g_lightMatID;
 core::RenderBufferID		g_litRdID;
-
+core::RenderBufferID		g_litQuadID;
 
 // ポストエフェクト用
 core::ShaderID			g_postShaderID;
@@ -49,6 +51,11 @@ void TestScene::Start()
 
 	float width = static_cast<float>(renderer->getCoreEngine()->getWindowWidth());
 	float height = static_cast<float>(renderer->getCoreEngine()->getWindowHeight());
+
+	// テクスチャマトリックス
+	Matrix texMatrix = Matrix::CreateScale(6);
+	texMatrix *= Matrix::CreateRotationZ(1);
+	texMatrix = texMatrix.Transpose();
 
 	//--- ジオメトリ ---
 	auto quadID = device->createMesh("quad");
@@ -78,34 +85,34 @@ void TestScene::Start()
 				{
 					if (x < texX / 2)
 					{
-						texArray[y * texX + x + 3] = 255;	// R
-						texArray[y * texX + x + 2] = 0;		// G
-						texArray[y * texX + x + 1] = 0;		// B
-						texArray[y * texX + x + 0] = 255;	// A
+						texArray[y * texX + x + 0] = 255;	// R
+						texArray[y * texX + x + 1] = 100;	// G
+						texArray[y * texX + x + 2] = 100;	// B
+						texArray[y * texX + x + 3] = 255;	// A
 					}
 					else
 					{
-						texArray[y * texX + x + 3] = 0;		// R
-						texArray[y * texX + x + 2] = 255;	// G
-						texArray[y * texX + x + 1] = 0;		// B
-						texArray[y * texX + x + 0] = 255;	// A
+						texArray[y * texX + x + 0] = 100;	// R
+						texArray[y * texX + x + 1] = 255;	// G
+						texArray[y * texX + x + 2] = 100;	// B
+						texArray[y * texX + x + 3] = 255;	// A
 					}
 				}
 				else
 				{
 					if (x < texX / 2)
 					{
-						texArray[y * texX + x + 3] = 0;		// R
-						texArray[y * texX + x + 2] = 0;		// G
-						texArray[y * texX + x + 1] = 255;	// B
-						texArray[y * texX + x + 0] = 255;	// A
+						texArray[y * texX + x + 0] = 100;	// R
+						texArray[y * texX + x + 1] = 100;	// G
+						texArray[y * texX + x + 2] = 255;	// B
+						texArray[y * texX + x + 3] = 255;	// A
 					}
 					else
 					{
-						texArray[y * texX + x + 3] = 255;	// R
-						texArray[y * texX + x + 2] = 255;	// G
-						texArray[y * texX + x + 1] = 255;	// B
-						texArray[y * texX + x + 0] = 255;	// A
+						texArray[y * texX + x + 0] = 255;	// R
+						texArray[y * texX + x + 1] = 255;	// G
+						texArray[y * texX + x + 2] = 255;	// B
+						texArray[y * texX + x + 3] = 255;	// A
 					}
 				}
 
@@ -166,7 +173,11 @@ void TestScene::Start()
 		bufferDesc.bindFlags = 0 | core::BindFlags::CONSTANT_BUFFER;
 		bufferDesc.usage = core::Usage::DEFAULT;
 		bufferDesc.cpuAccessFlags = 0 | core::CPUAccessFlags::NONE;
-		g_worldID = device->createBuffer(bufferDesc);
+		for (std::uint32_t i = 0; i < MAX_WORLD_BUFFER; ++i)
+		{
+			bufferDesc.name = std::string("WorldMatrix") + std::to_string(i);
+			g_worldID[i] = device->createBuffer(bufferDesc);
+		}
 	}
 
 	auto* pRT = device->getRenderTarget(g_rtID);
@@ -199,9 +210,10 @@ void TestScene::Start()
 		g_lightMatID = device->createMaterial("Lit", g_lightShaderID);
 		auto* pMat = device->getMaterial(g_lightMatID);
 		pMat->setVector3("_Color", Vector3(1, 1, 1));
-		pMat->setFloat("_PointLightNum", MAX_POINT_LIGHT);
+		pMat->setUint("_PointLightNum", MAX_POINT_LIGHT);
 		pMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
 		pMat->setTexture("_Texture", g_texID);
+		pMat->setMatrix("_mTex", texMatrix);
 
 		// ポイントライトバッファ作成
 		core::BufferDesc bufferDesc;
@@ -216,6 +228,7 @@ void TestScene::Start()
 
 		// レンダーバッファの作成
 		g_litRdID = device->createRenderBuffer(g_lightShaderID, cubeMehID);
+		g_litQuadID = device->createRenderBuffer(g_lightShaderID, quadID);
 	}
 }
 
@@ -240,11 +253,12 @@ void TestScene::Render()
 	auto* pLitMat = device->getMaterial(g_lightMatID);
 	auto* pPostMat = device->getMaterial(g_postMatID);
 
-	auto* pWorldBuffer = device->getBuffer(g_worldID);
+	auto* pWorldBuffer0 = device->getBuffer(g_worldID[0]);
+	auto* pWorldBuffer1 = device->getBuffer(g_worldID[1]);
 	auto* pPointLightBuffer = device->getBuffer(g_pointLightBufferID);
 
 	// カメラ
-	Vector3 eyepos = Vector3(0, 3, -7);
+	Vector3 eyepos = Vector3(0, 3, -5);
 	Vector3 eyedir = Vector3(0, 0, 0);
 	Vector3 up = Vector3(0, 1, 0);
 	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
@@ -258,10 +272,6 @@ void TestScene::Render()
 	);
 	view = view.Transpose();
 	proj = proj.Transpose();
-	pUnlitMat->setMatrix("_mView", view);
-	pUnlitMat->setMatrix("_mProj", proj);
-	pLitMat->setMatrix("_mView", view);
-	pLitMat->setMatrix("_mProj", proj);
 
 	// ワールドマトリックス
 	static float angleY = 0;
@@ -282,19 +292,36 @@ void TestScene::Render()
 		world *= Matrix::CreateTranslation(pos);
 		world = world.Transpose();
 	}
-	pWorldBuffer->UpdateBuffer(aWorld.data(), sizeof(Matrix) * MAX_WORLD);
+	pWorldBuffer0->UpdateBuffer(aWorld.data(), sizeof(Matrix) * MAX_WORLD);
+
+	pUnlitMat->setMatrix("_mView", view);
+	pUnlitMat->setMatrix("_mProj", proj);
+
+	pLitMat->setVector3("_ViewPos", eyepos);
+	pLitMat->setMatrix("_mView", view);
+	pLitMat->setMatrix("_mProj", proj);
 
 	//----- ライト更新
 	{
-		Vector3 pointPos = Vector3(3, 0, 0);
-
+		static float litLen;
+		litLen += 0.03f;
+		Vector3 pointPos = Vector3(fabsf(sinf(litLen)) * 2.0f + 0.5f, 0, (cosf(litLen)) * 0.5f);
+		static float litY;
+		litY -= 0.03f;
 		for (std::uint32_t i = 0; i < MAX_POINT_LIGHT; ++i)
 		{
 			g_pointLights[i].position = Vector3::Transform(pointPos, Matrix::CreateRotationY(
-				angleY + Mathf::TwoPi / MAX_POINT_LIGHT * (i % MAX_POINT_LIGHT)));
-			g_pointLights[i].range = 10;
-			g_pointLights[i].color = Vector4(1, 1, 1, 1);
+				litY + Mathf::TwoPi / MAX_POINT_LIGHT * (i % MAX_POINT_LIGHT)));
+			g_pointLights[i].range = 3;
+			if(i % 3 == 0)
+				g_pointLights[i].color = Vector4(1.0f, 0.1f, 0.1f, 1.0f);
+			else if(i % 3 == 1)
+				g_pointLights[i].color = Vector4(0.1f, 1.0f, 0.1f, 1.0f);
+			else if(i % 3 == 2)
+				g_pointLights[i].color = Vector4(0.1f, 0.1f, 1.0f, 1.0f);
 		}
+
+
 		pPointLightBuffer->UpdateBuffer(g_pointLights, sizeof(core::CorePointLight) * MAX_POINT_LIGHT);
 	}
 
@@ -312,23 +339,48 @@ void TestScene::Render()
 		cmdList->setViewport(Viewport(0, 0, width, height));
 
 		// マテリアルの指定
-		cmdList->setMaterial(g_matID);
-		//cmdList->setMaterial(g_lightMatID);
+		//cmdList->setMaterial(g_matID);
+		cmdList->setMaterial(g_lightMatID);
 
 		// レンダーバッファの指定
-		cmdList->setRenderBuffer(g_rdID);
-		//cmdList->setRenderBuffer(g_litRdID);
+		//cmdList->setRenderBuffer(g_rdID);
+		cmdList->setRenderBuffer(g_litRdID);
 
 		// バッファ指定
-		cmdList->bindGlobalBuffer(g_shaderID, "World", g_worldID);
-		//cmdList->bindGlobalBuffer(g_lightShaderID, "World", g_worldID);
-		//cmdList->bindGlobalBuffer(g_lightShaderID, "_PointLights", g_pointLightBufferID);
+		//cmdList->bindGlobalBuffer(g_shaderID, "World", g_worldID);
+		cmdList->bindGlobalBuffer(g_lightShaderID, "World", g_worldID[0]);
+		cmdList->bindGlobalBuffer(g_lightShaderID, "_PointLights", g_pointLightBufferID);
 
 		// 描画
 		//for (int i = 0; i < 100; ++i)
 		{
-			cmdList->render(g_rdID, 1);
-			//cmdList->render(g_litRdID, 1);
+			//cmdList->render(g_rdID, 1);
+			cmdList->render(g_litRdID, 1);
+		}
+
+		// 床の描画
+		{
+			// マトリックス更新
+			Matrix world;
+			Vector3 pos = Vector3(0, 2, 0);
+			Vector3 rot = Vector3(-Mathf::Pi / 2, 0, 0);
+			//Vector3 sca = Vector3(0.3f, 0.3f, 0.3f);
+			Vector3 sca = Vector3(5.0f, 5.0f, 5.0f);
+			world = Matrix::CreateScale(sca);
+			world *= Matrix::CreateRotationZXY(rot);
+			world *= Matrix::CreateTranslation(pos);
+			world = world.Transpose();
+			pWorldBuffer1->UpdateBuffer(&world, sizeof(Matrix));
+
+			// マテリアル
+			cmdList->setMaterial(g_lightMatID);
+			// レンダーバッファの指定
+			cmdList->setRenderBuffer(g_litQuadID);
+			// バッファ指定
+			cmdList->bindGlobalBuffer(g_lightShaderID, "World", g_worldID[1]);
+			cmdList->bindGlobalBuffer(g_lightShaderID, "_PointLights", g_pointLightBufferID);
+			// 描画
+			cmdList->render(g_litQuadID, 1);
 		}
 	}
 
@@ -345,6 +397,7 @@ void TestScene::Render()
 		pPostMat->setMatrix("_mWorld", world);
 		pPostMat->setMatrix("_mView", view);
 		pPostMat->setMatrix("_mProj", proj);
+		pPostMat->setTexture("_RT", pRT->m_texID);
 
 		// マテリアルの更新
 		pPostMat->setVector3("_Color", Vector3(1, 1, 1));
@@ -365,6 +418,9 @@ void TestScene::Render()
 		cmdList->render(g_postRdID, 1);
 	}
 
+	// バインド解除
+	pPostMat->setTexture("_RT", core::NONE_TEXTURE_ID);
+	cmdList->setMaterial(g_postMatID);
 
 	// バックバッファへコピー
 	//cmdList->copyBackBuffer(pRT->m_texID);

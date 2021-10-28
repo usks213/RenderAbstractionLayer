@@ -105,6 +105,18 @@ namespace core
 		// public methods
 		//------------------------------------------------------------------------------
 
+		/// @brief uintê›íË
+		void setUint(const char* name, const unsigned int& data) { setData(name, &data); }
+
+		/// @brief VectorUint2ê›íË
+		void setVectorUint2(const char* name, const VectorUint2& data) { setData(name, &data); }
+
+		/// @brief VectorUint3ê›íË
+		void setVectorUint3(const char* name, const VectorUint3& data) { setData(name, &data); }
+
+		/// @brief VectorUint4ê›íË
+		void setVectorUint4(const char* name, const VectorUint4& data) { setData(name, &data); }
+
 		/// @brief floatê›íË
 		void setFloat(const char* name, const float& data) { setData(name, &data); }
 
