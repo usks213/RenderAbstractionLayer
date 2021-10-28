@@ -402,7 +402,7 @@ void TestScene::Render()
 		// マテリアルの更新
 		pPostMat->setVector3("_Color", Vector3(1, 1, 1));
 		static float _time;
-		_time += 0.1f;
+		_time += 0.05f;
 		pPostMat->setFloat("_Time", _time);
 
 
