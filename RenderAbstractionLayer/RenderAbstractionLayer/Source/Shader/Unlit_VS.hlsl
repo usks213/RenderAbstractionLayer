@@ -1,5 +1,4 @@
 // 2D用頂点シェーダ
-//#include "Common.hlsli"
 
 // パラメータ
 struct VS_INPUT {

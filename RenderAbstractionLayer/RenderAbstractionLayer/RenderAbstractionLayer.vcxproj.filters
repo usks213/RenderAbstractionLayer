@@ -311,56 +311,20 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Shader\AnimationGBuffer_PS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\AnimationGBuffer_VS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\DeferredLit_PS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\DeferredLit_VS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\GBuffer_PS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\GBuffer_VS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\Lit_PS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\Lit_VS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\SkyDome_PS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\SkyDome_VS.hlsl">
-      <Filter>リソース ファイル\Shader</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Shader\Unlit_PS.hlsl">
       <Filter>リソース ファイル\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Source\Shader\Unlit_VS.hlsl">
       <Filter>リソース ファイル\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Shader\Post_PS.hlsl">
+      <Filter>リソース ファイル\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\Post_VS.hlsl">
+      <Filter>リソース ファイル\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Shader\Common.hlsli">
-      <Filter>リソース ファイル\Shader</Filter>
-    </None>
-    <None Include="Source\Shader\DeferredCommon.hlsli">
-      <Filter>リソース ファイル\Shader</Filter>
-    </None>
-    <None Include="Source\Shader\Light.hlsli">
-      <Filter>リソース ファイル\Shader</Filter>
-    </None>
-    <None Include="Source\Shader\PBR.hlsli">
-      <Filter>リソース ファイル\Shader</Filter>
-    </None>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
