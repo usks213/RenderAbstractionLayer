@@ -53,13 +53,6 @@ void D3D11Renderer::finalize()
 /// @brief フレーム開始
 void D3D11Renderer::beginFrame()
 {
-	//--- 前フレームのコマンド完了を待つ
-
-	// スワップ
-	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
-	//m_swapChain->Present(0, 0);							// 非垂直同期描画
-	m_device.m_swapChain->Present(1, 0);					// 垂直同期描画
-
 	//--- リソースの更新
 	// GPU側のバッファ、テクスチャなど更新
 	// DirectX11はいらないかも
@@ -96,6 +89,13 @@ void D3D11Renderer::endFrame()
 		m_cmdLists[m_curBackBufferIndex][i]->m_pDeferredContext->FinishCommandList(true,
 			m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList.GetAddressOf());
 	}
+
+	//--- 前フレームのコマンド完了を待つ
+
+	// スワップ
+	//m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);	// ティアリング許容描画
+	//m_swapChain->Present(0, 0);							// 非垂直同期描画
+	m_device.m_swapChain->Present(1, 0);					// 垂直同期描画
 }
 
 /// @brief コマンドリストの取得

@@ -240,28 +240,6 @@ void D3D12Renderer::beginFrame()
 {
 	HRESULT hr = S_OK;
 
-	//--- 前フレームのコマンド完了を待つ
-
-	// コマンド完了待ち
-	hr = m_pCmdQueue->Signal(m_pFence.Get(), ++m_nFenceVal);
-	CHECK_FAILED(hr);
-
-	// フェンス処理
-	if (m_pFence->GetCompletedValue() != m_nFenceVal)
-	{
-		// イベント発行
-		auto hEvent = CreateEvent(nullptr, false, false, nullptr);
-		hr = m_pFence->SetEventOnCompletion(m_nFenceVal, hEvent);
-		CHECK_FAILED(hr);
-		// イベント終了待ち
-		WaitForSingleObject(hEvent, INFINITE);
-		// イベントを閉じる
-		CloseHandle(hEvent);
-	}
-
-	// 表示
-	m_pSwapChain->Present(1, 0);
-
 	//--- リソースの更新
 	// GPU側のバッファ、テクスチャなど更新
 
@@ -329,6 +307,27 @@ void D3D12Renderer::endFrame()
 		CHECK_FAILED(m_cmdLists[m_curBackBufferIndex][i]->m_pCmdList->Close());
 	}
 
+	//--- 前フレームのコマンド完了を待つ
+
+	// コマンド完了待ち
+	hr = m_pCmdQueue->Signal(m_pFence.Get(), ++m_nFenceVal);
+	CHECK_FAILED(hr);
+
+	// フェンス処理
+	if (m_pFence->GetCompletedValue() != m_nFenceVal)
+	{
+		// イベント発行
+		auto hEvent = CreateEvent(nullptr, false, false, nullptr);
+		hr = m_pFence->SetEventOnCompletion(m_nFenceVal, hEvent);
+		CHECK_FAILED(hr);
+		// イベント終了待ち
+		WaitForSingleObject(hEvent, INFINITE);
+		// イベントを閉じる
+		CloseHandle(hEvent);
+	}
+
+	// 表示
+	m_pSwapChain->Present(1, 0);
 }
 
 /// @brief コマンドリストの取得

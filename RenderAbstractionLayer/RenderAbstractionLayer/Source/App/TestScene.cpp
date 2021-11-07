@@ -439,7 +439,7 @@ void TestScene::Render()
 	cmdList->setMaterial(g_postMatID);
 
 	// バックバッファへコピー
-	//cmdList->copyBackBuffer(pRT->m_texID);
+	cmdList->copyBackBuffer(pRT->m_texID);
 
 }
 
