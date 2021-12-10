@@ -45,6 +45,15 @@
     <Filter Include="ソース ファイル\Engine\Scene">
       <UniqueIdentifier>{fc46603e-3684-4296-859b-dc210956d73a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ライブラリファイル">
+      <UniqueIdentifier>{71f52725-adcf-494b-a83d-5794aa596d51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ライブラリファイル\DDSTextureLoader">
+      <UniqueIdentifier>{323c8937-05d1-46dc-975d-1f4ff3565e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ライブラリファイル\WICTextureLoader">
+      <UniqueIdentifier>{c1530893-b6cf-461d-9d35-233d52116cf5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Platform\Core\Core_Window.h">
@@ -197,6 +206,9 @@
     <ClInclude Include="Source\Engine\Renderer\D3D12\D3D12_Device.h">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Util_TextureLoader.h">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\App\main.cpp">
@@ -304,6 +316,9 @@
     <ClCompile Include="Source\Engine\Renderer\D3D12\D3D12_Device.cpp">
       <Filter>ソース ファイル\Engine\Renderer\D3D12</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Util_TextureLoader.cpp">
+      <Filter>ソース ファイル\Engine\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -333,6 +348,9 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Source\Shader\Light.hlsli">
+      <Filter>リソース ファイル\Shader</Filter>
+    </None>
+    <None Include="Source\Shader\Noise.hlsli">
       <Filter>リソース ファイル\Shader</Filter>
     </None>
   </ItemGroup>

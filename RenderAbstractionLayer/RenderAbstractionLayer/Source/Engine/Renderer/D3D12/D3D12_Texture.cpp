@@ -10,6 +10,8 @@
 #include "D3D12_CommonState.h"
 using namespace d3d12;
 
+#include <Utility\Util_TextureLoader.h>
+#include <Library\DirectXTex\DirectXTex.h>
 
 //------------------------------------------------------------------------------
 // local methods
@@ -40,7 +42,44 @@ D3D12Texture::D3D12Texture(ID3D12Device* pDevice, const core::TextureID& id, con
     m_pTexHeap(nullptr),
     m_pTex(nullptr)
 {
+    // テクスチャローダー
+    util::TextureLoader texLoader(filepath);
+    m_desc = texLoader.GetDesc();
+    DirectX::TexMetadata* meta = texLoader.GetMetaData();
+    DirectX::ScratchImage* image = texLoader.GetScratchImage();
+    if (meta == nullptr || image == nullptr) return;
 
+    // テクスチャの作成
+   // DirectX::CreateTexture(pDevice, *meta, m_pTex.GetAddressOf());
+
+     // ヒープ生成
+    D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+    descHeapDesc.Flags = d3d12::getD3D12HeapFlags(m_desc.bindFlags);//シェーダから見えるように
+    descHeapDesc.NodeMask = 0;//マスクは0
+    descHeapDesc.NumDescriptors = 1;//ビューは今のところ１つだけ
+    descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//シェーダリソースビュー(および定数、UAVも)
+
+    CHECK_FAILED(pDevice->CreateDescriptorHeap(&descHeapDesc,
+        IID_PPV_ARGS(m_pTexHeap.ReleaseAndGetAddressOf())));//生成
+
+    // シェーダーリソース
+    if (m_desc.bindFlags & core::BindFlags::SHADER_RESOURCE)
+    {
+        //通常テクスチャビュー作成
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Format = getTypeLessToSRVFormat(m_desc.format);//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
+        srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
+
+        // MSAA 
+        if (m_desc.sampleDesc.isUse) srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+
+        pDevice->CreateShaderResourceView(m_pTex.Get(), //ビューと関連付けるバッファ
+            &srvDesc, //先ほど設定したテクスチャ設定情報
+            m_pTexHeap->GetCPUDescriptorHandleForHeapStart()//ヒープのどこに割り当てるか
+        );
+    }
 }
 
 /// @brief コンストラクタ(Descから生成)

@@ -60,7 +60,7 @@ bool WinWindow::initialize(HINSTANCE& hInstance, std::string className, int nCmd
 	RegisterClassEx(&wcex);
 
 	// 高DPI対応
-	//SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	// クライアント領域サイズからウィンドウ サイズ算出
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION

@@ -18,6 +18,11 @@ public:
 	static void Cube(core::CoreMesh& out);
 	static void Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSize);
 	static void SkyDome(core::CoreMesh& out, int nSegment, float fTexSplit);
+
+private:
+	static bool CalcTangent(core::CoreMesh& mesh);
+	static bool CalcIndex(std::uint32_t* pOut, core::CoreMesh& mesh, std::uint32_t face);
+
 };
 
 #endif // !_GEOMETRY_

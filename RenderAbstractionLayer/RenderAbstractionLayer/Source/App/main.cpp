@@ -46,9 +46,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	// エンジン取得
 	auto& engine = core::CoreEngine::get();
 	// ウィンドウの生成
-	win::WinWindow* pWin = engine.createWindow<win::WinWindow>("CoreEngine", 1280 * 0.75f, 720 * 0.75f);
+	win::WinWindow* pWin = engine.createWindow<win::WinWindow>("CoreEngine", 1280 * 1.5f, 720 * 1.5f);
 	// レンダラーの生成
-	d3d12::D3D12Renderer* pRenderer = engine.createRenderer<d3d12::D3D12Renderer>();
+	d3d11::D3D11Renderer* pRenderer = engine.createRenderer<d3d11::D3D11Renderer>();
 
 	// ウィンドウの初期化
 	pWin->initialize(hInstance, "RenderAppClass", nCmdShow, WndProc);

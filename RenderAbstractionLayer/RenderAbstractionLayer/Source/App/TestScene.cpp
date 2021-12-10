@@ -28,7 +28,7 @@ core::DepthStencilID		g_dsID;
 Color					g_clearColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
 // ライティング
-constexpr std::uint32_t	MAX_POINT_LIGHT = 6;
+constexpr std::uint32_t	MAX_POINT_LIGHT = 1;
 core::CorePointLight		g_pointLights[MAX_POINT_LIGHT];
 core::BufferID			g_pointLightBufferID;
 core::ShaderID			g_lightShaderID;
@@ -65,6 +65,7 @@ void TestScene::Start()
 	auto cubeMehID = device->createMesh("cube");
 	auto* pCubeMesh = device->getMesh(cubeMehID);
 	Geometry::Cube(*pCubeMesh);
+	//Geometry::Sphere(*pCubeMesh, 10, 1.0f, 1.0f / 10);
 
 	{
 		// テクスチャの生成
@@ -129,6 +130,9 @@ void TestScene::Start()
 
 		auto texID = device->createTexture(texDesc, &texData);
 		g_texID = texID;
+
+		// テクスチャの読み込み
+		g_texID = device->createTexture("Assets/TestTex01.png");
 
 		// シェーダー・マテリアルの生成
 		core::ShaderDesc shaderDesc;
@@ -258,7 +262,7 @@ void TestScene::Render()
 	auto* pPointLightBuffer = device->getBuffer(g_pointLightBufferID);
 
 	// カメラ
-	Vector3 eyepos = Vector3(0, 3, -5);
+	Vector3 eyepos = Vector3(0, 1, -0.2f) * 5;
 	Vector3 eyedir = Vector3(0, 0, 0);
 	Vector3 up = Vector3(0, 1, 0);
 	Matrix view = Matrix::CreateLookAt(eyepos, eyedir, up);
@@ -275,7 +279,7 @@ void TestScene::Render()
 
 	// ワールドマトリックス
 	static float angleY = 0;
-	angleY += 0.01f;
+	//angleY -= 0.01f;
 	float y = -8;
 	std::vector<Matrix> aWorld(MAX_WORLD);
 	int boxNum = 31;
@@ -314,6 +318,7 @@ void TestScene::Render()
 	pUnlitMat->setMatrix("_mProj", proj);
 
 	pLitMat->setVector3("_ViewPos", eyepos);
+	pLitMat->setVector4("_LitDir", Vector4(0.5f, -1, -1, 1));
 	pLitMat->setMatrix("_mView", view);
 	pLitMat->setMatrix("_mProj", proj);
 
@@ -321,7 +326,7 @@ void TestScene::Render()
 	{
 		static float litLen;
 		litLen += 0.03f;
-		Vector3 pointPos = Vector3(fabsf(sinf(litLen)) * 2.0f + 0.5f, 0, (cosf(litLen)) * 0.5f);
+		Vector3 pointPos = Vector3(fabsf(sinf(litLen)) * 2.0f + 0.5f, -1, (cosf(litLen)) * 0.5f);
 		static float litY;
 		litY -= 0.03f;
 		for (std::uint32_t i = 0; i < MAX_POINT_LIGHT; ++i)
@@ -330,7 +335,7 @@ void TestScene::Render()
 				litY + Mathf::TwoPi / MAX_POINT_LIGHT * (i % MAX_POINT_LIGHT)));
 			g_pointLights[i].range = 3;
 			if(i % 3 == 0)
-				g_pointLights[i].color = Vector4(1.0f, 0.1f, 0.1f, 1.0f);
+				g_pointLights[i].color = Vector4(1.0f, 1.1f, 1.1f, 1.0f);
 			else if(i % 3 == 1)
 				g_pointLights[i].color = Vector4(0.1f, 1.0f, 0.1f, 1.0f);
 			else if(i % 3 == 2)
@@ -371,15 +376,15 @@ void TestScene::Render()
 		//for (int i = 0; i < 100; ++i)
 		{
 			//cmdList->render(g_rdID, 1);
-			cmdList->render(g_litRdID, boxNum * boxNum);
+			//cmdList->render(g_litRdID, boxNum * boxNum);
 		}
 
 		// 床の描画
 		{
 			// マトリックス更新
 			Matrix world;
-			Vector3 pos = Vector3(0, 2, 0);
-			Vector3 rot = Vector3(-Mathf::Pi / 2, 0, 0);
+			Vector3 pos = Vector3(0, -3, 0);
+			Vector3 rot = Vector3(Mathf::Pi / 2, 0, angleY);
 			//Vector3 sca = Vector3(0.3f, 0.3f, 0.3f);
 			Vector3 sca = Vector3(5.0f, 5.0f, 5.0f);
 			world = Matrix::CreateScale(sca);

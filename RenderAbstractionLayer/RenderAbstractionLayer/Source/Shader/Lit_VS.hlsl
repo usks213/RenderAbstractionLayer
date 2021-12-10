@@ -4,15 +4,17 @@
 struct VS_INPUT {
 	float3	Position	: POSITION0;
 	float2	TexCoord	: TEXCOORD0;
-	float3	Normal	: NORMAL0;
-	uint		instID : SV_InstanceID;
+	float3	Normal		: NORMAL0;
+	float3	Tangent		: TANGENT0;
+	uint	instID		: SV_InstanceID;
 };
 
 struct VS_OUTPUT {
-	float4	Position		: SV_Position;
+	float4	Position	: SV_Position;
 	float2 TexCoord		: TEXCOORD0;
 	float3 WorldPos		: POSITION0;
 	float3 Normal		: NORMAL0;
+	float3x3 TBN		: TEXCOORD2;
 };
 
 // トランスフォーム定数バッファ
@@ -41,6 +43,13 @@ VS_OUTPUT VS(VS_INPUT input)
 	
 	output.WorldPos = mul(float4(input.Position, 1.0f), _mWorld[n]).xyz;
 	output.Normal = mul(input.Normal, (float3x3) _mWorld[n]).xyz;
+	
+	// 法線
+	float3 N = normalize(input.Normal);
+	float3 T = normalize(input.Tangent);
+	float3 B = normalize(cross(N, T));
+	float3x3 TBN = transpose(float3x3(T, B, N));
+	output.TBN = mul((float3x3)_mWorld[n], TBN);
 	
 	return output;
 }

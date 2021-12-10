@@ -10,6 +10,9 @@
 #include "D3D11_CommonState.h"
 using namespace d3d11;
 
+#include <Utility\Util_TextureLoader.h>
+#include <Library\DirectXTex\DirectXTex.h>
+
 
 //------------------------------------------------------------------------------
 // local methods
@@ -41,7 +44,19 @@ D3D11Texture::D3D11Texture(ID3D11Device1* pDevice, const core::TextureID& id, co
 	m_srv(nullptr),
     m_uav(nullptr)
 {
+    // テクスチャローダー
+    util::TextureLoader texLoader(filepath);
+    m_desc = texLoader.GetDesc();
+    DirectX::TexMetadata* meta = texLoader.GetMetaData();
+    DirectX::ScratchImage* image = texLoader.GetScratchImage();
+    if (meta == nullptr || image == nullptr) return;
 
+    // テクスチャの作成
+    DirectX::CreateTexture(pDevice, image->GetImages(), image->GetImageCount(),
+        *meta, reinterpret_cast<ID3D11Resource**>(m_tex.ReleaseAndGetAddressOf()));
+    // シェーダーリソースビュー
+    DirectX::CreateShaderResourceView(pDevice, image->GetImages(), image->GetImageCount(),
+        *meta, m_srv.ReleaseAndGetAddressOf());
 }
 
 /// @brief コンストラクタ(Descから生成)

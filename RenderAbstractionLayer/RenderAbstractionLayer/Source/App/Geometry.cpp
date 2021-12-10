@@ -38,10 +38,10 @@ void Geometry::Quad(core::CoreMesh& out)
 	
 	// 法線ベクトルの設定
 	// 前
-	vertexWk[0].nor = Vector3(0.0f, 0.0f, -1.0f);
-	vertexWk[1].nor = Vector3(0.0f, 0.0f, -1.0f);
-	vertexWk[2].nor = Vector3(0.0f, 0.0f, -1.0f);
-	vertexWk[3].nor = Vector3(0.0f, 0.0f, -1.0f);
+	vertexWk[0].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[1].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[2].nor = Vector3(0.0f, 0.0f, 1.0f);
+	vertexWk[3].nor = Vector3(0.0f, 0.0f, 1.0f);
 
 	// 拡散反射光の設定
 	for (std::uint32_t i = 0; i < QUAD_VERTEX; i++)
@@ -70,6 +70,9 @@ void Geometry::Quad(core::CoreMesh& out)
 
 	// インデックス
 	out.m_indexCount = 0;
+
+	// 接線ベクトルの生成
+	CalcTangent(out);
 }
 
 void Geometry::Plane(core::CoreMesh& out, int split, float size, float texSize)
@@ -143,6 +146,9 @@ void Geometry::Plane(core::CoreMesh& out, int split, float size, float texSize)
 	{
 		out.m_indexData.push_back(pIndexWk[i]);
 	}
+
+	// 接線ベクトルの生成
+	CalcTangent(out);
 
 	// 一時配列の解放
 	delete[] pVertexWk;
@@ -272,6 +278,9 @@ void Geometry::Cube(core::CoreMesh& out)
 	{
 		out.m_indexData.push_back(static_cast<std::uint32_t>(indexWk[i]));
 	}
+
+	// 接線ベクトルの生成
+	CalcTangent(out);
 }
 
 void Geometry::Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSize)
@@ -364,6 +373,9 @@ void Geometry::Sphere(core::CoreMesh& out, int nSplit, float fSize, float fTexSi
 		out.m_indexData.push_back(pIndexWk[i]);
 	}
 
+	// 接線ベクトルの生成
+	CalcTangent(out);
+
 	// 一時配列の解放
 	delete[] pVertexWk;
 	delete[] pIndexWk;
@@ -453,4 +465,127 @@ void Geometry::SkyDome(core::CoreMesh& out, int nSegment, float fTexSplit)
 	// 一時配列の解放
 	delete[] pVertexWk;
 	delete[] pIndexWk;
+}
+
+bool Geometry::CalcTangent(core::CoreMesh& mesh)
+{
+	//--- 接ベクトルを計算
+	bool useIndex = mesh.m_indexCount > 0;
+	mesh.m_vertexData.tangents.resize(mesh.m_vertexCount);
+	std::vector<std::uint32_t> duplicateVtxCount(mesh.m_vertexCount); // 重複頂点数
+	// 面数の計算
+	std::uint32_t faceNum = 0;
+	switch (mesh.m_topology)
+	{
+	case core::PrimitiveTopology::TRIANGLE_LIST:
+		faceNum = (useIndex ? mesh.m_indexCount : mesh.m_vertexCount) / 3;
+		break;
+	case core::PrimitiveTopology::TRIANGLE_STRIP:
+		faceNum = (useIndex ? mesh.m_indexCount : mesh.m_vertexCount) - 2;
+		break;
+	default:
+		return false; // 未対応
+	}
+
+	std::vector<Vector3>& pos = mesh.m_vertexData.positions;
+	std::vector<Vector2>& uv = mesh.m_vertexData.texcoord0s;
+
+	// 面ごとに接ベクトルを計算
+	for (std::uint32_t i = 0; i < faceNum; ++i)
+	{
+		// インデックスの割り出し
+		std::uint32_t index[3];
+		if (CalcIndex(index, mesh, i) == false)
+		{
+			return false;
+		}
+
+		// バンプマップ用
+		Vector3 v0 = pos[index[1]] - pos[index[0]];
+		Vector3 v1 = pos[index[2]] - pos[index[0]];
+		Vector2 t0 = uv[index[1]] - uv[index[0]];
+		Vector2 t1 = uv[index[2]] - uv[index[0]];
+		// 外積
+		float t = t0.x * t1.y - t1.x * t0.y;
+		// タンジェント
+		Vector3 tangent(
+			(t1.y * v0.x - t0.y * v1.x) / t,
+			(t1.y * v0.y - t0.y * v1.y) / t,
+			(t1.y * v0.z - t0.y * v1.z) / t
+		);
+		// 正規化
+		tangent.Normalize();
+		// 格納
+		mesh.m_vertexData.tangents[index[0]] += tangent;
+		mesh.m_vertexData.tangents[index[1]] += tangent;
+		mesh.m_vertexData.tangents[index[2]] += tangent;
+		// カウント加算
+		duplicateVtxCount[index[0]] ++;
+		duplicateVtxCount[index[1]] ++;
+		duplicateVtxCount[index[2]] ++;
+	}
+
+	// 重複数で接ベクトルを平均化
+	for (std::uint32_t i = 0; i < mesh.m_vertexCount; ++i)
+	{
+		mesh.m_vertexData.tangents[i].x /= duplicateVtxCount[i];
+		mesh.m_vertexData.tangents[i].y /= duplicateVtxCount[i];
+		mesh.m_vertexData.tangents[i].z /= duplicateVtxCount[i];
+	}
+
+	return true;
+}
+
+bool Geometry::CalcIndex(std::uint32_t* pOut, core::CoreMesh& mesh, std::uint32_t face)
+{
+	bool useIndex = mesh.m_indexCount > 0;
+	switch (mesh.m_topology)
+	{
+	case core::PrimitiveTopology::TRIANGLE_LIST:
+		if (useIndex)
+		{
+			for (std::uint32_t i = 0; i < 3; ++i)
+			{
+				// インデックスサイズで場合分け
+				/*switch ()
+				{
+				case 1: pOut[i] = reinterpret_cast<const BYTE*>(desc.pIdx)[face * 3 + i]; break;
+				case 2: pOut[i] = reinterpret_cast<const WORD*>(desc.pIdx)[face * 3 + i]; break;
+				case 4: pOut[i] = reinterpret_cast<const DWORD*>(desc.pIdx)[face * 3 + i]; break;
+				}*/
+				pOut[i] = mesh.m_indexData[face * 3 + i];
+			}
+		}
+		else
+		{
+			for (std::uint32_t i = 0; i < 3; ++i)
+				pOut[i] = face * 3 + i;
+		}
+		break;
+	case core::PrimitiveTopology::TRIANGLE_STRIP:
+		if (useIndex)
+		{
+			for (std::uint32_t i = 0; i < 3; ++i)
+			{
+				// インデックスサイズで場合分け
+				/*switch (desc.idxSize)
+				{
+				case 1: pOut[i] = reinterpret_cast<const BYTE*>(desc.pIdx)[face + i]; break;
+				case 2: pOut[i] = reinterpret_cast<const WORD*>(desc.pIdx)[face + i]; break;
+				case 4: pOut[i] = reinterpret_cast<const DWORD*>(desc.pIdx)[face + i]; break;
+				}*/
+				pOut[i] = mesh.m_indexData[face + i];
+			}
+		}
+		else
+		{
+			for (std::uint32_t i = 0; i < 3; ++i)
+				pOut[i] = face + i;
+		}
+		break;
+	default:
+		return false;
+	}
+
+	return true;
 }
