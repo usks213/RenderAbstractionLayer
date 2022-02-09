@@ -19,6 +19,7 @@ core::ShaderID			g_shaderID;
 core::MaterialID			g_matID;
 core::RenderBufferID		g_rdID;
 core::TextureID			g_texID;
+core::TextureID			g_normalTexID;
 
 constexpr std::uint32_t MAX_WORLD_BUFFER = 2;
 core::BufferID			g_worldID[MAX_WORLD_BUFFER];
@@ -133,6 +134,9 @@ void TestScene::Start()
 
 		// テクスチャの読み込み
 		g_texID = device->createTexture("Assets/TestTex01.png");
+		g_normalTexID = device->createTexture("Assets/sampledNormals.jpg");
+		g_normalTexID = device->createTexture("Assets/Normal.png");
+		
 
 		// シェーダー・マテリアルの生成
 		core::ShaderDesc shaderDesc;
@@ -217,6 +221,7 @@ void TestScene::Start()
 		pMat->setUint("_PointLightNum", MAX_POINT_LIGHT);
 		pMat->setSampler("_Sampler", core::SamplerState::LINEAR_WRAP);
 		pMat->setTexture("_Texture", g_texID);
+		pMat->setTexture("_NormalTexture", g_normalTexID);
 		pMat->setMatrix("_mTex", texMatrix);
 
 		// ポイントライトバッファ作成
@@ -328,18 +333,18 @@ void TestScene::Render()
 		litLen += 0.03f;
 		Vector3 pointPos = Vector3(fabsf(sinf(litLen)) * 2.0f + 0.5f, -1, (cosf(litLen)) * 0.5f);
 		static float litY;
-		litY -= 0.03f;
+		litY -= 0.02f;
 		for (std::uint32_t i = 0; i < MAX_POINT_LIGHT; ++i)
 		{
 			g_pointLights[i].position = Vector3::Transform(pointPos, Matrix::CreateRotationY(
 				litY + Mathf::TwoPi / MAX_POINT_LIGHT * (i % MAX_POINT_LIGHT)));
-			g_pointLights[i].range = 3;
+			g_pointLights[i].range = 5;
 			if(i % 3 == 0)
-				g_pointLights[i].color = Vector4(1.0f, 1.1f, 1.1f, 1.0f);
+				g_pointLights[i].color = Vector4(1.0f, 1.1f, 1.1f, 0.2f);
 			else if(i % 3 == 1)
-				g_pointLights[i].color = Vector4(0.1f, 1.0f, 0.1f, 1.0f);
+				g_pointLights[i].color = Vector4(0.1f, 1.0f, 0.1f, 0.5f);
 			else if(i % 3 == 2)
-				g_pointLights[i].color = Vector4(0.1f, 0.1f, 1.0f, 1.0f);
+				g_pointLights[i].color = Vector4(0.1f, 0.1f, 1.0f, 0.5f);
 		}
 
 

@@ -24,6 +24,7 @@ cbuffer Material : register(b0)
 
 // テクスチャ
 Texture2D _Texture : register(t0);				// メインテクスチャ
+Texture2D _NormalTexture : register(t1);		// ノーマルテクスチャ
 SamplerState _Sampler : register(s0);			// メインサンプラ
 
 // ポイントライト
@@ -59,15 +60,19 @@ float3 Unity_NormalFromHeight_World(float In, float3x3 TBN, float3 Position)
 float4 PS(VS_OUTPUT input) : SV_Target0
 {
 	float4 Color = _Color;
-	Color *= _Texture.Sample(_Sampler, input.TexCoord);
+	//Color *= _Texture.Sample(_Sampler, input.TexCoord);
 	float3 Result = float3(0, 0, 0);
 
 	// パラメータ
 	float3 pos = input.WorldPos;
-	float3 N = normalize(input.Normal);
+	float3 texNormal = _NormalTexture.Sample(_Sampler, input.TexCoord).rgb;
+	texNormal.z *= -1;
+	float3 N = normalize(mul(input.TBN, texNormal));
+	
 	// Height to Normal
 	N = normalize(Unity_NormalFromHeight_World(
-	fBm(input.TexCoord * 3) * 200, input.TBN, pos));
+	fBm(input.TexCoord * 5) * 200, input.TBN, pos));
+	N.z *= -1;
 	
 	//Result = N;
 	
@@ -77,7 +82,7 @@ float4 PS(VS_OUTPUT input) : SV_Target0
 	// ディレクショナルライト
 	{
 		DirectionalLightData data;
-		data.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+		data.color = float4(1.0f, 1.0f, 1.0f, 0.0f);
 		data.ambient = data.color * 0.0f;
 		data.direction = _LitDir;
 		

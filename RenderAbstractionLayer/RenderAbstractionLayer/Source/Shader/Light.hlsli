@@ -38,6 +38,7 @@ float3 PointLightColor(PointLightData data, float3 worldPos)
 
 	//float att = 1.0f / dot(data.attenuation.rgb, float3(1.0f, d, d * d));
 	float att = data.range / (d * d);
+	//float att = data.range / pow(d, 1.1f);
 	
 	return data.color.rgb * att * data.color.w;
 }
